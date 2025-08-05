@@ -1,0 +1,738 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSIPP - Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 80%, 0 100%);
+        }
+        .section-padding {
+            padding: 5rem 1rem;
+        }
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+        }
+        .nav-link {
+            position: relative;
+            font-weight: 500;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #1e3a8a, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .event-card {
+            background: linear-gradient(145deg, #ffffff, #f3f4f6);
+            border: 1px solid #e5e7eb;
+        }
+        .publication-card {
+            background: white;
+            border-left: 4px solid #3b82f6;
+        }
+        .tcc-card {
+            background: linear-gradient(145deg, #ffffff, #f9fafb);
+            border-left: 4px solid #10b981;
+        }
+        .pagination-btn {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            background-color: #3b82f6;
+            color: white;
+        }
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .academic-tag {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .tag-graduacao { background-color: #fef08a; color: #854d0e; }
+        .tag-mestrado { background-color: #a5f3fc; color: #155e75; }
+        .tag-doutorado { background-color: #a7f3d0; color: #065f46; }
+        .status-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background-color: #6b7280;
+            color: white;
+        }
+        .modal {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: translateY(-10px);
+        }
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+        }
+        .publication-link-btn {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .publication-link-btn:hover {
+            background-color: #3b82f6;
+            color: white;
+        }
+        @media (max-width: 640px) {
+            .section-padding {
+                padding: 3rem 1rem;
+            }
+            .hero-bg {
+                clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+            }
+            .text-5xl {
+                font-size: 2.5rem;
+            }
+            .text-4xl {
+                font-size: 2rem;
+            }
+            .grid-cols-3, .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+            .tcc-card iframe {
+                width: 100%;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="hero-bg text-white py-20">
+        <div class="container mx-auto text-center px-4">
+            <h1 class="text-5xl md:text-6xl font-bold gradient-text">GSIPP</h1>
+            <p class="text-xl md:text-2xl mt-4">Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade</p>
+            <p class="text-md mt-2 opacity-90">Universidade Federal do Ceará - Campus Crateús</p>
+            <a href="#sobre" class="mt-8 inline-block bg-white text-blue-600 font-semibold py-3 px-8 rounded-full hover:bg-blue-100 transition">Conheça o GSIPP</a>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-20">
+        <div class="container mx-auto px-4">
+            <ul class="flex flex-wrap justify-center space-x-4 md:space-x-8 py-5">
+                <li><a href="#sobre" class="text-blue-700 nav-link">Sobre</a></li>
+                <li><a href="#linhas-pesquisa" class="text-blue-700 nav-link">Linhas de Pesquisa</a></li>
+                <li><a href="#membros" class="text-blue-700 nav-link">Membros</a></li>
+                <li><a href="#publicacoes" class="text-blue-700 nav-link">Publicações</a></li>
+                <li><a href="#eventos" class="text-blue-700 nav-link">Eventos</a></li>
+                <li><a href="#tcc" class="text-blue-700 nav-link">Transmissões de TCC</a></li>
+                <li><a href="#galerias" class="text-blue-700 nav-link">Galerias</a></li>
+                <li><a href="#noticias" class="text-blue-700 nav-link">Notícias</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sobre Section -->
+    <section id="sobre" class="section-padding bg-white">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">Sobre o GSIPP</h2>
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="md:w-1/2">
+                    <img src="https://via.placeholder.com/600x400?text=GSIPP+Campus" alt="Campus UFC Crateús" class="w-full h-64 object-cover rounded-xl shadow-lg">
+                </div>
+                <div class="md:w-1/2">
+                    <p class="text-lg text-gray-700 leading-relaxed">
+                        O <strong>Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade (GSIPP)</strong>, sediado no campus de Crateús da Universidade Federal do Ceará (UFC), é um coletivo de professores, técnico-administrativos e estudantes de graduação e pós-graduação. Nosso objetivo principal é impulsionar a pesquisa em segurança cibernética, criptografia, privacidade e identidade digital, contribuindo para o avanço do conhecimento em segurança da informação.
+                    </p>
+                    <p class="text-lg text-gray-700 leading-relaxed mt-6">
+                        Nossas pesquisas seguem metodologias científicas rigorosas, com foco na análise de vulnerabilidades e no desenvolvimento de soluções inovadoras para segurança computacional. Além disso, organizamos seminários e workshops dentro e fora da UFC, promovendo a disseminação do conhecimento e a colaboração acadêmica.
+                    </p>
+                    <a href="#linhas-pesquisa" class="mt-6 inline-block text-blue-700 hover:text-blue-900 font-semibold">Conheça nossas Linhas de Pesquisa</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Linhas de Pesquisa Section -->
+    <section id="linhas-pesquisa" class="section-padding bg-gray-50">
+        <div class="container mx-auto max-w-6xl px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">Linhas de Pesquisa</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-shield-alt text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Segurança Cibernética</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Desenvolvimento de técnicas avançadas para proteger sistemas contra ameaças cibernéticas, garantindo a integridade e confidencialidade de dados.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-key text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Criptografia</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Pesquisa em algoritmos criptográficos, com ênfase em criptografia pós-quântica e homomórfica para segurança de dados.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-eye-slash text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Privacidade de Dados</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Estudos sobre privacidade diferencial e proteção de dados sensíveis em ambientes distribuídos, promovendo segurança e conformidade.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-id-card text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Identidade Digital</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Exploração de autenticação segura, biometria e tecnologias blockchain para gestão eficiente e segura de identidades digitais.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-network-wired text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Segurança em IoT</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Soluções inovadoras para proteger dispositivos conectados em redes de Internet das Coisas, garantindo segurança em ambientes críticos.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-search text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Análise de Vulnerabilidades</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Identificação e mitigação de vulnerabilidades em sistemas e redes computacionais, com foco em segurança proativa.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Coordenador Section -->
+    <section class="section-padding bg-gray-100">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Coordenador do GSIPP</h2>
+            <div class="flex flex-col md:flex-row items-center gap-8 bg-white p-8 rounded-xl shadow-lg card-hover">
+                <img src="https://via.placeholder.com/300?text=Lucas+Campos+Sales" alt="Lucas Campos Sales" class="w-48 h-48 md:w-64 md:h-64 rounded-full border-4 border-blue-100 object-cover">
+                <div>
+                    <h3 class="text-3xl font-semibold text-gray-800">Lucas Campos Sales</h3>
+                    <p class="text-lg text-gray-600 mt-2">Coordenador do GSIPP</p>
+                    <p class="text-gray-600 mt-4">Liderando iniciativas de pesquisa em segurança da informação, Lucas Campos Sales é doutor em Ciência da Computação e tem vasta experiência em criptografia e privacidade de dados.</p>
+                    <div class="flex space-x-6 mt-4">
+                        <a href="#" class="text-blue-600 hover:text-blue-800 transition"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 transition">Lattes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Membros Section -->
+    <section id="membros" class="section-padding bg-white">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Nossos Membros</h2>
+            <div id="membros-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"></div>
+            <div class="flex justify-center mt-8 space-x-4">
+                <button id="membros-prev-page" class="pagination-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-lg disabled:opacity-50">Anterior</button>
+                <span id="membros-page-info" class="text-gray-600 py-2 px-4"></span>
+                <button id="membros-next-page" class="pagination-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-lg disabled:opacity-50">Próximo</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Publicações Section -->
+    <section id="publicacoes" class="section-padding bg-gray-100">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Publicações</h2>
+            <div class="grid grid-cols-1 gap-6">
+                <div class="publication-card p-6 rounded-xl shadow-lg card-hover">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Análise de Vulnerabilidades em Redes IoT</h3>
+                    <p class="text-gray-600 text-sm mb-2">Conferência Internacional de Segurança da Informação, 2025</p>
+                    <p class="text-gray-700 text-base mb-3">
+                        <strong>Autores:</strong>
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Membro 1</a>,
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Membro 2</a>,
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Lucas Campos Sales</a>
+                        (Universidade Federal do Ceará - Campus Crateús)
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="publication-link-btn bg-blue-100 text-blue-600 font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 hover:text-white transition">
+                            <i class="fas fa-file-pdf mr-2"></i> Ler Artigo
+                        </a>
+                        <a href="#" class="publication-link-btn bg-gray-100 text-gray-600 font-semibold py-2 px-4 rounded-lg hover:bg-gray-600 hover:text-white transition">
+                            <i class="fas fa-link mr-2"></i> DOI
+                        </a>
+                    </div>
+                </div>
+                <div class="publication-card p-6 rounded-xl shadow-lg card-hover">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Criptografia Pós-Quântica: Desafios e Oportunidades</h3>
+                    <p class="text-gray-600 text-sm mb-2">Journal de Segurança Computacional, 2024</p>
+                    <p class="text-gray-700 text-base mb-3">
+                        <strong>Autores:</strong>
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Membro 3</a>,
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Membro 4</a>,
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Lucas Campos Sales</a>
+                        (Universidade Federal do Ceará - Campus Crateús)
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="publication-link-btn bg-blue-100 text-blue-600 font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 hover:text-white transition">
+                            <i class="fas fa-file-pdf mr-2"></i> Ler Artigo
+                        </a>
+                        <a href="#" class="publication-link-btn bg-gray-100 text-gray-600 font-semibold py-2 px-4 rounded-lg hover:bg-gray-600 hover:text-white transition">
+                            <i class="fas fa-link mr-2"></i> DOI
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Eventos Section -->
+    <section id="eventos" class="section-padding bg-white">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Eventos</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div class="event-card p-8 rounded-xl shadow-lg card-hover">
+                    <img src="https://via.placeholder.com/400x200?text=Evento+1" alt="Workshop de Segurança" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">Workshop de Segurança Cibernética</h3>
+                    <p class="text-gray-600 mt-3"><strong>Data:</strong> DD/MM/AAAA</p>
+                    <p class="text-gray-600"><strong>Local:</strong> UFC Crateús</p>
+                    <p class="text-gray-600 mt-3">Um workshop prático sobre as últimas tendências em segurança cibernética, com palestras e atividades interativas.</p>
+                    <a href="#" class="text-blue-600 hover:text-blue-800 mt-4 inline-block font-semibold">Saiba Mais</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transmissões de TCC Section -->
+    <section id="tcc" class="section-padding bg-gray-100">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Transmissões de TCC</h2>
+            <div id="tcc-container" class="grid grid-cols-1 gap-8"></div>
+        </div>
+    </section>
+
+    <!-- Galerias Section -->
+    <section id="galerias" class="section-padding bg-white">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Galerias</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="relative rounded-xl shadow-lg card-hover">
+                    <img src="https://via.placeholder.com/400?text=Evento+1" alt="Evento 1" class="w-full h-64 object-cover rounded-xl">
+                    <div class="absolute bottom-0 w-full bg-black bg-opacity-60 text-white text-center py-2 rounded-b-xl">
+                        <p class="font-semibold">Workshop de Criptografia 2025</p>
+                    </div>
+                </div>
+                <div class="relative rounded-xl shadow-lg card-hover">
+                    <img src="https://via.placeholder.com/400?text=Evento+2" alt="Evento 2" class="w-full h-64 object-cover rounded-xl">
+                    <div class="absolute bottom-0 w-full bg-black bg-opacity-60 text-white text-center py-2 rounded-b-xl">
+                        <p class="font-semibold">Seminário de Privacidade</p>
+                    </div>
+                </div>
+                <div class="relative rounded-xl shadow-lg card-hover">
+                    <img src="https://via.placeholder.com/400?text=Evento+3" alt="Evento 3" class="w-full h-64 object-cover rounded-xl">
+                    <div class="absolute bottom-0 w-full bg-black bg-opacity-60 text-white text-center py-2 rounded-b-xl">
+                        <p class="font-semibold">Conferência de Segurança</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notícias Section -->
+    <section id="noticias" class="section-padding bg-gray-100">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Notícias</h2>
+            <div id="noticias-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"></div>
+            <div class="flex justify-center mt-8 space-x-4">
+                <button id="noticias-prev-page" class="pagination-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-lg disabled:opacity-50">Anterior</button>
+                <span id="noticias-page-info" class="text-gray-600 py-2 px-4"></span>
+                <button id="noticias-next-page" class="pagination-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-lg disabled:opacity-50">Próximo</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal for Full News -->
+    <div id="news-modal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-50">
+        <div class="modal bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 p-8 transform scale-95">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="modal-title" class="text-2xl font-semibold text-gray-800"></h3>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times fa-lg"></i></button>
+            </div>
+            <img id="modal-image" src="" alt="" class="w-full h-48 object-cover rounded-lg mb-4">
+            <p id="modal-date" class="text-gray-600 mb-4"></p>
+            <p id="modal-description" class="text-gray-700"></p>
+            <p id="modal-full-text" class="text-gray-700 mt-4"></p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold gradient-text">GSIPP</h3>
+                    <p class="mt-4 text-gray-300">Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade, Campus Crateús, UFC.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-white">Links Úteis</h3>
+                    <ul class="mt-4 space-y-2">
+                        <li><a href="#sobre" class="text-gray-300 hover:text-blue-400 transition">Sobre</a></li>
+                        <li><a href="#linhas-pesquisa" class="text-gray-300 hover:text-blue-400 transition">Linhas de Pesquisa</a></li>
+                        <li><a href="#publicacoes" class="text-gray-300 hover:text-blue-400 transition">Publicações</a></li>
+                        <li><a href="#eventos" class="text-gray-300 hover:text-blue-400 transition">Eventos</a></li>
+                        <li><a href="#tcc" class="text-gray-300 hover:text-blue-400 transition">Transmissões de TCC</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-white">Contato</h3>
+                    <p class="mt-4 text-gray-300">Email: <a href="mailto:contato@gsipp.ufc.br" class="underline hover:text-blue-400 transition">contato@gsipp.ufc.br</a></p>
+                    <div class="flex space-x-6 mt-4">
+                        <a href="#" class="text-gray-300 hover:text-blue-400 transition"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-blue-400 transition"><i class="fab fa-twitter fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-gray-400 mt-8">&copy; 2025 GSIPP - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+            if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+                try {
+                    var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                    var firstSheetName = workbook.SheetNames[0];
+                    var worksheet = workbook.Sheets[firstSheetName];
+
+                    // Convert sheet to JSON to filter blank rows
+                    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                    // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                    var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                    // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                    var headerRowIndex = filteredData.findIndex((row, index) =>
+                      row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                    );
+                    // Fallback
+                    if (headerRowIndex === -1 || headerRowIndex > 25) {
+                      headerRowIndex = 0;
+                    }
+
+                    // Convert filtered JSON back to CSV
+                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                    csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                    return csv;
+                } catch (e) {
+                    console.error(e);
+                    return "";
+                }
+            }
+            return gk_fileData[filename] || "";
+        }
+
+        // Sample JSON data for notícias
+        const noticias = [
+            {
+                title: "GSIPP organiza workshop sobre criptografia",
+                date: "01/08/2025",
+                description: "O GSIPP realizou um workshop sobre avanços em criptografia, com participação de especialistas nacionais.",
+                fullText: "O GSIPP promoveu um workshop de dois dias focado em avanços em criptografia, abordando temas como criptografia pós-quântica e segurança em redes 5G. O evento contou com palestras de especialistas nacionais e atividades práticas, atraindo mais de 100 participantes, incluindo estudantes e profissionais da área.",
+                image: "https://via.placeholder.com/400x200?text=Workshop+Criptografia"
+            },
+            {
+                title: "Nova publicação do GSIPP em conferência internacional",
+                date: "15/07/2025",
+                description: "Membros do GSIPP publicaram um artigo sobre privacidade de dados na conferência XYZ.",
+                fullText: "O artigo, intitulado 'Privacidade Diferencial em Sistemas Distribuídos', foi apresentado na conferência XYZ, uma das mais prestigiadas na área de segurança da informação. A pesquisa propõe novas técnicas para proteger dados sensíveis em ambientes distribuídos, com resultados promissores em testes simulados.",
+                image: "https://via.placeholder.com/400x200?text=Publicação+Internacional"
+            },
+            {
+                title: "Seminário sobre Identidade Digital",
+                date: "10/06/2025",
+                description: "O GSIPP promoveu um seminário sobre os desafios e avanços em identidade digital.",
+                fullText: "O seminário reuniu acadêmicos e profissionais para discutir os desafios éticos e técnicos da identidade digital. Foram abordados temas como autenticação biométrica, blockchain e regulamentações de privacidade. O evento foi transmitido ao vivo e está disponível no canal do GSIPP no YouTube.",
+                image: "https://via.placeholder.com/400x200?text=Seminário+Identidade"
+            },
+            {
+                title: "GSIPP recebe financiamento para projeto",
+                date: "20/05/2025",
+                description: "Novo projeto de pesquisa em segurança cibernética recebe apoio de agência nacional.",
+                fullText: "O GSIPP recebeu um financiamento de R$500 mil de uma agência nacional para desenvolver um projeto inovador em segurança cibernética voltado para IoT. A iniciativa, liderada pelo coordenador Lucas Campos Sales, visa criar soluções escaláveis para proteger dispositivos conectados em redes críticas.",
+                image: "https://via.placeholder.com/400x200?text=Financiamento"
+            }
+        ];
+
+        // Sample JSON data for TCC transmissions
+        const tccTransmissions = [
+            {
+                title: "TCC I - Laercio Levi Silva de Melo",
+                student: "Laercio Levi Silva de Melo",
+                date: "15/07/2025",
+                description: "Defesa de TCC sobre segurança em dispositivos IoT.",
+                youtubeLink: "https://www.youtube.com/embed/3m-ZQFiZVfs",
+                tccLink: "#"
+            },
+            {
+                title: "Defesa de TCC: Privacidade em Blockchain",
+                student: "Nome do Estudante",
+                date: "20/08/2025",
+                description: "Apresentação sobre os desafios de privacidade em tecnologias blockchain.",
+                youtubeLink: "https://www.youtube.com/embed/3m-ZQFiZVfs",
+                tccLink: "#"
+            }
+        ];
+
+        // Sample JSON data for membros
+        const membros = [
+            { name: "Membro 1", area: "Segurança Cibernética", level: "graduacao", linkedin: "#", lattes: "#" },
+            { name: "Membro 2", area: "Criptografia", level: "mestrado", linkedin: "#", lattes: "#" },
+            { name: "Membro 3", area: "Privacidade de Dados", level: "doutorado", linkedin: "#", lattes: "#" },
+            { name: "Membro 4", area: "Segurança em Redes", level: "graduacao", linkedin: "#", lattes: "#" },
+            { name: "Membro 5", area: "Identidade Digital", level: "mestrado", linkedin: "#", lattes: "#" },
+            { name: "Membro 6", area: "Análise de Vulnerabilidades", level: "doutorado", linkedin: "#", lattes: "#" },
+            { name: "Membro 7", area: "Segurança em IoT", level: "graduacao", linkedin: "#", lattes: "#" }
+        ];
+
+        // Pagination variables
+        const membrosPerPage = 6;
+        const noticiasPerPage = 3;
+        let membrosCurrentPage = 1;
+        let noticiasCurrentPage = 1;
+
+        // Function to populate membros
+        function loadMembros(page) {
+            const container = document.getElementById('membros-container');
+            container.innerHTML = '';
+            const start = (page - 1) * membrosPerPage;
+            const end = start + membrosPerPage;
+            const paginatedMembros = membros.slice(start, end);
+
+            paginatedMembros.forEach(membro => {
+                const membroCard = document.createElement('div');
+                membroCard.className = 'bg-white p-8 rounded-xl shadow-lg card-hover relative';
+                membroCard.innerHTML = `
+                    <span class="academic-tag tag-${membro.level} absolute top-4 right-4">
+                        <i class="fas fa-${membro.level === 'graduacao' ? 'graduation-cap' : membro.level === 'mestrado' ? 'book' : 'university'} mr-1"></i>
+                        ${membro.level.charAt(0).toUpperCase() + membro.level.slice(1)}
+                    </span>
+                    <img src="https://via.placeholder.com/150" alt="${membro.name}" class="w-36 h-36 rounded-full mx-auto border-4 border-blue-100 object-cover">
+                    <h3 class="text-2xl font-semibold text-center mt-6 text-gray-800">${membro.name}</h3>
+                    <p class="text-gray-600 text-center mt-2">Pesquisador em ${membro.area}</p>
+                    <div class="flex justify-center space-x-6 mt-4">
+                        <a href="${membro.linkedin}" class="text-blue-600 hover:text-blue-800 transition"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="${membro.lattes}" class="text-blue-600 hover:text-blue-800 transition">Lattes</a>
+                    </div>
+                `;
+                container.appendChild(membroCard);
+            });
+
+            // Update pagination info
+            document.getElementById('membros-page-info').textContent = `Página ${page} de ${Math.ceil(membros.length / membrosPerPage)}`;
+            document.getElementById('membros-prev-page').disabled = page === 1;
+            document.getElementById('membros-next-page').disabled = page === Math.ceil(membros.length / membrosPerPage);
+        }
+
+        // Function to populate TCC transmissions
+        function loadTccTransmissions() {
+            const container = document.getElementById('tcc-container');
+            container.innerHTML = '';
+            tccTransmissions.forEach(tcc => {
+                const tccCard = document.createElement('div');
+                tccCard.className = 'tcc-card p-8 rounded-xl shadow-lg card-hover flex flex-col md:flex-row gap-6 relative';
+                tccCard.innerHTML = `
+                    <div class="md:w-1/2">
+                        <iframe class="w-full h-48 md:h-64 rounded-lg" src="${tcc.youtubeLink}" title="${tcc.title}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    </div>
+                    <div class="md:w-1/2">
+                        <span class="status-tag absolute top-4 right-4"><i class="fas fa-film mr-1"></i>Encerrado</span>
+                        <h3 class="text-2xl font-semibold text-gray-800">${tcc.title}</h3>
+                        <p class="text-gray-600 mt-3"><strong>Discente:</strong> ${tcc.student}</p>
+                        <p class="text-gray-600"><strong>Data da Defesa:</strong> ${tcc.date}</p>
+                        <p class="text-gray-600 mt-3">${tcc.description}</p>
+                        <div class="flex space-x-4 mt-4">
+                            <a href="${tcc.tccLink}" target="_blank" class="text-blue-600 hover:text-blue-800 font-semibold"><i class="fas fa-file-pdf mr-1"></i>Ler TCC</a>
+                            <a href="${tcc.youtubeLink}" target="_blank" class="text-blue-600 hover:text-blue-800 font-semibold"><i class="fab fa-youtube mr-1"></i>Assistir no YouTube</a>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(tccCard);
+            });
+        }
+
+        // Function to populate notícias
+        function loadNoticias(page) {
+            const container = document.getElementById('noticias-container');
+            container.innerHTML = '';
+            const start = (page - 1) * noticiasPerPage;
+            const end = start + noticiasPerPage;
+            const paginatedNoticias = noticias.slice(start, end);
+
+            paginatedNoticias.forEach((noticia, index) => {
+                const noticiaCard = document.createElement('div');
+                noticiaCard.className = 'bg-white p-8 rounded-xl shadow-lg card-hover';
+                noticiaCard.innerHTML = `
+                    <img src="${noticia.image}" alt="${noticia.title}" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">${noticia.title}</h3>
+                    <p class="text-gray-600 mt-3">Data: ${noticia.date}</p>
+                    <p class="text-gray-600 mt-3">${noticia.description}</p>
+                    <button class="text-blue-600 hover:text-blue-800 mt-4 font-semibold read-more" data-index="${start + index}">Leia Mais</button>
+                `;
+                container.appendChild(noticiaCard);
+            });
+
+            // Update pagination info
+            document.getElementById('noticias-page-info').textContent = `Página ${page} de ${Math.ceil(noticias.length / noticiasPerPage)}`;
+            document.getElementById('noticias-prev-page').disabled = page === 1;
+            document.getElementById('noticias-next-page').disabled = page === Math.ceil(noticias.length / noticiasPerPage);
+
+            // Add event listeners for "Leia Mais" buttons
+            document.querySelectorAll('.read-more').forEach(button => {
+                button.addEventListener('click', () => {
+                    const index = button.getAttribute('data-index');
+                    openModal(noticias[index]);
+                });
+            });
+        }
+
+        // Modal functions
+        function openModal(noticia) {
+            const modal = document.getElementById('news-modal');
+            document.getElementById('modal-title').textContent = noticia.title;
+            document.getElementById('modal-image').src = noticia.image;
+            document.getElementById('modal-image').alt = noticia.title;
+            document.getElementById('modal-date').textContent = `Data: ${noticia.date}`;
+            document.getElementById('modal-description').textContent = noticia.description;
+            document.getElementById('modal-full-text').textContent = noticia.fullText;
+            modal.classList.remove('hidden');
+            modal.querySelector('.modal').classList.remove('scale-95');
+            modal.querySelector('.modal').classList.add('scale-100');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('news-modal');
+            modal.classList.add('hidden');
+            modal.querySelector('.modal').classList.remove('scale-100');
+            modal.querySelector('.modal').classList.add('scale-95');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Event listeners for pagination
+        document.getElementById('membros-prev-page').addEventListener('click', () => {
+            if (membrosCurrentPage > 1) {
+                membrosCurrentPage--;
+                loadMembros(membrosCurrentPage);
+            }
+        });
+
+        document.getElementById('membros-next-page').addEventListener('click', () => {
+            if (membrosCurrentPage < Math.ceil(membros.length / membrosPerPage)) {
+                membrosCurrentPage++;
+                loadMembros(membrosCurrentPage);
+            }
+        });
+
+        document.getElementById('noticias-prev-page').addEventListener('click', () => {
+            if (noticiasCurrentPage > 1) {
+                noticiasCurrentPage--;
+                loadNoticias(noticiasCurrentPage);
+            }
+        });
+
+        document.getElementById('noticias-next-page').addEventListener('click', () => {
+            if (noticiasCurrentPage < Math.ceil(noticias.length / noticiasPerPage)) {
+                noticiasCurrentPage++;
+                loadNoticias(noticiasCurrentPage);
+            }
+        });
+
+        // Modal close event
+        document.getElementById('close-modal').addEventListener('click', closeModal);
+
+        // Load initial content
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMembros(membrosCurrentPage);
+            loadNoticias(noticiasCurrentPage);
+            loadTccTransmissions();
+        });
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
