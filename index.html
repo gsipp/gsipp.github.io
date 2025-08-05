@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -46,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -471,23 +433,15 @@
                     var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
                     var firstSheetName = workbook.SheetNames[0];
                     var worksheet = workbook.Sheets[firstSheetName];
-
-                    // Convert sheet to JSON to filter blank rows
                     var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                    // Filter out blank rows (rows where all cells are empty, null, or undefined)
                     var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                    // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
                     var headerRowIndex = filteredData.findIndex((row, index) =>
                       row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
                     );
-                    // Fallback
                     if (headerRowIndex === -1 || headerRowIndex > 25) {
                       headerRowIndex = 0;
                     }
-
-                    // Convert filtered JSON back to CSV
-                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                    var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex));
                     csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
                     return csv;
                 } catch (e) {
@@ -498,53 +452,15 @@
             return gk_fileData[filename] || "";
         }
 
-        // Sample JSON data for notícias
-        const noticias = [
-            {
-                title: "GSIPP organiza workshop sobre criptografia",
-                date: "01/08/2025",
-                description: "O GSIPP realizou um workshop sobre avanços em criptografia, com participação de especialistas nacionais.",
-                fullText: "GSSIP parabeniza os discentes Francisco das Chagas e Elimar Ximenes pelo título Summa Cum Laude!
-
-O Grupo de pesquisa de segurança da informação e preservação da privacidade (GSSIP) parabeniza os discentes Francisco das Chagas Alves da Silva Chaves e Antônio Elimar Ximenes Oliveira pela conquista da distinção acadêmica Summa Cum Laude, referente ao ano de 2024.
-
-Ambos são egressos do curso de Sistemas de Informação da UFC - Campus Crateús, e também membros atuantes do GSSIP. Atualmente, seguem sua trajetória acadêmica em programas de mestrado, demonstrando excelência e compromisso com a ciência e a tecnologia.
-
-O que é Summa Cum Laude?
-
-É a maior honraria acadêmica concedida a discentes com desempenho excepcional ao longo do curso, refletindo dedicação, mérito e excelência em sua formação universitária.
-
-Além dos membros do GSSIP, o campus UFC Crateús também celebrou mais duas conquistas dessa distinção, desta vez no curso de Engenharia Civil:
-
-Bruno Sousa da Silva
-Eliardo Soares Coelho
-
-Parabenizamos todos os estudantes pelo reconhecimento e pelo brilhante desempenho acadêmico. Que essa conquista inspire novas gerações a seguirem com excelência!
-
-Fonte: Prograd",
-                image: "https://via.placeholder.com/400x200?text=Workshop+Criptografia"
-            },
-            {
-                title: "Nova publicação do GSIPP em conferência internacional",
-                date: "15/07/2025",
-                description: "Membros do GSIPP publicaram um artigo sobre privacidade de dados na conferência XYZ.",
-                fullText: "O artigo, intitulado 'Privacidade Diferencial em Sistemas Distribuídos', foi apresentado na conferência XYZ, uma das mais prestigiadas na área de segurança da informação. A pesquisa propõe novas técnicas para proteger dados sensíveis em ambientes distribuídos, com resultados promissores em testes simulados.",
-                image: "https://via.placeholder.com/400x200?text=Publicação+Internacional"
-            },
-            {
-                title: "Seminário sobre Identidade Digital",
-                date: "10/06/2025",
-                description: "O GSIPP promoveu um seminário sobre os desafios e avanços em identidade digital.",
-                fullText: "O seminário reuniu acadêmicos e profissionais para discutir os desafios éticos e técnicos da identidade digital. Foram abordados temas como autenticação biométrica, blockchain e regulamentações de privacidade. O evento foi transmitido ao vivo e está disponível no canal do GSIPP no YouTube.",
-                image: "https://via.placeholder.com/400x200?text=Seminário+Identidade"
-            },
-            {
-                title: "GSIPP recebe financiamento para projeto",
-                date: "20/05/2025",
-                description: "Novo projeto de pesquisa em segurança cibernética recebe apoio de agência nacional.",
-                fullText: "O GSIPP recebeu um financiamento de R$500 mil de uma agência nacional para desenvolver um projeto inovador em segurança cibernética voltado para IoT. A iniciativa, liderada pelo coordenador Lucas Campos Sales, visa criar soluções escaláveis para proteger dispositivos conectados em redes críticas.",
-                image: "https://via.placeholder.com/400x200?text=Financiamento"
-            }
+        // Sample JSON data for membros
+        const membros = [
+            { name: "Membro 1", area: "Segurança Cibernética", level: "graduacao", linkedin: "#", lattes: "#" },
+            { name: "Membro 2", area: "Criptografia", level: "mestrado", linkedin: "#", lattes: "#" },
+            { name: "Membro 3", area: "Privacidade de Dados", level: "doutorado", linkedin: "#", lattes: "#" },
+            { name: "Membro 4", area: "Segurança em Redes", level: "graduacao", linkedin: "#", lattes: "#" },
+            { name: "Membro 5", area: "Identidade Digital", level: "mestrado", linkedin: "#", lattes: "#" },
+            { name: "Membro 6", area: "Análise de Vulnerabilidades", level: "doutorado", linkedin: "#", lattes: "#" },
+            { name: "Membro 7", area: "Segurança em IoT", level: "graduacao", linkedin: "#", lattes: "#" }
         ];
 
         // Sample JSON data for TCC transmissions
@@ -567,22 +483,26 @@ Fonte: Prograd",
             }
         ];
 
-        // Sample JSON data for membros
-        const membros = [
-            { name: "Membro 1", area: "Segurança Cibernética", level: "graduacao", linkedin: "#", lattes: "#" },
-            { name: "Membro 2", area: "Criptografia", level: "mestrado", linkedin: "#", lattes: "#" },
-            { name: "Membro 3", area: "Privacidade de Dados", level: "doutorado", linkedin: "#", lattes: "#" },
-            { name: "Membro 4", area: "Segurança em Redes", level: "graduacao", linkedin: "#", lattes: "#" },
-            { name: "Membro 5", area: "Identidade Digital", level: "mestrado", linkedin: "#", lattes: "#" },
-            { name: "Membro 6", area: "Análise de Vulnerabilidades", level: "doutorado", linkedin: "#", lattes: "#" },
-            { name: "Membro 7", area: "Segurança em IoT", level: "graduacao", linkedin: "#", lattes: "#" }
-        ];
-
         // Pagination variables
         const membrosPerPage = 6;
         const noticiasPerPage = 3;
         let membrosCurrentPage = 1;
         let noticiasCurrentPage = 1;
+        let noticias = [];
+
+        // Fetch noticias from JSON file
+        async function fetchNoticias() {
+            try {
+                const response = await fetch('noticias.json');
+                const data = await response.json();
+                noticias = data.noticias;
+                loadNoticias(noticiasCurrentPage);
+            } catch (error) {
+                console.error('Erro ao carregar noticias:', error);
+                noticias = [];
+                loadNoticias(noticiasCurrentPage);
+            }
+        }
 
         // Function to populate membros
         function loadMembros(page) {
@@ -611,7 +531,6 @@ Fonte: Prograd",
                 container.appendChild(membroCard);
             });
 
-            // Update pagination info
             document.getElementById('membros-page-info').textContent = `Página ${page} de ${Math.ceil(membros.length / membrosPerPage)}`;
             document.getElementById('membros-prev-page').disabled = page === 1;
             document.getElementById('membros-next-page').disabled = page === Math.ceil(membros.length / membrosPerPage);
@@ -665,12 +584,10 @@ Fonte: Prograd",
                 container.appendChild(noticiaCard);
             });
 
-            // Update pagination info
             document.getElementById('noticias-page-info').textContent = `Página ${page} de ${Math.ceil(noticias.length / noticiasPerPage)}`;
             document.getElementById('noticias-prev-page').disabled = page === 1;
             document.getElementById('noticias-next-page').disabled = page === Math.ceil(noticias.length / noticiasPerPage);
 
-            // Add event listeners for "Leia Mais" buttons
             document.querySelectorAll('.read-more').forEach(button => {
                 button.addEventListener('click', () => {
                     const index = button.getAttribute('data-index');
@@ -737,7 +654,7 @@ Fonte: Prograd",
         // Load initial content
         document.addEventListener('DOMContentLoaded', () => {
             loadMembros(membrosCurrentPage);
-            loadNoticias(noticiasCurrentPage);
+            fetchNoticias();
             loadTccTransmissions();
         });
 
