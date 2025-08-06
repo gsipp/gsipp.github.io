@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSIPP - Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="hero-bg text-white py-20">
+        <div class="container mx-auto text-center px-4">
+            <h1 class="text-5xl md:text-6xl font-bold gradient-text">GSIPP</h1>
+            <p class="text-xl md:text-2xl mt-4">Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade</p>
+            <p class="text-md mt-2 opacity-90">Universidade Federal do Ceará - Campus Crateús</p>
+            <a href="#sobre" class="mt-8 inline-block bg-white text-blue-600 font-semibold py-3 px-8 rounded-full hover:bg-blue-100 transition">Conheça o GSIPP</a>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-20">
+        <div class="container mx-auto px-4">
+            <ul class="flex flex-wrap justify-center space-x-4 md:space-x-8 py-5">
+                <li><a href="#sobre" class="text-blue-700 nav-link">Sobre</a></li>
+                <li><a href="#linhas-pesquisa" class="text-blue-700 nav-link">Linhas de Pesquisa</a></li>
+                <li><a href="#membros" class="text-blue-700 nav-link">Membros</a></li>
+                <li><a href="#publicacoes" class="text-blue-700 nav-link">Publicações</a></li>
+                <li><a href="#eventos" class="text-blue-700 nav-link">Eventos</a></li>
+                <li><a href="#tcc" class="text-blue-700 nav-link">Transmissões de TCC</a></li>
+                <li><a href="#galerias" class="text-blue-700 nav-link">Galerias</a></li>
+                <li><a href="#noticias" class="text-blue-700 nav-link">Notícias</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Sobre Section -->
+    <section id="sobre" class="section-padding bg-white">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">Sobre o GSIPP</h2>
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="md:w-1/2">
+                    <img src="https://via.placeholder.com/600x400?text=GSIPP+Campus" alt="Campus UFC Crateús" class="w-full h-64 object-cover rounded-xl shadow-lg">
+                </div>
+                <div class="md:w-1/2">
+                    <p class="text-lg text-gray-700 leading-relaxed">
+                        O <strong>Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade (GSIPP)</strong>, sediado no campus de Crateús da Universidade Federal do Ceará (UFC), é um coletivo de professores, técnico-administrativos e estudantes de graduação e pós-graduação. Nosso objetivo principal é impulsionar a pesquisa em segurança cibernética, criptografia, privacidade e identidade digital, contribuindo para o avanço do conhecimento em segurança da informação.
+                    </p>
+                    <p class="text-lg text-gray-700 leading-relaxed mt-6">
+                        Nossas pesquisas seguem metodologias científicas rigorosas, com foco na análise de vulnerabilidades e no desenvolvimento de soluções inovadoras para segurança computacional. Além disso, organizamos seminários e workshops dentro e fora da UFC, promovendo a disseminação do conhecimento e a colaboração acadêmica.
+                    </p>
+                    <a href="#linhas-pesquisa" class="mt-6 inline-block text-blue-700 hover:text-blue-900 font-semibold">Conheça nossas Linhas de Pesquisa</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Linhas de Pesquisa Section -->
+    <section id="linhas-pesquisa" class="section-padding bg-gray-50">
+        <div class="container mx-auto max-w-6xl px-4">
+            <h2 class="text-4xl font-bold text-center text-gray-800 mb-12">Linhas de Pesquisa</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-shield-alt text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Segurança Cibernética</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Desenvolvimento de técnicas avançadas para proteger sistemas contra ameaças cibernéticas, garantindo a integridade e confidencialidade de dados.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-key text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Criptografia</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Pesquisa em algoritmos criptográficos, com ênfase em criptografia pós-quântica e homomórfica para segurança de dados.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-eye-slash text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Privacidade de Dados</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Estudos sobre privacidade diferencial e proteção de dados sensíveis em ambientes distribuídos, promovendo segurança e conformidade.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-id-card text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Identidade Digital</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Exploração de autenticação segura, biometria e tecnologias blockchain para gestão eficiente e segura de identidades digitais.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-network-wired text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Segurança em IoT</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Soluções inovadoras para proteger dispositivos conectados em redes de Internet das Coisas, garantindo segurança em ambientes críticos.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-600 flex flex-col items-start">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-search text-blue-600 text-3xl mr-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800">Análise de Vulnerabilidades</h3>
+                    </div>
+                    <p class="text-gray-600 text-base leading-relaxed">Identificação e mitigação de vulnerabilidades em sistemas e redes computacionais, com foco em segurança proativa.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Coordenador Section -->
+    <section class="section-padding bg-gray-100">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Coordenador do GSIPP</h2>
+            <div class="flex flex-col md:flex-row items-center gap-8 bg-white p-8 rounded-xl shadow-lg card-hover">
+                <img src="https://via.placeholder.com/300?text=Lucas+Campos+Sales" alt="Lucas Campos Sales" class="w-48 h-48 md:w-64 md:h-64 rounded-full border-4 border-blue-100 object-cover">
+                <div>
+                    <h3 class="text-3xl font-semibold text-gray-800">Lucas Campos Sales</h3>
+                    <p class="text-lg text-gray-600 mt-2">Coordenador do GSIPP</p>
+                    <p class="text-gray-600 mt-4">Liderando iniciativas de pesquisa em segurança da informação, Lucas Campos Sales é doutor em Ciência da Computação e tem vasta experiência em criptografia e privacidade de dados.</p>
+                    <div class="flex space-x-6 mt-4">
+                        <a href="#" class="text-blue-600 hover:text-blue-800 transition"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 transition">Lattes</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Membros Section -->
+    <section id="membros" class="section-padding bg-white">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Nossos Membros</h2>
+            <div id="membros-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"></div>
+            <div class="flex justify-center mt-8 space-x-4">
+                <button id="membros-prev-page" class="pagination-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-lg disabled:opacity-50">Anterior</button>
+                <span id="membros-page-info" class="text-gray-600 py-2 px-4"></span>
+                <button id="membros-next-page" class="pagination-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-lg disabled:opacity-50">Próximo</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Publicações Section -->
+    <section id="publicacoes" class="section-padding bg-gray-100">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Publicações</h2>
+            <div class="grid grid-cols-1 gap-6">
+                <div class="publication-card p-6 rounded-xl shadow-lg card-hover">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Análise de Vulnerabilidades em Redes IoT</h3>
+                    <p class="text-gray-600 text-sm mb-2">Conferência Internacional de Segurança da Informação, 2025</p>
+                    <p class="text-gray-700 text-base mb-3">
+                        <strong>Autores:</strong>
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Membro 1</a>,
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Membro 2</a>,
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Lucas Campos Sales</a>
+                        (Universidade Federal do Ceará - Campus Crateús)
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="publication-link-btn bg-blue-100 text-blue-600 font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 hover:text-white transition">
+                            <i class="fas fa-file-pdf mr-2"></i> Ler Artigo
+                        </a>
+                        <a href="#" class="publication-link-btn bg-gray-100 text-gray-600 font-semibold py-2 px-4 rounded-lg hover:bg-gray-600 hover:text-white transition">
+                            <i class="fas fa-link mr-2"></i> DOI
+                        </a>
+                    </div>
+                </div>
+                <div class="publication-card p-6 rounded-xl shadow-lg card-hover">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Criptografia Pós-Quântica: Desafios e Oportunidades</h3>
+                    <p class="text-gray-600 text-sm mb-2">Journal de Segurança Computacional, 2024</p>
+                    <p class="text-gray-700 text-base mb-3">
+                        <strong>Autores:</strong>
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Membro 3</a>,
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Membro 4</a>,
+                        <a href="#" class="font-semibold text-blue-600 hover:underline">Lucas Campos Sales</a>
+                        (Universidade Federal do Ceará - Campus Crateús)
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="publication-link-btn bg-blue-100 text-blue-600 font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 hover:text-white transition">
+                            <i class="fas fa-file-pdf mr-2"></i> Ler Artigo
+                        </a>
+                        <a href="#" class="publication-link-btn bg-gray-100 text-gray-600 font-semibold py-2 px-4 rounded-lg hover:bg-gray-600 hover:text-white transition">
+                            <i class="fas fa-link mr-2"></i> DOI
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Eventos Section -->
+    <section id="eventos" class="section-padding bg-white">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Eventos</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                <div class="event-card p-8 rounded-xl shadow-lg card-hover">
+                    <img src="https://via.placeholder.com/400x200?text=Evento+1" alt="Workshop de Segurança" class="w-full h-48 object-cover rounded-lg mb-4">
+                    <h3 class="text-2xl font-semibold text-gray-800">Workshop de Segurança Cibernética</h3>
+                    <p class="text-gray-600 mt-3"><strong>Data:</strong> DD/MM/AAAA</p>
+                    <p class="text-gray-600"><strong>Local:</strong> UFC Crateús</p>
+                    <p class="text-gray-600 mt-3">Um workshop prático sobre as últimas tendências em segurança cibernética, com palestras e atividades interativas.</p>
+                    <a href="#" class="text-blue-600 hover:text-blue-800 mt-4 inline-block font-semibold">Saiba Mais</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transmissões de TCC Section -->
+    <section id="tcc" class="section-padding bg-gray-100">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Transmissões de TCC</h2>
+            <div id="tcc-container" class="grid grid-cols-1 gap-8"></div>
+        </div>
+    </section>
+
+    <!-- Galerias Section -->
+    <section id="galerias" class="section-padding bg-white">
+        <div class="container mx-auto max-w-5xl px-4">
+            <h2 class="text-4xl font-bold text-center gradient-text mb-8">Galerias</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="relative rounded-xl shadow-lg card-hover">
+                    <img src="https://via.placeholder.com/400?text=Evento+1" alt="Evento 1" class="w-full h-64 object-cover rounded-xl">
+                    <div class="absolute bottom-0 w-full bg-black bg-opacity-60 text-white text-center py-2 rounded-b-xl">
+                        <p class="font-semibold">Workshop de Criptografia 2025</p>
+                    </div>
+                </div>
+                <div class="relative rounded-xl shadow-lg card-hover">
+                    <img src="https://via.placeholder.com/400?text=Evento+2" alt="Evento 2" class="w-full h-64 object-cover rounded-xl">
+                    <div class="absolute bottom-0 w-full bg-black bg-opacity-60 text-white text-center py-2 rounded-b-xl">
+                        <p class="font-semibold">Seminário de Privacidade</p>
+                    </div>
+                </div>
+                <div class="relative rounded-xl shadow-lg card-hover">
+                    <img src="https://via.placeholder.com/400?text=Evento+3" alt="Evento 3" class="w-full h-64 object-cover rounded-xl">
+                    <div class="absolute bottom-0 w-full bg-black bg-opacity-60 text-white text-center py-2 rounded-b-xl">
+                        <p class="font-semibold">Conferência de Segurança</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<!-- Notícias Section -->
+<section id="noticias" class="section-padding bg-gray-100">
+    <div class="container mx-auto max-w-5xl px-4">
+        <h2 class="text-4xl font-bold text-center gradient-text mb-8">Notícias</h2>
+        <div id="noticias-container" class="grid grid-cols-1 gap-8"></div>
+        <div class="flex justify-center mt-8 space-x-4">
+            <button id="noticias-prev-page" class="pagination-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-lg disabled:opacity-50">Anterior</button>
+            <span id="noticias-page-info" class="text-gray-600 py-2 px-4"></span>
+            <button id="noticias-next-page" class="pagination-btn bg-gray-200 text-gray-800 py-2 px-4 rounded-lg disabled:opacity-50">Próximo</button>
+        </div>
+    </div>
+</section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold gradient-text">GSIPP</h3>
+                    <p class="mt-4 text-gray-300">Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade, Campus Crateús, UFC.</p>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-white">Links Úteis</h3>
+                    <ul class="mt-4 space-y-2">
+                        <li><a href="#sobre" class="text-gray-300 hover:text-blue-400 transition">Sobre</a></li>
+                        <li><a href="#linhas-pesquisa" class="text-gray-300 hover:text-blue-400 transition">Linhas de Pesquisa</a></li>
+                        <li><a href="#publicacoes" class="text-gray-300 hover:text-blue-400 transition">Publicações</a></li>
+                        <li><a href="#eventos" class="text-gray-300 hover:text-blue-400 transition">Eventos</a></li>
+                        <li><a href="#tcc" class="text-gray-300 hover:text-blue-400 transition">Transmissões de TCC</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold text-white">Contato</h3>
+                    <p class="mt-4 text-gray-300">Email: <a href="mailto:contato@gsipp.ufc.br" class="underline hover:text-blue-400 transition">contato@gsipp.ufc.br</a></p>
+                    <div class="flex space-x-6 mt-4">
+                        <a href="#" class="text-gray-300 hover:text-blue-400 transition"><i class="fab fa-linkedin fa-lg"></i></a>
+                        <a href="#" class="text-gray-300 hover:text-blue-400 transition"><i class="fab fa-twitter fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <p class="text-center text-gray-400 mt-8">&copy; 2025 GSIPP - Todos os direitos reservados</p>
+        </div>
+    </footer>
+
+    <script src="js/index.js"></script>
+</body>
+</html>

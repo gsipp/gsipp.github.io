@@ -1,0 +1,46 @@
+{
+  "noticias": [
+    {
+      "title": "GSIPP parabeniza os discentes Francisco das Chagas e Elimar Ximenes pelo título Summa Cum Laude",
+      "date": "15/08/2025",
+      "description": "O GSIPP celebra a conquista da distinção Summa Cum Laude por Francisco das Chagas e Antônio Elimar Ximenes, egressos de Sistemas de Informação da UFC - Campus Crateús.",
+      "fullText": [
+        "O Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade (GSIPP) parabeniza os discentes Francisco das Chagas Alves da Silva Chaves e Antônio Elimar Ximenes Oliveira pela conquista da distinção acadêmica Summa Cum Laude, referente ao ano de 2024.",
+        "Ambos são egressos do curso de Sistemas de Informação da UFC - Campus Crateús, e também membros atuantes do GSIPP. Atualmente, seguem sua trajetória acadêmica em programas de mestrado, demonstrando excelência e compromisso com a ciência e a tecnologia.",
+        "Summa Cum Laude é a maior honraria acadêmica concedida a discentes com desempenho excepcional ao longo do curso, refletindo dedicação, mérito e excelência em sua formação universitária.",
+        "Além dos membros do GSIPP, o campus UFC Crateús também celebrou mais duas conquistas dessa distinção, desta vez no curso de Engenharia Civil: Bruno Sousa da Silva e Eliardo Soares Coelho.",
+        "Parabenizamos todos os estudantes pelo reconhecimento e pelo brilhante desempenho acadêmico. Que essa conquista inspire novas gerações a seguirem com excelência!",
+        "Fonte: Prograd"
+      ],
+      "image": "img/foto-gsipp.jpg"
+    },
+    {
+      "title": "GSIPP organiza workshop sobre criptografia",
+      "date": "01/08/2025",
+      "description": "O GSIPP realizou um workshop sobre avanços em criptografia, com participação de especialistas nacionais.",
+      "fullText": "O GSIPP promoveu um workshop de dois dias focado em avanços em criptografia, abordando temas como criptografia pós-quântica e segurança em redes 5G. O evento contou com palestras de especialistas nacionais e atividades práticas, atraindo mais de 100 participantes, incluindo estudantes e profissionais da área.",
+      "image": "https://via.placeholder.com/400x200?text=Workshop+Criptografia"
+    },
+    {
+      "title": "Nova publicação do GSIPP em conferência internacional",
+      "date": "15/07/2025",
+      "description": "Membros do GSIPP publicaram um artigo sobre privacidade de dados na conferência XYZ.",
+      "fullText": "O artigo, intitulado 'Privacidade Diferencial em Sistemas Distribuídos', foi apresentado na conferência XYZ, uma das mais prestigiadas na área de segurança da informação. A pesquisa propõe novas técnicas para proteger dados sensíveis em ambientes distribuídos, com resultados promissores em testes simulados.",
+      "image": "https://via.placeholder.com/400x200?text=Publicação+Internacional"
+    },
+    {
+      "title": "Seminário sobre Identidade Digital",
+      "date": "10/06/2025",
+      "description": "O GSIPP promoveu um seminário sobre os desafios e avanços em identidade digital.",
+      "fullText": "O seminário reuniu acadêmicos e profissionais para discutir os desafios éticos e técnicos da identidade digital. Foram abordados temas como autenticação biométrica, blockchain e regulamentações de privacidade. O evento foi transmitido ao vivo e está disponível no canal do GSIPP no YouTube.",
+      "image": "https://inovacao.ufms.br/files/2021/03/351x627.png"
+    },
+    {
+      "title": "GSIPP recebe financiamento para projeto",
+      "date": "20/05/2025",
+      "description": "Novo projeto de pesquisa em segurança cibernética recebe apoio de agência nacional.",
+      "fullText": "O GSIPP recebeu um financiamento de R$500 mil de uma agência nacional para desenvolver um projeto inovador em segurança cibernética voltado para IoT. A iniciativa, liderada pelo coordenador Lucas Campos Sales, visa criar soluções escaláveis para proteger dispositivos conectados em redes críticas.",
+      "image": "https://via.placeholder.com/400x200?text=Financiamento"
+    }
+  ]
+}
