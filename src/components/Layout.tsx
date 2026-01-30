@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Menu, X, Shield, FileText, Calendar, Users, Newspaper } from 'lucide-react';
+import { Menu, X, Shield, FileText, Calendar, Users, Newspaper, Home } from 'lucide-react';
 import { useState } from 'react';
 import Logo from '../assets/images/gsipp-logo.svg';
 
@@ -9,7 +9,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
     const navItems = [
-        { name: 'Sobre', path: '/', icon: <Shield className="w-4 h-4 mr-2" /> },
+        { name: 'Home', path: '/', icon: <Home className="w-4 h-4 mr-2" /> },
         { name: 'Membros', path: '/membros', icon: <Users className="w-4 h-4 mr-2" /> },
         { name: 'Notícias', path: '/noticias', icon: <Newspaper className="w-4 h-4 mr-2" /> },
         { name: 'Publicações', path: '/publicacoes', icon: <FileText className="w-4 h-4 mr-2" /> },

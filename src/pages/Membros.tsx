@@ -58,27 +58,27 @@ const Membros = () => {
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center mix-blend-overlay opacity-20"></div>
                 <div className="absolute inset-0 bg-gradient-to-b from-slate-900/50 via-slate-900 to-slate-900"></div>
 
-                <div className="container mx-auto px-6 relative z-10 text-center">
+                <div className="container mx-auto px-6 relative z-10">
                     <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-bold uppercase tracking-widest mb-6"
                     >
                         <Users className="w-4 h-4" /> Nosso Time
                     </motion.div>
                     <motion.h1
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 }}
                         className="text-4xl md:text-6xl font-bold text-white mb-6"
                     >
                         Membros do <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">GSIPP</span>
                     </motion.h1>
                     <motion.p
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-gray-400 text-lg max-w-2xl mx-auto leading-relaxed"
+                        className="text-gray-400 text-lg max-w-3xl leading-relaxed"
                     >
                         Conheça os pesquisadores, estudantes e profissionais que compõem nosso grupo e impulsionam a inovação em segurança e privacidade.
                     </motion.p>

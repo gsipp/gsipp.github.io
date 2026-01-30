@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Shield, Lock, Eye, Fingerprint, Wifi, AlertTriangle, ArrowRight, BookOpen, Users, Globe, Calendar, Newspaper, Mail, Linkedin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { Shield, Lock, Eye, Fingerprint, Wifi, AlertTriangle, ArrowRight, BookOpen, Users, Globe, Calendar, Newspaper, Mail, Linkedin } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import NetworkBackground from '../components/NetworkBackground';
 import ufcLogo from '../assets/images/logotipo-ufc-horizontal.png';
@@ -452,53 +453,58 @@ const Home = () => {
                                 <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-100 h-96 animate-pulse"></div>
                             ))
                         ) : news.map((item, index) => (
-                            <motion.div
+                            <Link
                                 key={item.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1 }}
-                                className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group cursor-pointer flex flex-col"
+                                to={`/noticias/${item.slug}`}
+                                className="block"
                             >
-                                <div className="aspect-[4/5] overflow-hidden relative bg-gray-100">
-                                    {item.imagem_capa_url ? (
-                                        <img
-                                            src={item.imagem_capa_url}
-                                            alt={item.titulo}
-                                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                            <Newspaper className="w-16 h-16" />
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: index * 0.1 }}
+                                    className="h-full bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 group cursor-pointer flex flex-col"
+                                >
+                                    <div className="aspect-[4/5] overflow-hidden relative bg-gray-100">
+                                        {item.imagem_capa_url ? (
+                                            <img
+                                                src={item.imagem_capa_url}
+                                                alt={item.titulo}
+                                                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                                <Newspaper className="w-16 h-16" />
+                                            </div>
+                                        )}
+                                        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-blue-600 uppercase">
+                                            Notícia
                                         </div>
-                                    )}
-                                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-blue-600 uppercase">
-                                        Notícia
                                     </div>
-                                </div>
-                                <div className="p-8 flex flex-col flex-grow">
-                                    <div className="flex items-center text-gray-400 text-sm mb-3">
-                                        <Calendar className="w-3 h-3 mr-1" /> {(() => {
-                                            const [year, month, day] = item.data_publicacao.split('T')[0].split('-').map(Number);
-                                            return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR', {
-                                                timeZone: 'America/Sao_Paulo',
-                                                day: '2-digit',
-                                                month: 'short',
-                                                year: 'numeric'
-                                            });
-                                        })()}
+                                    <div className="p-8 flex flex-col flex-grow">
+                                        <div className="flex items-center text-gray-400 text-sm mb-3">
+                                            <Calendar className="w-3 h-3 mr-1" /> {(() => {
+                                                const [year, month, day] = item.data_publicacao.split('T')[0].split('-').map(Number);
+                                                return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR', {
+                                                    timeZone: 'America/Sao_Paulo',
+                                                    day: '2-digit',
+                                                    month: 'short',
+                                                    year: 'numeric'
+                                                });
+                                            })()}
+                                        </div>
+                                        <h4 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
+                                            {item.titulo}
+                                        </h4>
+                                        <p className="text-gray-600 mb-6 line-clamp-3">
+                                            {item.resumo}
+                                        </p>
+                                        <div className="mt-auto inline-flex items-center text-sm font-semibold text-gray-900 hover:text-blue-600 transition">
+                                            Ler mais <ArrowRight className="w-4 h-4 ml-1" />
+                                        </div>
                                     </div>
-                                    <h4 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
-                                        {item.titulo}
-                                    </h4>
-                                    <p className="text-gray-600 mb-6 line-clamp-3">
-                                        {item.resumo}
-                                    </p>
-                                    <div className="mt-auto inline-flex items-center text-sm font-semibold text-gray-900 hover:text-blue-600 transition">
-                                        Ler mais <ArrowRight className="w-4 h-4 ml-1" />
-                                    </div>
-                                </div>
-                            </motion.div>
+                                </motion.div>
+                            </Link>
                         ))}
                     </div>
                 </div>
