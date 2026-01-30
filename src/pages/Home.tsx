@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Shield, Lock, Eye, Fingerprint, Wifi, AlertTriangle, ArrowRight, BookOpen, Users, Globe, Calendar, Newspaper, Mail, Linkedin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabaseClient';
@@ -81,8 +81,6 @@ const Home = () => {
         }
     ];
 
-    const scrollRefMestrado = useRef(null);
-    const scrollRefGraduacao = useRef(null);
 
     return (
         <div className="bg-gray-50 min-h-screen font-sans text-gray-900 pt-[80px]">
