@@ -157,11 +157,11 @@ const Editais = () => {
                                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
                                     <div className="flex items-center gap-1.5">
                                         <Calendar className="w-4 h-4 text-gray-400" />
-                                        <span>Abre: {edital.data_abertura ? new Date(edital.data_abertura).toLocaleDateString() : 'N/A'}</span>
+                                        <span>Abre: {edital.data_abertura ? new Date(edital.data_abertura + 'T12:00:00').toLocaleDateString() : 'N/A'}</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                         <Calendar className="w-4 h-4 text-gray-400" />
-                                        <span>Fecha: {edital.data_fechamento ? new Date(edital.data_fechamento).toLocaleDateString() : 'N/A'}</span>
+                                        <span>Fecha: {edital.data_fechamento ? new Date(edital.data_fechamento + 'T12:00:00').toLocaleDateString() : 'N/A'}</span>
                                     </div>
                                     {edital.link_pdf && (
                                         <a href={edital.link_pdf} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-700 font-medium">

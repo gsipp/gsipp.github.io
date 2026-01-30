@@ -59,11 +59,13 @@ const Eventos = () => {
     }, []);
 
     const now = new Date();
-    const upcomingEvents = events.filter(e => new Date(e.data_evento) >= now).sort((a, b) => new Date(a.data_evento).getTime() - new Date(b.data_evento).getTime());
-    const pastEvents = events.filter(e => new Date(e.data_evento) < now);
+    const getSafeDate = (d: string) => new Date(d.includes('T') ? d : `${d}T12:00:00`);
+    const upcomingEvents = events.filter(e => getSafeDate(e.data_evento) >= now).sort((a, b) => getSafeDate(a.data_evento).getTime() - getSafeDate(b.data_evento).getTime());
+    const pastEvents = events.filter(e => getSafeDate(e.data_evento) < now);
 
     const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
+        // Force midday to avoid timezone shifts when parsing YYYY-MM-DD
+        const date = new Date(dateString.includes('T') ? dateString : `${dateString}T12:00:00`);
         return {
             day: date.toLocaleDateString('pt-BR', { day: '2-digit' }),
             month: date.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase().replace('.', ''),

@@ -242,7 +242,7 @@ const NewsAdmin = () => {
                                     </div>
                                     <div className="p-5">
                                         <div className="text-xs text-purple-600 font-semibold mb-2">
-                                            {new Date(item.data_publicacao).toLocaleDateString()}
+                                            {new Date(item.data_publicacao.includes('T') ? item.data_publicacao : item.data_publicacao + 'T12:00:00').toLocaleDateString()}
                                         </div>
                                         <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">{item.titulo}</h3>
                                         <p className="text-sm text-gray-500 line-clamp-3">{item.resumo}</p>

@@ -200,14 +200,17 @@ const Events = () => {
                                 </h2>
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     {filteredEvents
-                                        .filter(e => new Date(e.data_evento) >= new Date(new Date().setHours(0, 0, 0, 0)))
+                                        .filter(e => {
+                                            const eventDate = new Date(e.data_evento + 'T12:00:00');
+                                            return eventDate >= new Date(new Date().setHours(0, 0, 0, 0));
+                                        })
                                         .map((event) => (
                                             <div key={event.id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex gap-6 group hover:shadow-md transition-all relative overflow-hidden">
                                                 <div className={`absolute top-0 left-0 w-1 h-full ${event.tipo === 'Defesa' ? 'bg-blue-500' : event.tipo === 'Palestra' ? 'bg-purple-500' : 'bg-amber-500'}`}></div>
                                                 <div className="flex-shrink-0 bg-slate-50 text-slate-600 w-20 h-20 rounded-2xl flex flex-col items-center justify-center border border-slate-100 shadow-sm transition-transform group-hover:scale-105">
-                                                    <span className="text-xs font-black uppercase tracking-tighter opacity-70">{new Date(event.data_evento).toLocaleString('pt-BR', { month: 'short' })}</span>
-                                                    <span className="text-3xl font-black leading-none">{new Date(event.data_evento).getDate()}</span>
-                                                    <span className="text-[10px] font-bold opacity-70">{new Date(event.data_evento).getFullYear()}</span>
+                                                    <span className="text-xs font-black uppercase tracking-tighter opacity-70">{new Date(event.data_evento + 'T12:00:00').toLocaleString('pt-BR', { month: 'short' })}</span>
+                                                    <span className="text-3xl font-black leading-none">{new Date(event.data_evento + 'T12:00:00').getDate()}</span>
+                                                    <span className="text-[10px] font-bold opacity-70">{new Date(event.data_evento + 'T12:00:00').getFullYear()}</span>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 mb-2">
@@ -258,17 +261,20 @@ const Events = () => {
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {filteredEvents
-                                        .filter(e => new Date(e.data_evento) < new Date(new Date().setHours(0, 0, 0, 0)))
+                                        .filter(e => {
+                                            const eventDate = new Date(e.data_evento + 'T12:00:00');
+                                            return eventDate < new Date(new Date().setHours(0, 0, 0, 0));
+                                        })
                                         .map((event) => (
                                             <div key={event.id} className="bg-white px-5 py-4 rounded-xl border border-gray-100 flex items-center gap-4 group opacity-75 hover:opacity-100 transition-all shadow-sm">
                                                 <div className="flex-shrink-0 bg-gray-100 text-gray-500 w-12 h-12 rounded-lg flex flex-col items-center justify-center border border-gray-200 text-center">
-                                                    <span className="text-[10px] font-bold uppercase leading-none">{new Date(event.data_evento).toLocaleString('pt-BR', { month: 'short' })}</span>
-                                                    <span className="text-lg font-bold leading-none">{new Date(event.data_evento).getDate()}</span>
+                                                    <span className="text-[10px] font-bold uppercase leading-none">{new Date(event.data_evento + 'T12:00:00').toLocaleString('pt-BR', { month: 'short' })}</span>
+                                                    <span className="text-lg font-bold leading-none">{new Date(event.data_evento + 'T12:00:00').getDate()}</span>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <h3 className="font-bold text-gray-700 text-sm truncate">{event.titulo}</h3>
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] text-gray-400 font-medium">{new Date(event.data_evento).toLocaleDateString()}</span>
+                                                        <span className="text-[10px] text-gray-400 font-medium">{new Date(event.data_evento + 'T12:00:00').toLocaleDateString()}</span>
                                                         <span className="text-[10px] text-slate-300">•</span>
                                                         <span className="text-[10px] font-bold text-slate-400 uppercase">{event.tipo}</span>
                                                     </div>
