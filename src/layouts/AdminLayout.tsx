@@ -1,6 +1,6 @@
 import { Outlet, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Shield, Users, Newspaper, LogOut, LayoutDashboard, FileText, Calendar } from 'lucide-react';
+import { Shield, Users, Newspaper, LogOut, LayoutDashboard, FileText, Calendar, UserCog } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminLayout = () => {
@@ -25,6 +25,8 @@ const AdminLayout = () => {
         { path: '/admin/noticias', icon: Newspaper, label: 'Notícias' },
         { path: '/admin/publicacoes', icon: FileText, label: 'Publicações' },
         { path: '/admin/eventos', icon: Calendar, label: 'Eventos' },
+        { path: '/admin/editais', icon: FileText, label: 'Editais' },
+        { path: '/admin/perfil', icon: UserCog, label: 'Meu Perfil' },
     ];
 
     return (
@@ -68,7 +70,7 @@ const AdminLayout = () => {
                                 {user.email?.substring(0, 2).toUpperCase()}
                             </div>
                             <div className="overflow-hidden">
-                                <p className="text-sm text-white font-medium truncate">Admin User</p>
+                                <p className="text-sm text-white font-medium truncate">{user.user_metadata?.full_name || 'Admin User'}</p>
                                 <p className="text-xs text-slate-400 truncate" title={user.email}>{user.email}</p>
                             </div>
                         </div>

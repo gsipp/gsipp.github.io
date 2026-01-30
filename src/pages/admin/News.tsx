@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient.ts';
-import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, Newspaper, Bold, Italic, List, Link as LinkIcon, Heading, Quote, Code } from 'lucide-react';
-
+import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, Newspaper, Bold, Italic, List, Link as LinkIcon, Quote, Code } from 'lucide-react';
 
 // Types
 interface News {
@@ -14,7 +13,7 @@ interface News {
     data_publicacao: string;
 }
 
-const News = () => {
+const NewsAdmin = () => {
     const [news, setNews] = useState<News[]>([]);
     const [loading, setLoading] = useState(true);
     const [view, setView] = useState<'list' | 'form'>('list');
@@ -174,7 +173,7 @@ const News = () => {
     };
 
     return (
-        <div>
+        <div className="w-full">
             {view === 'list' && (
                 <>
                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
@@ -207,7 +206,7 @@ const News = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {filteredNews.map((item) => (
                                 <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md transition-all">
-                                    <div className="aspect-[4/5] bg-gray-100 relative overflow-hidden">
+                                    <div className="aspect-[16/9] bg-gray-100 relative overflow-hidden">
                                         {item.imagem_capa_url ? (
                                             <img src={item.imagem_capa_url} alt={item.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                         ) : (
@@ -250,7 +249,7 @@ const News = () => {
             )}
 
             {view === 'form' && (
-                <div className="max-w-4xl mx-auto">
+                <div className="max-w-[1400px] mx-auto pb-20">
                     <div className="flex items-center justify-between mb-8">
                         <div>
                             <h2 className="text-3xl font-bold text-gray-900">{editingNews ? 'Editar Notícia' : 'Nova Notícia'}</h2>
@@ -264,128 +263,155 @@ const News = () => {
                         </button>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <form onSubmit={handleSubmit} className="p-8 space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-6">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
-                                        <input
-                                            type="text"
-                                            required
-                                            value={formData.titulo || ''}
-                                            onChange={e => setFormData({ ...formData, titulo: e.target.value })}
-                                            className="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-900 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all text-lg font-medium"
-                                            placeholder="Título da notícia"
-                                        />
-                                    </div>
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden p-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                                {/* Main Content Columns */}
+                                <div className="lg:col-span-2 space-y-8">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Título da Notícia</label>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={formData.titulo || ''}
+                                                onChange={e => setFormData({ ...formData, titulo: e.target.value })}
+                                                className="w-full px-5 py-4 rounded-2xl border border-gray-200 text-gray-900 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all text-2xl font-bold placeholder:text-gray-300"
+                                                placeholder="Como o GSIPP desenvolve novas tecnologias..."
+                                            />
+                                        </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Resumo</label>
-                                        <textarea
-                                            rows={4}
-                                            required
-                                            value={formData.resumo || ''}
-                                            onChange={e => setFormData({ ...formData, resumo: e.target.value })}
-                                            className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all resize-none"
-                                            placeholder="Uma breve descrição que aparecerá nos cards..."
-                                        />
-                                    </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Resumo / Subtítulo</label>
+                                            <textarea
+                                                rows={3}
+                                                required
+                                                value={formData.resumo || ''}
+                                                onChange={e => setFormData({ ...formData, resumo: e.target.value })}
+                                                className="w-full px-5 py-3 rounded-xl border border-gray-200 text-gray-900 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all resize-none placeholder:text-gray-300"
+                                                placeholder="Um texto curto para captar a atenção do leitor nos cards..."
+                                            />
+                                        </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Data de Publicação</label>
-                                        <input
-                                            type="date"
-                                            required
-                                            value={formData.data_publicacao ? formData.data_publicacao.split('T')[0] : ''}
-                                            onChange={e => setFormData({ ...formData, data_publicacao: e.target.value })}
-                                            className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition-all"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Capa da Notícia</label>
-                                    <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center text-center hover:border-purple-300 transition-colors bg-gray-50 aspect-[4/5] max-w-sm mx-auto relative group cursor-pointer">
-                                        {formData.imagem_capa_url ? (
-                                            <img src={formData.imagem_capa_url} alt="Preview" className="w-full h-full object-cover rounded-lg absolute inset-0" />
-                                        ) : (
-                                            <div className="text-gray-400">
-                                                <Upload className="w-12 h-12 mx-auto mb-3" />
-                                                <span className="text-sm font-medium">Clique para upload da imagem</span>
-                                                <span className="block text-xs mt-1 text-gray-400">Formato Vertical (1080x1350) recomendado</span>
+                                        <div className="md:col-span-2">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <label className="block text-sm font-medium text-gray-700">Conteúdo (Markdown)</label>
+                                                <div className="flex flex-wrap gap-1 bg-gray-50 p-1.5 rounded-xl border border-gray-100 shadow-inner">
+                                                    <button type="button" onClick={() => insertFormat('**', '**')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Negrito"><Bold className="w-4 h-4" /></button>
+                                                    <button type="button" onClick={() => insertFormat('_', '_')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Itálico"><Italic className="w-4 h-4" /></button>
+                                                    <div className="w-px h-5 bg-gray-200 mx-1 self-center"></div>
+                                                    <button type="button" onClick={() => insertFormat('# ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all font-bold text-xs" title="H1">H1</button>
+                                                    <button type="button" onClick={() => insertFormat('## ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all font-bold text-xs" title="H2">H2</button>
+                                                    <button type="button" onClick={() => insertFormat('### ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all font-bold text-xs" title="H3">H3</button>
+                                                    <div className="w-px h-5 bg-gray-200 mx-1 self-center"></div>
+                                                    <button type="button" onClick={() => insertFormat('- ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Lista"><List className="w-4 h-4" /></button>
+                                                    <button type="button" onClick={() => insertFormat('[', '](url)')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Link"><LinkIcon className="w-4 h-4" /></button>
+                                                    <button type="button" onClick={() => insertFormat('> ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Citação"><Quote className="w-4 h-4" /></button>
+                                                    <button type="button" onClick={() => insertFormat('```\n', '\n```')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Código"><Code className="w-4 h-4" /></button>
+                                                </div>
                                             </div>
-                                        )}
-                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg"></div>
-                                        <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
-                                        {uploading && <div className="absolute inset-0 bg-white/80 flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-purple-600" /></div>}
+                                            <textarea
+                                                ref={textareaRef}
+                                                rows={25}
+                                                required
+                                                value={formData.conteudo || ''}
+                                                onChange={e => setFormData({ ...formData, conteudo: e.target.value })}
+                                                className="w-full px-6 py-6 rounded-2xl border border-gray-200 text-gray-900 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all font-mono text-sm leading-relaxed shadow-inner bg-gray-50/30"
+                                                placeholder="Escreva sua notícia aqui usando Markdown..."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Sidebar Column */}
+                                <div className="space-y-8">
+                                    <div className="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                                        <label className="block text-sm font-medium text-gray-700 mb-4">Configurações da Notícia</label>
+
+                                        <div className="space-y-6">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Data de Publicação</label>
+                                                <input
+                                                    type="date"
+                                                    required
+                                                    value={formData.data_publicacao ? formData.data_publicacao.split('T')[0] : ''}
+                                                    onChange={e => setFormData({ ...formData, data_publicacao: e.target.value })}
+                                                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all bg-white"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">URL Base (Slug)</label>
+                                                <div className="px-4 py-3 bg-gray-100 rounded-xl text-gray-500 text-sm break-all font-mono">
+                                                    /{generateSlug(formData.titulo || 'titulo-da-noticia')}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-3">Capa da Notícia</label>
+                                        <div className="border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center hover:border-purple-400 transition-all bg-white aspect-[16/10] relative group cursor-pointer overflow-hidden shadow-sm">
+                                            {formData.imagem_capa_url ? (
+                                                <>
+                                                    <img src={formData.imagem_capa_url} alt="Preview" className="w-full h-full object-cover rounded-xl absolute inset-0" />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <span className="text-white font-medium px-4 py-2 border border-white/40 rounded-full backdrop-blur-sm">Mudar Foto</span>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <div className="text-gray-400">
+                                                    <Upload className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                                                    <span className="text-sm font-medium">Arraste ou clique para upload</span>
+                                                    <span className="block text-xs mt-1 text-gray-400">Horizontal (1920x1080) sugerido</span>
+                                                </div>
+                                            )}
+                                            <input type="file" accept="image/*" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" />
+                                            {uploading && (
+                                                <div className="absolute inset-0 bg-white/80 flex items-center justify-center backdrop-blur-sm">
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <Loader2 className="w-10 h-10 animate-spin text-purple-600" />
+                                                        <span className="text-sm font-bold text-gray-600">Enviando...</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-6">
+                                        <button
+                                            type="submit"
+                                            disabled={saving}
+                                            className="w-full bg-purple-600 hover:bg-purple-700 text-white px-8 py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all shadow-[0_10px_30px_rgba(147,51,234,0.3)] hover:shadow-[0_15px_40px_rgba(147,51,234,0.4)] disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-1 active:translate-y-0"
+                                        >
+                                            {saving ? (
+                                                <div className="flex items-center gap-3">
+                                                    <Loader2 className="w-6 h-6 animate-spin" />
+                                                    Salvando...
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center gap-3">
+                                                    <Save className="w-6 h-6" />
+                                                    {editingNews ? 'Salvar Alterações' : 'Publicar Notícia'}
+                                                </div>
+                                            )}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={handleCancel}
+                                            className="w-full mt-4 px-6 py-4 rounded-xl text-gray-500 font-medium hover:bg-gray-100 transition-colors"
+                                        >
+                                            Cancelar e Voltar
+                                        </button>
                                     </div>
                                 </div>
                             </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Conteúdo Completo</label>
-                                <div className="border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-500 transition-all">
-                                    <div className="flex items-center gap-1 p-2 bg-gray-50 border-b border-gray-200 overflow-x-auto">
-                                        <button type="button" onClick={() => insertFormat('**', '**')} className="p-2 hover:bg-gray-200 rounded text-gray-600 hover:text-gray-900" title="Negrito">
-                                            <Bold className="w-4 h-4" />
-                                        </button>
-                                        <button type="button" onClick={() => insertFormat('*', '*')} className="p-2 hover:bg-gray-200 rounded text-gray-600 hover:text-gray-900" title="Itálico">
-                                            <Italic className="w-4 h-4" />
-                                        </button>
-                                        <div className="w-px h-6 bg-gray-300 mx-1"></div>
-                                        <button type="button" onClick={() => insertFormat('## ', '')} className="p-2 hover:bg-gray-200 rounded text-gray-600 hover:text-gray-900" title="Título">
-                                            <Heading className="w-4 h-4" />
-                                        </button>
-                                        <button type="button" onClick={() => insertFormat('> ', '')} className="p-2 hover:bg-gray-200 rounded text-gray-600 hover:text-gray-900" title="Citação">
-                                            <Quote className="w-4 h-4" />
-                                        </button>
-                                        <button type="button" onClick={() => insertFormat('```\n', '\n```')} className="p-2 hover:bg-gray-200 rounded text-gray-600 hover:text-gray-900" title="Código">
-                                            <Code className="w-4 h-4" />
-                                        </button>
-                                        <div className="w-px h-6 bg-gray-300 mx-1"></div>
-                                        <button type="button" onClick={() => insertFormat('- ', '')} className="p-2 hover:bg-gray-200 rounded text-gray-600 hover:text-gray-900" title="Lista">
-                                            <List className="w-4 h-4" />
-                                        </button>
-                                        <button type="button" onClick={() => insertFormat('[', '](url)')} className="p-2 hover:bg-gray-200 rounded text-gray-600 hover:text-gray-900" title="Link">
-                                            <LinkIcon className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                    <textarea
-                                        ref={textareaRef}
-                                        rows={12}
-                                        required
-                                        value={formData.conteudo || ''}
-                                        onChange={e => setFormData({ ...formData, conteudo: e.target.value })}
-                                        className="w-full px-4 py-3 outline-none font-mono text-sm resize-y"
-                                        placeholder="Escreva seu conteúdo aqui..."
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="border-t border-gray-100 pt-6 flex justify-end gap-3">
-                                <button
-                                    type="button"
-                                    onClick={handleCancel}
-                                    className="px-6 py-3 rounded-xl text-gray-600 font-medium hover:bg-gray-50 transition-colors"
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={saving}
-                                    className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg hover:shadow-purple-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
-                                >
-                                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                                    {editingNews ? 'Salvar Alterações' : 'Publicar Notícia'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                    </form>
                 </div>
             )}
         </div>
     );
 };
 
-export default News;
+export default NewsAdmin;

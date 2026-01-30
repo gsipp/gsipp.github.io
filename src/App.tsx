@@ -12,10 +12,12 @@ import Publicacoes from './pages/Publicacoes';
 import Eventos from './pages/Eventos';
 import Editais from './pages/Editais';
 import NoticiaDetalhe from './pages/NoticiaDetalhe';
+import EditaisAdmin from './pages/admin/Editais';
 
 import News from './pages/admin/News';
 import Publications from './pages/admin/Publications';
 import Events from './pages/admin/Events';
+import Profile from './pages/admin/Profile';
 
 function App() {
     return (
@@ -40,6 +42,8 @@ function App() {
                         <Route path="noticias" element={<News />} />
                         <Route path="publicacoes" element={<Publications />} />
                         <Route path="eventos" element={<Events />} />
+                        <Route path="editais" element={<EditaisAdmin />} />
+                        <Route path="perfil" element={<Profile />} />
                     </Route>
                 </Routes>
             </Router>
