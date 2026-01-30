@@ -165,9 +165,13 @@ const NewsAdmin = () => {
         setUploading(false);
     };
 
-    const handleEdit = (newsItem: News) => {
-        setEditingNews(newsItem);
-        setFormData(newsItem);
+    const handleEdit = (item: News) => {
+        setEditingNews(item);
+        const dataPub = item.data_publicacao ? item.data_publicacao.split('T')[0] : '';
+        setFormData({
+            ...item,
+            data_publicacao: dataPub
+        });
         setView('form');
     };
 
@@ -242,7 +246,10 @@ const NewsAdmin = () => {
                                     </div>
                                     <div className="p-5">
                                         <div className="text-xs text-purple-600 font-semibold mb-2">
-                                            {new Date(item.data_publicacao.includes('T') ? item.data_publicacao : item.data_publicacao + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+                                            {(() => {
+                                                const [year, month, day] = item.data_publicacao.split('T')[0].split('-').map(Number);
+                                                return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+                                            })()}
                                         </div>
                                         <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">{item.titulo}</h3>
                                         <p className="text-sm text-gray-500 line-clamp-3">{item.resumo}</p>

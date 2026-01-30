@@ -36,7 +36,8 @@ const Editais = () => {
 
     const formatDate = (dateString: string) => {
         if (!dateString) return '-';
-        const date = new Date(dateString.includes('T') ? dateString : `${dateString}T12:00:00`);
+        const [year, month, day] = dateString.split('T')[0].split('-').map(Number);
+        const date = new Date(year, month - 1, day, 12, 0, 0);
         return date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
     };
 

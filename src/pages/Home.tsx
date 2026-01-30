@@ -478,7 +478,15 @@ const Home = () => {
                                 </div>
                                 <div className="p-8 flex flex-col flex-grow">
                                     <div className="flex items-center text-gray-400 text-sm mb-3">
-                                        <Calendar className="w-3 h-3 mr-1" /> {new Date(item.data_publicacao).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        <Calendar className="w-3 h-3 mr-1" /> {(() => {
+                                            const [year, month, day] = item.data_publicacao.split('T')[0].split('-').map(Number);
+                                            return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR', {
+                                                timeZone: 'America/Sao_Paulo',
+                                                day: '2-digit',
+                                                month: 'short',
+                                                year: 'numeric'
+                                            });
+                                        })()}
                                     </div>
                                     <h4 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
                                         {item.titulo}

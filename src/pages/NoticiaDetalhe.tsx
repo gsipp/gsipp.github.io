@@ -94,7 +94,15 @@ const NoticiaDetalhe = () => {
                         </div>
                         <div className="w-px h-8 bg-gray-100 hidden sm:block"></div>
                         <div className="flex items-center gap-2 text-gray-500 text-sm font-medium">
-                            <Calendar className="w-4 h-4" /> {new Date(news.data_publicacao).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                            <Calendar className="w-4 h-4" /> {(() => {
+                                const [year, month, day] = news.data_publicacao.split('T')[0].split('-').map(Number);
+                                return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR', {
+                                    timeZone: 'America/Sao_Paulo',
+                                    day: '2-digit',
+                                    month: 'long',
+                                    year: 'numeric'
+                                });
+                            })()}
                         </div>
                     </div>
                 </div>

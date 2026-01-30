@@ -1,7 +1,7 @@
 -- Tabela de Membros
 create table if not exists membros (
   id uuid default gen_random_uuid() primary key,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  created_at timestamp with time zone default timezone('America/Sao_Paulo'::text, now()) not null,
   nome text not null,
   cargo text not null, -- Ex: 'Docente', 'Discente', 'Egresso'
   area_pesquisa text,
@@ -14,12 +14,12 @@ create table if not exists membros (
 -- Tabela de Notícias
 create table if not exists noticias (
   id uuid default gen_random_uuid() primary key,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  created_at timestamp with time zone default timezone('America/Sao_Paulo'::text, now()) not null,
   titulo text not null,
   slug text not null unique,
   resumo text,
   conteudo text, -- Markdown ou HTML
-  data_publicacao timestamp with time zone default timezone('utc'::text, now()),
+  data_publicacao timestamp with time zone default timezone('America/Sao_Paulo'::text, now()),
   imagem_capa_url text,
   publicado boolean default true
 );
@@ -27,7 +27,7 @@ create table if not exists noticias (
 -- Tabela de Publicações
 create table if not exists publicacoes (
   id uuid default gen_random_uuid() primary key,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  created_at timestamp with time zone default timezone('America/Sao_Paulo'::text, now()) not null,
   titulo text not null,
   ano integer not null,
   autores text not null,
@@ -39,7 +39,7 @@ create table if not exists publicacoes (
 -- Tabela de Eventos
 create table if not exists eventos (
   id uuid default gen_random_uuid() primary key,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  created_at timestamp with time zone default timezone('America/Sao_Paulo'::text, now()) not null,
   titulo text not null,
   data_evento timestamp with time zone,
   local text,

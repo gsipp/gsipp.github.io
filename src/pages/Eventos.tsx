@@ -59,14 +59,17 @@ const Eventos = () => {
     }, []);
 
     const now = new Date();
-    const getSafeDate = (d: string) => new Date(d.includes('T') ? d : `${d}T12:00:00`);
+    const getSafeDate = (dateString: string) => {
+        if (!dateString) return new Date();
+        const [year, month, day] = dateString.split('T')[0].split('-').map(Number);
+        return new Date(year, month - 1, day, 12, 0, 0);
+    };
     const upcomingEvents = events.filter(e => getSafeDate(e.data_evento) >= now).sort((a, b) => getSafeDate(a.data_evento).getTime() - getSafeDate(b.data_evento).getTime());
     const pastEvents = events.filter(e => getSafeDate(e.data_evento) < now);
 
     const formatDate = (dateString: string) => {
-        // Force midday to avoid timezone shifts when parsing YYYY-MM-DD
-        const date = new Date(dateString.includes('T') ? dateString : `${dateString}T12:00:00`);
-        const options = { timeZone: 'America/Sao_Paulo' };
+        const date = getSafeDate(dateString);
+        const options: Intl.DateTimeFormatOptions = { timeZone: 'America/Sao_Paulo' };
         return {
             day: date.toLocaleDateString('pt-BR', { ...options, day: '2-digit' }),
             month: date.toLocaleDateString('pt-BR', { ...options, month: 'short' }).toUpperCase().replace('.', ''),

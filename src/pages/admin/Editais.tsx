@@ -90,7 +90,13 @@ const Editais = () => {
     const openModal = (edital?: Edital) => {
         if (edital) {
             setEditingEdital(edital);
-            setFormData(edital);
+            const dataAbertura = edital.data_abertura ? edital.data_abertura.split('T')[0] : '';
+            const dataFechamento = edital.data_fechamento ? edital.data_fechamento.split('T')[0] : '';
+            setFormData({
+                ...edital,
+                data_abertura: dataAbertura,
+                data_fechamento: dataFechamento
+            });
         } else {
             setEditingEdital(null);
             setFormData({
@@ -157,11 +163,19 @@ const Editais = () => {
                                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
                                     <div className="flex items-center gap-1.5">
                                         <Calendar className="w-4 h-4 text-gray-400" />
-                                        <span>Abre: {edital.data_abertura ? new Date(edital.data_abertura + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : 'N/A'}</span>
+                                        <span>Abre: {(() => {
+                                            if (!edital.data_abertura) return 'N/A';
+                                            const [year, month, day] = edital.data_abertura.split('T')[0].split('-').map(Number);
+                                            return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+                                        })()}</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                         <Calendar className="w-4 h-4 text-gray-400" />
-                                        <span>Fecha: {edital.data_fechamento ? new Date(edital.data_fechamento + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : 'N/A'}</span>
+                                        <span>Fecha: {(() => {
+                                            if (!edital.data_fechamento) return 'N/A';
+                                            const [year, month, day] = edital.data_fechamento.split('T')[0].split('-').map(Number);
+                                            return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+                                        })()}</span>
                                     </div>
                                     {edital.link_pdf && (
                                         <a href={edital.link_pdf} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-indigo-600 hover:text-indigo-700 font-medium">

@@ -1,7 +1,7 @@
 -- Tabela de Editais
 create table if not exists editais (
   id uuid default gen_random_uuid() primary key,
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  created_at timestamp with time zone default timezone('America/Sao_Paulo'::text, now()) not null,
   titulo text not null,
   descricao text,
   link_pdf text,

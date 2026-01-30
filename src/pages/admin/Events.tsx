@@ -38,6 +38,13 @@ const Events = () => {
     const [saving, setSaving] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Manual date parsing to avoid timezone shifts
+    const getSafeDate = (dateString: string) => {
+        if (!dateString) return new Date();
+        const [year, month, day] = dateString.split('T')[0].split('-').map(Number);
+        return new Date(year, month - 1, day, 12, 0, 0);
+    };
+
     // Member search states
     const [memberSearch, setMemberSearch] = useState('');
 
@@ -121,10 +128,14 @@ const Events = () => {
     const openForm = (event?: Event) => {
         if (event) {
             setEditingEvent(event);
+            // Extract only the date part YYYY-MM-DD from the string
+            const data1 = event.data_evento ? event.data_evento.split('T')[0] : '';
+            const data2 = event.data_evento_2 ? event.data_evento_2.split('T')[0] : '';
+
             setFormData({
                 ...event,
-                data_evento: event.data_evento ? event.data_evento.split('T')[0] : '',
-                data_evento_2: event.data_evento_2 ? event.data_evento_2.split('T')[0] : ''
+                data_evento: data1,
+                data_evento_2: data2
             });
         } else {
             setEditingEvent(null);
@@ -201,16 +212,16 @@ const Events = () => {
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     {filteredEvents
                                         .filter(e => {
-                                            const eventDate = new Date(e.data_evento + 'T12:00:00');
+                                            const eventDate = getSafeDate(e.data_evento);
                                             return eventDate >= new Date(new Date().setHours(0, 0, 0, 0));
                                         })
                                         .map((event) => (
                                             <div key={event.id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex gap-6 group hover:shadow-md transition-all relative overflow-hidden">
                                                 <div className={`absolute top-0 left-0 w-1 h-full ${event.tipo === 'Defesa' ? 'bg-blue-500' : event.tipo === 'Palestra' ? 'bg-purple-500' : 'bg-amber-500'}`}></div>
                                                 <div className="flex-shrink-0 bg-slate-50 text-slate-600 w-20 h-20 rounded-2xl flex flex-col items-center justify-center border border-slate-100 shadow-sm transition-transform group-hover:scale-105">
-                                                    <span className="text-xs font-black uppercase tracking-tighter opacity-70">{new Date(event.data_evento + 'T12:00:00').toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', month: 'short' })}</span>
-                                                    <span className="text-3xl font-black leading-none">{new Date(event.data_evento + 'T12:00:00').toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit' })}</span>
-                                                    <span className="text-[10px] font-bold opacity-70">{new Date(event.data_evento + 'T12:00:00').toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', year: 'numeric' })}</span>
+                                                    <span className="text-xs font-black uppercase tracking-tighter opacity-70">{getSafeDate(event.data_evento).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', month: 'short' })}</span>
+                                                    <span className="text-3xl font-black leading-none">{getSafeDate(event.data_evento).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit' })}</span>
+                                                    <span className="text-[10px] font-bold opacity-70">{getSafeDate(event.data_evento).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', year: 'numeric' })}</span>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 mb-2">
@@ -262,19 +273,19 @@ const Events = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                     {filteredEvents
                                         .filter(e => {
-                                            const eventDate = new Date(e.data_evento + 'T12:00:00');
+                                            const eventDate = getSafeDate(e.data_evento);
                                             return eventDate < new Date(new Date().setHours(0, 0, 0, 0));
                                         })
                                         .map((event) => (
                                             <div key={event.id} className="bg-white px-5 py-4 rounded-xl border border-gray-100 flex items-center gap-4 group opacity-75 hover:opacity-100 transition-all shadow-sm">
                                                 <div className="flex-shrink-0 bg-gray-100 text-gray-500 w-12 h-12 rounded-lg flex flex-col items-center justify-center border border-gray-200 text-center">
-                                                    <span className="text-[10px] font-bold uppercase leading-none">{new Date(event.data_evento + 'T12:00:00').toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', month: 'short' })}</span>
-                                                    <span className="text-lg font-bold leading-none">{new Date(event.data_evento + 'T12:00:00').toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit' })}</span>
+                                                    <span className="text-[10px] font-bold uppercase leading-none">{getSafeDate(event.data_evento).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', month: 'short' })}</span>
+                                                    <span className="text-lg font-bold leading-none">{getSafeDate(event.data_evento).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit' })}</span>
                                                 </div>
                                                 <div className="flex-1 min-w-0">
                                                     <h3 className="font-bold text-gray-700 text-sm truncate">{event.titulo}</h3>
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] text-gray-400 font-medium">{new Date(event.data_evento + 'T12:00:00').toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</span>
+                                                        <span className="text-[10px] text-gray-400 font-medium">{getSafeDate(event.data_evento).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</span>
                                                         <span className="text-[10px] text-slate-300">•</span>
                                                         <span className="text-[10px] font-bold text-slate-400 uppercase">{event.tipo}</span>
                                                     </div>
