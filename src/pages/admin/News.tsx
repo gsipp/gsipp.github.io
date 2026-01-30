@@ -47,6 +47,17 @@ const NewsAdmin = () => {
         }, 0);
     };
 
+    // Keyboard shortcuts
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
+            e.preventDefault();
+            insertFormat('**', '**');
+        } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') {
+            e.preventDefault();
+            insertFormat('_', '_');
+        }
+    };
+
     // Generate slug helper
     const generateSlug = (title: string) => {
         return title
@@ -316,6 +327,7 @@ const NewsAdmin = () => {
                                                 required
                                                 value={formData.conteudo || ''}
                                                 onChange={e => setFormData({ ...formData, conteudo: e.target.value })}
+                                                onKeyDown={handleKeyDown}
                                                 className="w-full px-6 py-6 rounded-2xl border border-gray-200 text-gray-900 focus:ring-4 focus:ring-purple-500/10 focus:border-purple-500 outline-none transition-all font-mono text-sm leading-relaxed shadow-inner bg-gray-50/30"
                                                 placeholder="Escreva sua notícia aqui usando Markdown..."
                                             />
