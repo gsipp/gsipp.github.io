@@ -66,11 +66,12 @@ const Eventos = () => {
     const formatDate = (dateString: string) => {
         // Force midday to avoid timezone shifts when parsing YYYY-MM-DD
         const date = new Date(dateString.includes('T') ? dateString : `${dateString}T12:00:00`);
+        const options = { timeZone: 'America/Sao_Paulo' };
         return {
-            day: date.toLocaleDateString('pt-BR', { day: '2-digit' }),
-            month: date.toLocaleDateString('pt-BR', { month: 'short' }).toUpperCase().replace('.', ''),
-            full: date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' }),
-            time: date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+            day: date.toLocaleDateString('pt-BR', { ...options, day: '2-digit' }),
+            month: date.toLocaleDateString('pt-BR', { ...options, month: 'short' }).toUpperCase().replace('.', ''),
+            full: date.toLocaleDateString('pt-BR', { ...options, day: '2-digit', month: 'long', year: 'numeric' }),
+            time: date.toLocaleTimeString('pt-BR', { ...options, hour: '2-digit', minute: '2-digit' })
         };
     };
 

@@ -37,7 +37,7 @@ const Editais = () => {
     const formatDate = (dateString: string) => {
         if (!dateString) return '-';
         const date = new Date(dateString.includes('T') ? dateString : `${dateString}T12:00:00`);
-        return date.toLocaleDateString('pt-BR');
+        return date.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
     };
 
     const getStatusStyle = (status: string) => {
