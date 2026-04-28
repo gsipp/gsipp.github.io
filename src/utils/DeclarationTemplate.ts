@@ -9,7 +9,6 @@ export const generateDeclarationHTML = (member: any, customTemplate?: string, se
     const address = settings?.cabecalho_endereco || '07.272.636/0001-31\nCampus Universitário\nAvenida Professora Machadinha Lima, S/N -\nPríncipe Imperial, Crateús - CE, 63708-825';
 
     const matricula = member.matricula || '_______';
-    const cpf = member.cpf || '___________';
     const curso = member.curso || '_____________________';
     const cargaHoraria = member.carga_horaria || '__';
     const orientador = member.orientador || 'Antonio Emerson Barros Tomaz';

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Save, Loader2, FileText, Info, RefreshCw, Eye } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useToast } from '../../contexts/ToastContext';
 
 const Config = () => {
