@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Calendar, MapPin, Clock, ChevronRight, GraduationCap, Presentation, Users as UsersIcon, Download, AlertCircle } from 'lucide-react';
 import SEO from '../components/SEO';
 import NetworkBackground from '../components/NetworkBackground';

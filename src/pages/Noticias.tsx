@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Newspaper, Calendar, ArrowRight, Search, Filter, ChevronLeft, ChevronRight, Activity } from 'lucide-react';
+import { Newspaper, Calendar, Search, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 import NetworkBackground from '../components/NetworkBackground';

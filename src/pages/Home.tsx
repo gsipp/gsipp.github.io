@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, Lock, Eye, Fingerprint, Wifi, AlertTriangle, ArrowRight, BookOpen, Users, Globe, Calendar, Newspaper, Mail, Linkedin } from 'lucide-react';
+import { Shield, Lock, Eye, Fingerprint, Wifi, AlertTriangle, ArrowRight, Users, Mail, Linkedin } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import NetworkBackground from '../components/NetworkBackground';
 
@@ -46,35 +46,11 @@ const getLattesPhotoUrl = (member: Membro): string | null => {
     return null;
 };
 
-interface Noticia {
-    id: string;
-    titulo: string;
-    slug: string;
-    resumo: string | null;
-    imagem_capa_url: string | null;
-    data_publicacao: string;
-}
-
 const Home = () => {
-    const [news, setNews] = useState<Noticia[]>([]);
     const [members, setMembers] = useState<Membro[]>([]);
-    const [loadingNews, setLoadingNews] = useState(true);
     const [loadingMembers, setLoadingMembers] = useState(true);
-    const [stats, setStats] = useState({ membros: 0, publicacoes: 0 });
 
     useEffect(() => {
-        const fetchNews = async () => {
-            const { data, error } = await supabase
-                .from('noticias')
-                .select('*')
-                .order('data_publicacao', { ascending: false })
-                .limit(3);
-
-            if (error) console.error('Error fetching news:', error);
-            else setNews(data || []);
-            setLoadingNews(false);
-        };
-
         const fetchMembers = async () => {
             const { data, error } = await supabase
                 .from('membros')
@@ -86,20 +62,7 @@ const Home = () => {
             setLoadingMembers(false);
         };
 
-        const fetchStats = async () => {
-            const [{ count: membrosCount, error: membrosError }, { count: pubCount, error: pubError }] = await Promise.all([
-                supabase.from('membros').select('*', { count: 'exact', head: true }),
-                supabase.from('publicacoes').select('*', { count: 'exact', head: true })
-            ]);
-            if (membrosError) console.error('Error fetching membros count:', membrosError);
-            if (pubError) console.error('Error fetching publicacoes count:', pubError);
-            console.log('Stats:', membrosCount, pubCount);
-            setStats({ membros: membrosCount || 0, publicacoes: pubCount || 0 });
-        };
-
-        fetchNews();
         fetchMembers();
-        fetchStats();
     }, []);
 
     const researchLines = [
