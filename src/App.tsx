@@ -39,9 +39,9 @@ function App() {
                             <Route element={<Layout><NoticiaDetalhe /></Layout>} path="/noticias/:slug" />
 
                             {/* Admin Routes */}
-                            <Route path="/admin/login" element={<Login />} />
+                            <Route path="/gestao-gsipp/login" element={<Login />} />
 
-                            <Route path="/admin" element={<AdminLayout />}>
+                            <Route path="/gestao-gsipp" element={<AdminLayout />}>
                                 <Route index element={<Dashboard />} />
                                 <Route path="membros" element={<Members />} />
                                 <Route path="noticias" element={<News />} />
@@ -51,7 +51,7 @@ function App() {
                                 <Route path="perfil" element={<Profile />} />
                                 <Route path="configuracoes" element={<Config />} />
                                 {/* Redirect unknown admin paths to dashboard */}
-                                <Route path="*" element={<Navigate to="/admin" replace />} />
+                                <Route path="*" element={<Navigate to="/gestao-gsipp" replace />} />
                             </Route>
 
                             {/* 404 Catch-all */}

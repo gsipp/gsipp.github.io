@@ -26,7 +26,7 @@ const Login = () => {
             setError('Credenciais inválidas. Verifique e tente novamente.');
             setLoading(false);
         } else {
-            navigate('/admin');
+            navigate('/gestao-gsipp');
         }
     };
 

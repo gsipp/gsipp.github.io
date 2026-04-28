@@ -20,18 +20,18 @@ const AdminLayout = () => {
     }
 
     if (!user) {
-        return <Navigate to="/admin/login" replace />;
+        return <Navigate to="/gestao-gsipp/login" replace />;
     }
 
     const navItems = [
-        { path: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-        { path: '/admin/membros', icon: Users, label: 'Membros' },
-        { path: '/admin/noticias', icon: Newspaper, label: 'Notícias' },
-        { path: '/admin/publicacoes', icon: BookOpen, label: 'Publicações' },
-        { path: '/admin/eventos', icon: Calendar, label: 'Eventos' },
-        { path: '/admin/editais', icon: ClipboardList, label: 'Editais' },
-        { path: '/admin/configuracoes', icon: Settings, label: 'Configurações' },
-        { path: '/admin/perfil', icon: UserCog, label: 'Meu Perfil' },
+        { path: '/gestao-gsipp', icon: LayoutDashboard, label: 'Dashboard', end: true },
+        { path: '/gestao-gsipp/membros', icon: Users, label: 'Membros' },
+        { path: '/gestao-gsipp/noticias', icon: Newspaper, label: 'Notícias' },
+        { path: '/gestao-gsipp/publicacoes', icon: BookOpen, label: 'Publicações' },
+        { path: '/gestao-gsipp/eventos', icon: Calendar, label: 'Eventos' },
+        { path: '/gestao-gsipp/editais', icon: ClipboardList, label: 'Editais' },
+        { path: '/gestao-gsipp/configuracoes', icon: Settings, label: 'Configurações' },
+        { path: '/gestao-gsipp/perfil', icon: UserCog, label: 'Meu Perfil' },
     ];
 
     const handleLogout = async () => {

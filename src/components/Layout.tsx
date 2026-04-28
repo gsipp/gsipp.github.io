@@ -26,7 +26,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         { name: 'Publicações', path: '/publicacoes', icon: <FileText className="w-4 h-4 mr-2" /> },
         { name: 'Eventos', path: '/eventos', icon: <Calendar className="w-4 h-4 mr-2" /> },
         { name: 'Editais', path: '/editais', icon: <FileText className="w-4 h-4 mr-2" /> },
-        { name: 'Admin', path: '/admin', icon: <Shield className="w-4 h-4 mr-2" /> },
     ];
 
     return (
@@ -141,12 +140,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                                         </Link>
                                     </li>
                                 ))}
-                                <li>
-                                    <Link to="/admin" className="text-sm hover:text-emerald-400 transition-colors flex items-center gap-2 group mt-4">
-                                        <Shield className="w-4 h-4 text-slate-600 group-hover:text-emerald-400 transition-colors" />
-                                        Acesso Restrito (Admin)
-                                    </Link>
-                                </li>
                             </ul>
                         </div>
 

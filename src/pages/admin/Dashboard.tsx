@@ -152,10 +152,10 @@ const Dashboard = () => {
     }
 
     const stats = [
-        { label: 'Membros Ativos', value: statsData.members, icon: Users, color: 'blue', path: '/admin/membros' },
-        { label: 'Notícias Postadas', value: statsData.news, icon: Newspaper, color: 'slate', path: '/admin/noticias' },
-        { label: 'Eventos Agendados', value: statsData.events, icon: Calendar, color: 'blue', path: '/admin/eventos' },
-        { label: 'Publicações', value: statsData.publications, icon: BookOpen, color: 'slate', path: '/admin/publicacoes' },
+        { label: 'Membros Ativos', value: statsData.members, icon: Users, color: 'blue', path: '/gestao-gsipp/membros' },
+        { label: 'Notícias Postadas', value: statsData.news, icon: Newspaper, color: 'slate', path: '/gestao-gsipp/noticias' },
+        { label: 'Eventos Agendados', value: statsData.events, icon: Calendar, color: 'blue', path: '/gestao-gsipp/eventos' },
+        { label: 'Publicações', value: statsData.publications, icon: BookOpen, color: 'slate', path: '/gestao-gsipp/publicacoes' },
     ];
 
     const containerVariants = { hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } };
@@ -206,10 +206,10 @@ const Dashboard = () => {
                                 Atualmente temos {upcomingEvents.length} eventos pendentes. Que tal publicar uma nova notícia para manter o engajamento?
                             </p>
                             <div className="flex flex-wrap gap-4">
-                                <Link to="/admin/noticias" className="bg-white/10 backdrop-blur-md border border-white/10 hover:bg-white/20 px-6 py-3 rounded-2xl font-bold transition-all flex items-center gap-2">
+                                <Link to="/gestao-gsipp/noticias" className="bg-white/10 backdrop-blur-md border border-white/10 hover:bg-white/20 px-6 py-3 rounded-2xl font-bold transition-all flex items-center gap-2">
                                     Nova Notícia
                                 </Link>
-                                <Link to="/admin/eventos" className="bg-blue-500 text-white px-6 py-3 rounded-2xl font-bold hover:bg-blue-400 transition-all flex items-center gap-2">
+                                <Link to="/gestao-gsipp/eventos" className="bg-blue-500 text-white px-6 py-3 rounded-2xl font-bold hover:bg-blue-400 transition-all flex items-center gap-2">
                                     Agendar Evento <ArrowRight className="w-4 h-4" />
                                 </Link>
                             </div>
@@ -220,7 +220,7 @@ const Dashboard = () => {
                         <motion.div variants={itemVariants} className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8">
                             <div className="flex justify-between items-center mb-8">
                                 <h3 className="font-black text-slate-900 uppercase tracking-tighter text-lg">Novos Membros</h3>
-                                <Link to="/admin/membros" className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all"><ArrowRight className="w-4 h-4" /></Link>
+                                <Link to="/gestao-gsipp/membros" className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all"><ArrowRight className="w-4 h-4" /></Link>
                             </div>
                             <div className="space-y-6">
                                 {recentMembers.map((member) => (
@@ -247,7 +247,7 @@ const Dashboard = () => {
                         <motion.div variants={itemVariants} className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8">
                             <div className="flex justify-between items-center mb-8">
                                 <h3 className="font-black text-slate-900 uppercase tracking-tighter text-lg">Últimas Notícias</h3>
-                                <Link to="/admin/noticias" className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all"><ArrowRight className="w-4 h-4" /></Link>
+                                <Link to="/gestao-gsipp/noticias" className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all"><ArrowRight className="w-4 h-4" /></Link>
                             </div>
                             <div className="space-y-6">
                                 {recentNews.map((news) => (
@@ -278,7 +278,7 @@ const Dashboard = () => {
                     <motion.div variants={itemVariants} className="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-8">
                         <div className="flex justify-between items-center mb-8">
                             <h3 className="font-black text-slate-900 uppercase tracking-tighter text-lg">Próximos Eventos</h3>
-                            <Link to="/admin/eventos" className="text-blue-600 hover:text-blue-700 transition-colors"><ArrowRight className="w-5 h-5" /></Link>
+                            <Link to="/gestao-gsipp/eventos" className="text-blue-600 hover:text-blue-700 transition-colors"><ArrowRight className="w-5 h-5" /></Link>
                         </div>
 
                         <div className="space-y-6">
