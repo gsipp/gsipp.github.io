@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         if (!user) return;
 
-        let idleTimer: NodeJS.Timeout;
+        let idleTimer: any;
         const IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes
 
         const resetTimer = () => {
