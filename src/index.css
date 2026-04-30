@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 :root {
     --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -45,6 +46,27 @@ body {
         backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.3);
     }
+}
+
+/* Typography Overrides for Markdown Tables */
+.prose table {
+    @apply w-full border-collapse my-8 text-sm text-left text-gray-500;
+}
+
+.prose thead {
+    @apply text-xs text-gray-700 uppercase bg-gray-50;
+}
+
+.prose th {
+    @apply px-6 py-3 border-b border-gray-200;
+}
+
+.prose td {
+    @apply px-6 py-4 border-b border-gray-100;
+}
+
+.prose tr:hover {
+    @apply bg-gray-50/50;
 }
 
 @keyframes shimmer {

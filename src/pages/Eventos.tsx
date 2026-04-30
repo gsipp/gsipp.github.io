@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Clock, ChevronRight, GraduationCap, Presentation, Users as UsersIcon, Download, AlertCircle } from 'lucide-react';
+import { Calendar, MapPin, Clock, ChevronRight, GraduationCap, Presentation, Users as UsersIcon, Download, AlertCircle, Search } from 'lucide-react';
 import SEO from '../components/SEO';
 import NetworkBackground from '../components/NetworkBackground';
 
@@ -30,6 +30,7 @@ const Eventos = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [members, setMembers] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -67,8 +68,15 @@ const Eventos = () => {
         return new Date(year, month - 1, day, 12, 0, 0);
     };
     
-    const upcomingEvents = events.filter(e => getSafeDate(e.data_evento) >= now).sort((a, b) => getSafeDate(a.data_evento).getTime() - getSafeDate(b.data_evento).getTime());
-    const pastEvents = events.filter(e => getSafeDate(e.data_evento) < now);
+    const filteredEvents = events.filter(e => {
+        const matchesSearch = e.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                             e.descricao.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             (e.estudante?.nome?.toLowerCase().includes(searchTerm.toLowerCase()));
+        return matchesSearch;
+    });
+
+    const upcomingEvents = filteredEvents.filter(e => getSafeDate(e.data_evento) >= now).sort((a, b) => getSafeDate(a.data_evento).getTime() - getSafeDate(b.data_evento).getTime());
+    const pastEvents = filteredEvents.filter(e => getSafeDate(e.data_evento) < now);
 
     const formatDate = (dateString: string) => {
         const date = getSafeDate(dateString);
@@ -91,42 +99,59 @@ const Eventos = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col relative pt-[80px]">
+        <div className="min-h-screen bg-slate-50 flex flex-col relative pt-[80px]">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/white-diamond.png')] opacity-20 pointer-events-none"></div>
             <SEO 
                 title="Eventos" 
                 description="Defesas de TCC, workshops, palestras e minicursos focados em segurança e privacidade do GSIPP."
             />
             
-            {/* Header matches Publicacoes precisely */}
-            <section className="relative bg-slate-900 pt-32 pb-24 overflow-hidden rounded-b-3xl mx-2 mt-2">
-                <NetworkBackground />
-                <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/90 to-slate-900 pointer-events-none"></div>
+            {/* Header matches Noticias precisely */}
+            <section className="relative bg-slate-900 pt-24 pb-48 overflow-hidden rounded-b-[4rem] mx-2 mt-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-emerald-600/20 pointer-events-none"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
 
-                <div className="container mx-auto px-6 relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
-                    <div className="max-w-3xl">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-bold uppercase tracking-widest mb-6 backdrop-blur-sm"
-                        >
-                            <Calendar className="w-4 h-4" /> Calendário GSIPP
-                        </motion.div>
-                        <motion.h1
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
-                        >
-                            Nossos <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Eventos</span>
-                        </motion.h1>
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="text-gray-400 text-lg max-w-2xl leading-relaxed"
-                        >
-                            Defesas de TCC, workshops, palestras e minicursos focados em segurança e privacidade.
-                        </motion.p>
+                <div className="container mx-auto px-6 relative z-10 text-center max-w-4xl">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-[0.3em] mb-8 backdrop-blur-sm mx-auto"
+                    >
+                        <Calendar className="w-3.5 h-3.5" /> CALENDÁRIO GSIPP
+                    </motion.div>
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="text-5xl md:text-7xl font-black text-white mb-8 leading-[1.1]"
+                    >
+                        Nossos <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Eventos</span>
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-slate-400 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto font-medium"
+                    >
+                        Defesas de TCC, workshops, palestras e minicursos focados em segurança e privacidade.
+                    </motion.p>
+                </div>
+            </section>
+
+            {/* Search Section */}
+            <section className="-mt-12 mb-12 relative z-20">
+                <div className="container mx-auto px-6">
+                    <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl shadow-slate-900/10 border border-slate-100 p-3 md:p-4">
+                        <div className="relative w-full">
+                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                            <input
+                                type="text"
+                                placeholder="Buscar eventos por título, descrição ou participante..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-16 pr-6 py-5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-900 font-bold placeholder:text-slate-300"
+                            />
+                        </div>
                     </div>
                 </div>
             </section>

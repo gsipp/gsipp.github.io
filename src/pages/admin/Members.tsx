@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, FileText, CheckCircle, Mail, CreditCard, Clock } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, FileText, CheckCircle, Mail, CreditCard, Clock, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
@@ -49,6 +49,7 @@ const Members = () => {
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
     const toast = useToast();
 
     // Fetch members
@@ -68,6 +69,12 @@ const Members = () => {
     useEffect(() => {
         fetchMembers();
     }, []);
+
+    const filteredMembers = members.filter(m => 
+        m.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        m.cargo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (m.area_pesquisa?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    );
 
     // Handle Delete
     const handleDelete = async (id: string) => {
@@ -205,15 +212,27 @@ const Members = () => {
         <div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Membros</h1>
-                    <p className="text-gray-500">Gerencie a equipe e emita declarações.</p>
+                    <h1 className="text-3xl font-bold text-gray-900">Corpo de Membros</h1>
+                    <p className="text-gray-500">Gestão de pesquisadores, alunos e colaboradores do GSIPP.</p>
                 </div>
-                <button
-                    onClick={() => openModal()}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-500/30 whitespace-nowrap"
-                >
-                    <Plus className="w-5 h-5" /> Novo Membro
-                </button>
+                <div className="flex gap-3 w-full md:w-auto">
+                    <div className="relative flex-1 md:w-64">
+                        <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Buscar membro..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full bg-white"
+                        />
+                    </div>
+                    <button
+                        onClick={() => openModal()}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-500/30 whitespace-nowrap"
+                    >
+                        <Plus className="w-5 h-5" /> <span className="hidden md:inline">Novo Membro</span>
+                    </button>
+                </div>
             </div>
 
             {loading ? (
@@ -232,65 +251,82 @@ const Members = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
-                                {members.map((member) => (
-                                    <tr key={member.id} className="hover:bg-blue-50/30 transition-colors group">
-                                        <td className="px-6 py-4">
+                                {filteredMembers.map((member) => (
+                                    <tr key={member.id} className="hover:bg-blue-50/40 transition-colors group">
+                                        <td className="px-6 py-5">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-gray-100 overflow-hidden border-2 border-white shadow-sm shrink-0">
-                                                    {member.foto_url ? (
-                                                        <img src={member.foto_url} alt={member.nome} className="w-full h-full object-cover" />
-                                                    ) : getLattesPhotoUrl(member) ? (
-                                                        <img src={getLattesPhotoUrl(member)!} alt={member.nome} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-700 text-xs font-black">
-                                                            {member.nome.substring(0, 2).toUpperCase()}
-                                                        </div>
-                                                    )}
+                                                <div className="relative">
+                                                    <div className="w-12 h-12 rounded-2xl bg-gray-100 overflow-hidden border-2 border-white shadow-sm shrink-0">
+                                                        {member.foto_url ? (
+                                                            <img src={member.foto_url} alt={member.nome} className="w-full h-full object-cover" />
+                                                        ) : getLattesPhotoUrl(member) ? (
+                                                            <img src={getLattesPhotoUrl(member)!} alt={member.nome} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-700 text-xs font-black">
+                                                                {member.nome.substring(0, 2).toUpperCase()}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                                        <span className="text-[10px] font-black text-blue-600">#{member.ordem}</span>
+                                                    </div>
                                                 </div>
                                                 <div>
-                                                    <div className="font-medium text-gray-900">{member.nome}</div>
-                                                    <div className="text-xs text-gray-500">{member.cargo} • {member.area_pesquisa}</div>
+                                                    <div className="font-bold text-gray-900 text-base">{member.nome}</div>
+                                                    <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md inline-block mt-1">
+                                                        {member.cargo}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <div className="text-sm text-gray-600 space-y-1">
-                                                {member.email && <div className="flex items-center gap-1.5"><Mail className="w-3.5 h-3.5 text-gray-400" /> {member.email}</div>}
-                                                {member.cpf && <div className="flex items-center gap-1.5"><CreditCard className="w-3.5 h-3.5 text-gray-400" /> {member.cpf}</div>}
-                                                {member.carga_horaria && <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-gray-400" /> {member.carga_horaria} semanais</div>}
+                                        <td className="px-6 py-5">
+                                            <div className="text-sm text-gray-600 space-y-1.5">
+                                                {member.email && (
+                                                    <div className="flex items-center gap-2 group/info">
+                                                        <Mail className="w-4 h-4 text-gray-300 group-hover/info:text-blue-500 transition-colors" />
+                                                        <span className="font-medium">{member.email}</span>
+                                                    </div>
+                                                )}
+                                                <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                    <Clock className="w-3.5 h-3.5" /> 
+                                                    {member.carga_horaria ? `${member.carga_horaria}h semanais` : 'Carga horária n/d'}
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2">
+                                        <td className="px-6 py-5 text-right">
+                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <button
                                                     onClick={() => generateDeclaration(member)}
-                                                    className="p-2 hover:bg-white text-gray-400 hover:text-blue-600 rounded-lg transition-colors border border-transparent hover:border-gray-100 hover:shadow-sm"
+                                                    className="p-2.5 hover:bg-white text-gray-400 hover:text-blue-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
                                                     title="Gerar Declaração"
                                                 >
-                                                    <FileText className="w-4 h-4" />
+                                                    <FileText className="w-5 h-5" />
                                                 </button>
                                                 <button
                                                     onClick={() => openModal(member)}
-                                                    className="p-2 hover:bg-white text-gray-400 hover:text-blue-600 rounded-lg transition-colors border border-transparent hover:border-gray-100 hover:shadow-sm"
+                                                    className="p-2.5 hover:bg-white text-gray-400 hover:text-blue-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
                                                     title="Editar"
                                                 >
-                                                    <Pencil className="w-4 h-4" />
+                                                    <Pencil className="w-5 h-5" />
                                                 </button>
                                                 <button
                                                     onClick={() => setConfirmDelete(member.id)}
-                                                    className="p-2 hover:bg-white text-gray-400 hover:text-red-600 rounded-lg transition-colors border border-transparent hover:border-gray-100 hover:shadow-sm"
+                                                    className="p-2.5 hover:bg-white text-gray-400 hover:text-red-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
                                                     title="Excluir"
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Trash2 className="w-5 h-5" />
                                                 </button>
                                             </div>
                                         </td>
                                     </tr>
                                 ))}
-                                {members.length === 0 && (
+                                {filteredMembers.length === 0 && (
                                     <tr>
-                                        <td colSpan={3} className="px-6 py-16 text-center text-gray-400">
-                                            Nenhum membro cadastrado.
+                                        <td colSpan={3} className="px-6 py-20 text-center">
+                                            <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                                                <Users className="w-8 h-8 text-gray-300" />
+                                            </div>
+                                            <p className="text-gray-400 font-medium">Nenhum membro encontrado.</p>
                                         </td>
                                     </tr>
                                 )}

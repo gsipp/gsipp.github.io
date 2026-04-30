@@ -95,91 +95,74 @@ const Publicacoes = () => {
     });
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-[80px]">
+        <div className="min-h-screen bg-slate-50 pt-[80px] relative">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/white-diamond.png')] opacity-20 pointer-events-none"></div>
             <SEO
                 title="Produção Acadêmica"
                 description="Explore nosso acervo de artigos científicos, conferências e periódicos do GSIPP."
             />
 
             {/* Header */}
-            <section className="relative bg-slate-900 pt-32 pb-24 overflow-hidden rounded-b-3xl mx-2 mt-2">
-                <NetworkBackground />
-                <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/90 to-slate-900 pointer-events-none"></div>
-                <div className="container mx-auto px-6 relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
-                    <div className="max-w-3xl">
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-bold uppercase tracking-widest mb-6 backdrop-blur-sm"
-                        >
-                            <BookText className="w-4 h-4" /> Produção Acadêmica
-                        </motion.div>
-                        <motion.h1
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
-                        >
-                            Publicações de <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Impacto</span>
-                        </motion.h1>
-                        <motion.p
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="text-gray-400 text-lg leading-relaxed max-w-2xl"
-                        >
-                            Explore nosso acervo de artigos científicos, conferências e periódicos que contribuem para o avanço da segurança cibernética mundial.
-                        </motion.p>
-                    </div>
-
-                    <motion.div 
+            <section className="relative bg-slate-900 pt-24 pb-48 overflow-hidden rounded-b-[4rem] mx-2 mt-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-emerald-600/20 pointer-events-none"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
+                <div className="container mx-auto px-6 relative z-10 text-center max-w-4xl">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-[0.3em] mb-8 backdrop-blur-sm mx-auto"
+                    >
+                        <BookText className="w-3.5 h-3.5" /> PRODUÇÃO ACADÊMICA
+                    </motion.div>
+                    <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="flex gap-6 mt-8 md:mt-0"
+                        transition={{ delay: 0.1 }}
+                        className="text-5xl md:text-7xl font-black text-white mb-8 leading-[1.1]"
                     >
-                        <div className="bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-6 min-w-[140px]">
-                            <div className="text-blue-400 mb-2"><BookOpen className="w-6 h-6" /></div>
-                            <div className="text-3xl font-bold text-white mb-1">
-                                {stats.artigos}
-                            </div>
-                            <div className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Artigos Publicados</div>
-                        </div>
-                        <div className="bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-6 min-w-[140px]">
-                            <div className="text-emerald-400 mb-2"><Tag className="w-6 h-6" /></div>
-                            <div className="text-3xl font-bold text-white mb-1">
-                                {stats.tccs}
-                            </div>
-                            <div className="text-xs text-gray-400 uppercase tracking-wider font-semibold">TCCs & Teses</div>
-                        </div>
-                    </motion.div>
+                        Publicações de <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Impacto</span>
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-slate-400 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto font-medium"
+                    >
+                        Explore nosso acervo de artigos científicos, conferências e periódicos que contribuem para o avanço da segurança cibernética mundial.
+                    </motion.p>
                 </div>
             </section>
 
             {/* Filters */}
-            <section className="-mt-10 mb-12 relative z-20">
+            <section className="-mt-12 mb-20 relative z-20">
                 <div className="container mx-auto px-6">
-                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col lg:flex-row gap-6 items-center">
-                        <div className="relative flex-grow w-full">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                            <input
-                                type="text"
-                                placeholder="Buscar por título, autores ou veículo..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-12 pr-6 py-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-500 transition-all outline-none text-gray-700"
-                            />
+                    <div className="max-w-5xl mx-auto bg-white rounded-[2rem] shadow-2xl shadow-slate-900/10 border border-slate-100 overflow-hidden">
+                        <div className="p-2 md:p-3 flex flex-col md:flex-row gap-2">
+                            <div className="relative flex-grow">
+                                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar por título, autores ou veículo..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-16 pr-6 py-5 bg-slate-50/50 border-none rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none text-slate-900 font-bold placeholder:text-slate-300"
+                                />
+                            </div>
+                            <div className="hidden md:flex items-center gap-3 px-8 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-slate-900/20">
+                                <Filter className="w-4 h-4" /> FILTRAR
+                            </div>
                         </div>
-                        <div className="flex items-center gap-4 w-full lg:w-auto">
-                            <Filter className="text-gray-400 w-5 h-5 hidden sm:block shrink-0" />
-                            <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 w-full lg:w-auto">
-                                {years.slice(0, 7).map(year => (
+                        
+                        <div className="bg-slate-50/50 border-t border-slate-100 p-4 md:px-8 flex flex-col md:flex-row items-center gap-6">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap">Selecione o Ano:</span>
+                            <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide w-full">
+                                {years.map(year => (
                                     <button
                                         key={year}
                                         onClick={() => setSelectedYear(year)}
-                                        className={`px-5 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all ${selectedYear === year
-                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                                            : 'bg-gray-50 text-gray-500 hover:bg-gray-100'}`}
+                                        className={`px-6 py-2.5 rounded-xl font-black text-[10px] whitespace-nowrap transition-all uppercase tracking-widest border-2 ${selectedYear === year
+                                            ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105'
+                                            : 'bg-white border-transparent text-slate-400 hover:border-slate-200 hover:text-slate-600'}`}
                                     >
                                         {year}
                                     </button>

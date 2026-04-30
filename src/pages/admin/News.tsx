@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, Newspaper, Bold, Italic, List, Link as LinkIcon, Quote, Code } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, Newspaper, Bold, Italic, List, Link as LinkIcon, Quote, Code, Eye, FileEdit, FileText, Layout, Maximize2, Table, Strikethrough, Minus, CheckSquare, Image as ImageIcon, Type, Heading1, Heading2, Heading3 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 
@@ -25,6 +27,8 @@ const NewsAdmin = () => {
     const [uploading, setUploading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+    const [formTab, setFormTab] = useState<'write' | 'preview'>('write');
+    const [isFullScreen, setIsFullScreen] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const toast = useToast();
 
@@ -61,6 +65,21 @@ const NewsAdmin = () => {
             insertFormat('_', '_');
         }
     };
+
+    const applyTemplate = (type: 'noticia' | 'evento' | 'pesquisa') => {
+        const templates = {
+            noticia: `# Título da Notícia\n\nIntrodução curta sobre o acontecimento...\n\n## Detalhes\n\nDesenvolvimento da notícia aqui...\n\n> "Citação de algum membro ou envolvido"\n\n## Conclusão\n\nPróximos passos ou fechamento.`,
+            evento: `# Relatório de Evento: [Nome]\n\nO GSIPP participou do evento... no dia ...\n\n## Principais Destaques\n\n- Ponto 1\n- Ponto 2\n\n## Impacto\n\nComo isso ajuda o grupo e a pesquisa.`,
+            pesquisa: `# Nova Descoberta em [Área]\n\nResumo da nova pesquisa ou publicação...\n\n## Metodologia\n\nComo foi feito...\n\n| Variável | Resultado |\n| :--- | :--- |\n| Teste 1 | 95% |\n| Teste 2 | 98% |`
+        };
+        
+        if (formData.conteudo && !window.confirm('Isso irá substituir o conteúdo atual. Continuar?')) return;
+        setFormData({ ...formData, conteudo: templates[type] });
+        setFormTab('write');
+    };
+
+    const wordCount = (text: string) => text ? text.trim().split(/\s+/).length : 0;
+    const charCount = (text: string) => text ? text.length : 0;
 
     // Generate slug helper
     const generateSlug = (title: string) => {
@@ -222,47 +241,54 @@ const NewsAdmin = () => {
                             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="space-y-4">
                             {filteredNews.map((item) => (
-                                <div key={item.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md transition-all">
-                                    <div className="aspect-[16/9] bg-gray-100 relative overflow-hidden">
+                                <div key={item.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center gap-6 group hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+                                    <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100 border border-gray-100">
                                         {item.imagem_capa_url ? (
-                                            <img src={item.imagem_capa_url} alt={item.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            <img src={item.imagem_capa_url} alt="" className="w-full h-full object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                                <Newspaper className="w-12 h-12" />
+                                                <Newspaper className="w-8 h-8" />
                                             </div>
                                         )}
-                                        <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button
-                                                onClick={() => handleEdit(item)}
-                                                className="bg-white/90 p-2 rounded-lg text-gray-700 hover:text-blue-600 shadow-sm backdrop-blur-sm"
-                                            >
-                                                <Pencil className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => setConfirmDelete(item.id)}
-                                                className="bg-white/90 p-2 rounded-lg text-gray-700 hover:text-red-600 shadow-sm backdrop-blur-sm"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
                                     </div>
-                                    <div className="p-5">
-                                        <div className="text-xs text-blue-600 font-semibold mb-2">
-                                            {(() => {
-                                                const [year, month, day] = item.data_publicacao.split('T')[0].split('-').map(Number);
-                                                return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-                                            })()}
+                                    <div className="flex-grow min-w-0">
+                                        <div className="flex items-center gap-3 mb-1">
+                                            <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md">
+                                                {(() => {
+                                                    const [year, month, day] = item.data_publicacao.split('T')[0].split('-').map(Number);
+                                                    return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR');
+                                                })()}
+                                            </span>
                                         </div>
-                                        <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">{item.titulo}</h3>
-                                        <p className="text-sm text-gray-500 line-clamp-3">{item.resumo}</p>
+                                        <h3 className="font-bold text-gray-900 truncate text-lg">{item.titulo}</h3>
+                                        <p className="text-sm text-gray-500 line-clamp-1">{item.resumo}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button
+                                            onClick={() => handleEdit(item)}
+                                            className="p-3 hover:bg-blue-50 rounded-xl text-gray-400 hover:text-blue-600 transition-all"
+                                            title="Editar"
+                                        >
+                                            <Pencil className="w-5 h-5" />
+                                        </button>
+                                        <button
+                                            onClick={() => setConfirmDelete(item.id)}
+                                            className="p-3 hover:bg-red-50 rounded-xl text-gray-400 hover:text-red-600 transition-all"
+                                            title="Excluir"
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
                                     </div>
                                 </div>
                             ))}
                             {filteredNews.length === 0 && (
-                                <div className="col-span-full py-16 text-center text-gray-400">
-                                    Nenhuma notícia encontrada.
+                                <div className="py-20 text-center">
+                                    <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Newspaper className="w-10 h-10 text-gray-300" />
+                                    </div>
+                                    <p className="text-gray-400 font-medium">Nenhuma notícia encontrada.</p>
                                 </div>
                             )}
                         </div>
@@ -271,21 +297,31 @@ const NewsAdmin = () => {
             )}
 
             {view === 'form' && (
-                <div className="max-w-[1400px] mx-auto pb-20">
-                    <div className="flex items-center justify-between mb-8">
+                <div className={`mx-auto pb-20 ${isFullScreen ? 'fixed inset-0 z-[100] bg-gray-50 overflow-auto' : 'max-w-[1400px]'}`}>
+                    <div className={`flex items-center justify-between mb-8 ${isFullScreen ? 'p-6 border-b bg-white' : ''}`}>
                         <div>
                             <h2 className="text-3xl font-bold text-gray-900">{editingNews ? 'Editar Notícia' : 'Nova Notícia'}</h2>
                             <p className="text-gray-500">Preencha os detalhes da notícia abaixo.</p>
                         </div>
-                        <button
-                            onClick={handleCancel}
-                            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                        >
-                            <X className="w-6 h-6 text-gray-500" />
-                        </button>
+                        <div className="flex items-center gap-4">
+                            <button
+                                type="button"
+                                onClick={() => setIsFullScreen(!isFullScreen)}
+                                className="p-2.5 hover:bg-gray-100 rounded-xl text-gray-500 transition-all"
+                                title="Tela Cheia"
+                            >
+                                <Maximize2 className="w-6 h-6" />
+                            </button>
+                            <button
+                                onClick={handleCancel}
+                                className="p-2.5 hover:bg-gray-100 rounded-xl text-gray-500 transition-all"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+                        </div>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-8">
+                    <form onSubmit={handleSubmit} className={`space-y-8 ${isFullScreen ? 'p-8 max-w-7xl mx-auto' : ''}`}>
                         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden p-8">
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                                 {/* Main Content Columns */}
@@ -316,32 +352,99 @@ const NewsAdmin = () => {
                                         </div>
 
                                         <div className="md:col-span-2">
-                                            <div className="flex items-center justify-between mb-3">
-                                                <label className="block text-sm font-medium text-gray-700">Conteúdo (Markdown)</label>
-                                                <div className="flex flex-wrap gap-1 bg-gray-50 p-1.5 rounded-xl border border-gray-100 shadow-inner">
-                                                    <button type="button" onClick={() => insertFormat('**', '**')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Negrito"><Bold className="w-4 h-4" /></button>
-                                                    <button type="button" onClick={() => insertFormat('_', '_')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Itálico"><Italic className="w-4 h-4" /></button>
-                                                    <div className="w-px h-5 bg-gray-200 mx-1 self-center"></div>
-                                                    <button type="button" onClick={() => insertFormat('# ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all font-bold text-xs" title="H1">H1</button>
-                                                    <button type="button" onClick={() => insertFormat('## ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all font-bold text-xs" title="H2">H2</button>
-                                                    <button type="button" onClick={() => insertFormat('### ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all font-bold text-xs" title="H3">H3</button>
-                                                    <div className="w-px h-5 bg-gray-200 mx-1 self-center"></div>
-                                                    <button type="button" onClick={() => insertFormat('- ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Lista"><List className="w-4 h-4" /></button>
-                                                    <button type="button" onClick={() => insertFormat('[', '](url)')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Link"><LinkIcon className="w-4 h-4" /></button>
-                                                    <button type="button" onClick={() => insertFormat('> ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Citação"><Quote className="w-4 h-4" /></button>
-                                                    <button type="button" onClick={() => insertFormat('```\n', '\n```')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Código"><Code className="w-4 h-4" /></button>
+                                            <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md py-4 mb-4 border-b border-gray-100 -mx-8 px-8">
+                                                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                                                    <div className="flex p-1 bg-gray-100 rounded-xl w-fit shrink-0">
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => setFormTab('write')}
+                                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${formTab === 'write' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                                        >
+                                                            <FileEdit className="w-4 h-4" /> Escrever
+                                                        </button>
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => setFormTab('preview')}
+                                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${formTab === 'preview' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                                        >
+                                                            <Eye className="w-4 h-4" /> Visualizar
+                                                        </button>
+                                                    </div>
+
+                                                    {formTab === 'write' && (
+                                                        <div className="flex flex-wrap items-center gap-3">
+                                                            {/* Text Formatting Group */}
+                                                            <div className="flex gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                                                                <button type="button" onClick={() => insertFormat('**', '**')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Negrito (Ctrl+B)"><Bold className="w-4 h-4" /></button>
+                                                                <button type="button" onClick={() => insertFormat('_', '_')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Itálico (Ctrl+I)"><Italic className="w-4 h-4" /></button>
+                                                                <button type="button" onClick={() => insertFormat('~~', '~~')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Tachado"><Strikethrough className="w-4 h-4" /></button>
+                                                            </div>
+
+                                                            {/* Headings Group */}
+                                                            <div className="flex gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                                                                <button type="button" onClick={() => insertFormat('# ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Título 1"><Heading1 className="w-4 h-4" /></button>
+                                                                <button type="button" onClick={() => insertFormat('## ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Título 2"><Heading2 className="w-4 h-4" /></button>
+                                                                <button type="button" onClick={() => insertFormat('### ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Título 3"><Heading3 className="w-4 h-4" /></button>
+                                                            </div>
+
+                                                            {/* List & Structure Group */}
+                                                            <div className="flex gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                                                                <button type="button" onClick={() => insertFormat('- ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Lista Simples"><List className="w-4 h-4" /></button>
+                                                                <button type="button" onClick={() => insertFormat('- [ ] ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Lista de Tarefas"><CheckSquare className="w-4 h-4" /></button>
+                                                                <button type="button" onClick={() => insertFormat('> ', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Citação"><Quote className="w-4 h-4" /></button>
+                                                                <button type="button" onClick={() => insertFormat('\n---\n', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Linha Divisória"><Minus className="w-4 h-4" /></button>
+                                                            </div>
+
+                                                            {/* Media & Links Group */}
+                                                            <div className="flex gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100">
+                                                                <button type="button" onClick={() => insertFormat('[', '](url)')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Inserir Link"><LinkIcon className="w-4 h-4" /></button>
+                                                                <button type="button" onClick={() => insertFormat('![alt](', ')') } className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Inserir Imagem"><ImageIcon className="w-4 h-4" /></button>
+                                                                <button type="button" onClick={() => insertFormat('| Coluna 1 | Coluna 2 |\n| :--- | :--- |\n| Linha 1 | Dado 1 |\n', '')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Tabela"><Table className="w-4 h-4" /></button>
+                                                                <button type="button" onClick={() => insertFormat('```\n', '\n```')} className="p-2 hover:bg-white hover:shadow-sm rounded-lg text-gray-600 transition-all" title="Código"><Code className="w-4 h-4" /></button>
+                                                            </div>
+
+                                                            <div className="flex gap-1 bg-blue-50/50 p-1 rounded-xl border border-blue-100">
+                                                                <span className="p-2 text-[10px] font-black text-blue-400 uppercase tracking-widest flex items-center gap-2"><Layout className="w-3.5 h-3.5" /> Modelos:</span>
+                                                                <button type="button" onClick={() => applyTemplate('noticia')} className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-lg text-[10px] font-bold text-blue-600 transition-all uppercase tracking-widest">Notícia</button>
+                                                                <button type="button" onClick={() => applyTemplate('evento')} className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-lg text-[10px] font-bold text-blue-600 transition-all uppercase tracking-widest">Evento</button>
+                                                                <button type="button" onClick={() => applyTemplate('pesquisa')} className="px-3 py-1.5 hover:bg-white hover:shadow-sm rounded-lg text-[10px] font-bold text-blue-600 transition-all uppercase tracking-widest">Pesquisa</button>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
-                                            <textarea
-                                                ref={textareaRef}
-                                                rows={25}
-                                                required
-                                                value={formData.conteudo || ''}
-                                                onChange={e => setFormData({ ...formData, conteudo: e.target.value })}
-                                                onKeyDown={handleKeyDown}
-                                                className="w-full px-6 py-6 rounded-2xl border border-gray-200 text-gray-900 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all font-mono text-sm leading-relaxed shadow-inner bg-gray-50/30"
-                                                placeholder="Escreva sua notícia aqui usando Markdown..."
-                                            />
+
+                                            {formTab === 'write' ? (
+                                                <div className="relative">
+                                                    <textarea
+                                                        ref={textareaRef}
+                                                        rows={25}
+                                                        required
+                                                        value={formData.conteudo || ''}
+                                                        onChange={e => setFormData({ ...formData, conteudo: e.target.value })}
+                                                        onKeyDown={handleKeyDown}
+                                                        className="w-full px-8 py-8 rounded-2xl border border-gray-100 text-gray-900 focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 outline-none transition-all font-mono text-sm leading-relaxed bg-gray-50/20 min-h-[600px] shadow-sm"
+                                                        placeholder="Escreva sua notícia aqui usando Markdown..."
+                                                    />
+                                                    <div className="absolute bottom-4 right-6 flex items-center gap-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-gray-100 shadow-sm">
+                                                        <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-blue-500" /> {wordCount(formData.conteudo || '')} palavras</span>
+                                                        <span className="w-px h-3 bg-gray-200"></span>
+                                                        <span>{charCount(formData.conteudo || '')} caracteres</span>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="w-full min-h-[500px] px-8 py-8 rounded-2xl border border-gray-200 bg-white overflow-auto prose prose-slate prose-blue max-w-none">
+                                                    {formData.conteudo ? (
+                                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                            {formData.conteudo}
+                                                        </ReactMarkdown>
+                                                    ) : (
+                                                        <div className="h-full flex items-center justify-center text-gray-400 italic">
+                                                            Nada para visualizar ainda...
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -405,16 +508,16 @@ const NewsAdmin = () => {
                                         <button
                                             type="submit"
                                             disabled={saving}
-                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white px-8 py-5 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all shadow-[0_10px_30px_rgba(147,51,234,0.3)] hover:shadow-[0_15px_40px_rgba(147,51,234,0.4)] disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-1 active:translate-y-0"
+                                            className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-xl font-bold text-base flex items-center justify-center gap-3 transition-all shadow-lg shadow-blue-500/20 disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0"
                                         >
                                             {saving ? (
                                                 <div className="flex items-center gap-3">
-                                                    <Loader2 className="w-6 h-6 animate-spin" />
+                                                    <Loader2 className="w-5 h-5 animate-spin" />
                                                     Salvando...
                                                 </div>
                                             ) : (
                                                 <div className="flex items-center gap-3">
-                                                    <Save className="w-6 h-6" />
+                                                    <Save className="w-5 h-5" />
                                                     {editingNews ? 'Salvar Alterações' : 'Publicar Notícia'}
                                                 </div>
                                             )}
@@ -422,7 +525,7 @@ const NewsAdmin = () => {
                                         <button
                                             type="button"
                                             onClick={handleCancel}
-                                            className="w-full mt-4 px-6 py-4 rounded-xl text-gray-500 font-medium hover:bg-gray-100 transition-colors"
+                                            className="w-full mt-3 px-6 py-3 rounded-xl text-gray-500 font-bold text-sm hover:bg-gray-100 transition-colors"
                                         >
                                             Cancelar e Voltar
                                         </button>

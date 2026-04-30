@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Pencil, Trash2, X, Archive, Loader2, Save, FileText, ExternalLink } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Archive, Loader2, Save, FileText, ExternalLink, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
@@ -52,8 +52,8 @@ const Publications = () => {
 
     // Filter publications
     const filteredNotifications = publications.filter(pub =>
-        pub.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        pub.autores.toLowerCase().includes(searchTerm.toLowerCase())
+        (pub.titulo?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+        (pub.autores?.toLowerCase() || '').includes(searchTerm.toLowerCase())
     );
 
     // Handle Delete
@@ -135,23 +135,26 @@ const Publications = () => {
                     <p className="text-gray-500">Gerencie o acervo de produção científica.</p>
                 </div>
                 <div className="flex gap-3 w-full md:w-auto">
-                    <input
-                        type="text"
-                        placeholder="Buscar publicação..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full md:w-64"
-                    />
+                    <div className="relative flex-1 md:w-64">
+                        <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Buscar publicação..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full bg-white"
+                        />
+                    </div>
                     <button
                         onClick={() => setIsOrcidModalOpen(true)}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-emerald-500/30 whitespace-nowrap"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-emerald-500/30 whitespace-nowrap"
                         title="Importar Publicação"
                     >
-                        <Archive className="w-5 h-5" /> <span className="hidden md:inline">Importar Publicação</span>
+                        <Archive className="w-5 h-5" /> <span className="hidden md:inline">Importar via ORCID</span>
                     </button>
                     <button
                         onClick={() => openModal()}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-500/30 whitespace-nowrap"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-500/30 whitespace-nowrap"
                     >
                         <Plus className="w-5 h-5" /> <span className="hidden md:inline">Nova Publicação</span>
                     </button>

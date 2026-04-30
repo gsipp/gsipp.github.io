@@ -95,8 +95,11 @@ const AdminLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 ml-64 min-h-screen relative">
-                <div className="p-10 max-w-7xl mx-auto">
+            <main className="flex-1 ml-64 min-h-screen relative overflow-hidden">
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
+                
+                <div className="p-10 max-w-7xl mx-auto relative z-10">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={location.pathname}

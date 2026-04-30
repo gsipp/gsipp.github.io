@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Calendar, FileDown, AlertCircle, Clock, Activity } from 'lucide-react';
+import { FileText, Calendar, FileDown, AlertCircle, Clock, Activity, Search, Filter } from 'lucide-react';
 import SEO from '../components/SEO';
 import NetworkBackground from '../components/NetworkBackground';
 
@@ -21,6 +21,7 @@ const Editais = () => {
     const [editais, setEditais] = useState<Edital[]>([]);
     const [loading, setLoading] = useState(true);
     const [filterStatus, setFilterStatus] = useState<FilterStatus>('Todos');
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const fetchEditais = async () => {
@@ -36,7 +37,12 @@ const Editais = () => {
         fetchEditais();
     }, []);
 
-    const filteredEditais = editais.filter(e => filterStatus === 'Todos' || e.status === filterStatus);
+    const filteredEditais = editais.filter(e => {
+        const matchesStatus = filterStatus === 'Todos' || e.status === filterStatus;
+        const matchesSearch = e.titulo.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                             e.descricao.toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesStatus && matchesSearch;
+    });
 
     const formatDate = (dateString: string) => {
         if (!dateString) return '-';
@@ -57,77 +63,81 @@ const Editais = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-[80px]">
+        <div className="min-h-screen bg-slate-50 pt-[80px] relative">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/white-diamond.png')] opacity-20 pointer-events-none"></div>
             <SEO 
                 title="Editais e Seleções" 
                 description="Acompanhe as oportunidades, editais de bolsas e processos seletivos abertos do grupo de pesquisa GSIPP."
             />
             {/* Header */}
-            <section className="relative bg-slate-900 pt-32 pb-24 overflow-hidden rounded-b-3xl mx-2 mt-2">
-                <NetworkBackground />
-                <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/90 to-slate-900 pointer-events-none"></div>
+            <section className="relative bg-slate-900 pt-24 pb-48 overflow-hidden rounded-b-[4rem] mx-2 mt-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-emerald-600/20 pointer-events-none"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
 
-                <div className="container mx-auto px-6 relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
-                    <div className="max-w-3xl">
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-bold uppercase tracking-widest mb-6 backdrop-blur-sm"
-                        >
-                            <FileText className="w-4 h-4" /> Chamadas Abertas
-                        </motion.div>
-                        <motion.h1
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
-                        >
-                            Seleção e <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Oportunidades</span>
-                        </motion.h1>
-                        <motion.p
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="text-gray-400 text-lg max-w-2xl leading-relaxed"
-                        >
-                            Acesse editais de bolsas, vagas de pesquisa e outros processos seletivos do GSIPP.
-                        </motion.p>
-                    </div>
-
-                    {/* Quick Stats for Editais */}
-                    <motion.div 
+                <div className="container mx-auto px-6 relative z-10 text-center max-w-4xl">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-[0.3em] mb-8 backdrop-blur-sm mx-auto"
+                    >
+                        <FileText className="w-3.5 h-3.5" /> CHAMADAS ABERTAS
+                    </motion.div>
+                    <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="flex gap-6 mt-8 md:mt-0"
+                        transition={{ delay: 0.1 }}
+                        className="text-5xl md:text-7xl font-black text-white mb-8 leading-[1.1]"
                     >
-                        <div className="bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-6 min-w-[140px]">
-                            <div className="text-emerald-400 mb-2"><Activity className="w-6 h-6" /></div>
-                            <div className="text-3xl font-bold text-white mb-1">
-                                {loading ? '-' : editais.filter(e => e.status === 'Aberto').length}
-                            </div>
-                            <div className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Vagas Abertas</div>
-                        </div>
-                    </motion.div>
+                        Seleção e <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">Oportunidades</span>
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-slate-400 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto font-medium"
+                    >
+                        Acesse editais de bolsas, vagas de pesquisa e outros processos seletivos do GSIPP.
+                    </motion.p>
                 </div>
             </section>
 
-            {/* Filters */}
-            <section className="-mt-10 mb-16 relative z-20">
+            {/* Search and Filters */}
+            <section className="-mt-12 mb-20 relative z-20">
                 <div className="container mx-auto px-6">
-                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 md:p-6 flex flex-wrap justify-center gap-4">
-                        {['Todos', 'Aberto', 'Em Análise', 'Fechado'].map(status => (
-                            <button
-                                key={status}
-                                onClick={() => setFilterStatus(status as FilterStatus)}
-                                className={`px-8 py-3 rounded-2xl font-bold text-sm transition-all ${filterStatus === status
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
-                                    }`}
-                            >
-                                {status}
-                            </button>
-                        ))}
+                    <div className="max-w-5xl mx-auto bg-white rounded-[2rem] shadow-2xl shadow-slate-900/10 border border-slate-100 overflow-hidden">
+                        <div className="p-2 md:p-3 flex flex-col md:flex-row gap-2">
+                            <div className="relative flex-grow">
+                                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar editais por título ou descrição..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-16 pr-6 py-5 bg-slate-50/50 border-none rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none text-slate-900 font-bold placeholder:text-slate-300"
+                                />
+                            </div>
+                            <div className="hidden md:flex items-center gap-3 px-8 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-slate-900/20">
+                                <Filter className="w-4 h-4" /> FILTRAR
+                            </div>
+                        </div>
+
+                        <div className="bg-slate-50/50 border-t border-slate-100 p-4 md:px-8 flex flex-col md:flex-row items-center gap-6">
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap">Status:</span>
+                            <div className="flex flex-wrap justify-center md:justify-start gap-2 w-full">
+                                {['Todos', 'Aberto', 'Em Análise', 'Fechado'].map(status => (
+                                    <button
+                                        key={status}
+                                        onClick={() => setFilterStatus(status as FilterStatus)}
+                                        className={`px-6 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all border-2 ${filterStatus === status
+                                            ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105'
+                                            : 'bg-white border-transparent text-slate-400 hover:border-slate-200 hover:text-slate-600'
+                                            }`}
+                                    >
+                                        {status}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

@@ -75,93 +75,71 @@ const Membros = () => {
 
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-[80px]">
+        <div className="min-h-screen bg-slate-50 pt-[80px] relative">
+            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/white-diamond.png')] opacity-20 pointer-events-none"></div>
             <SEO 
                 title="Equipe de Pesquisa" 
                 description="Conheça os doutores, mestrandos e pesquisadores do GSIPP que lideram a inovação em segurança cibernética e privacidade."
             />
             {/* Header / Hero Section */}
-            <section className="relative bg-slate-900 pt-32 pb-24 overflow-hidden rounded-b-3xl mx-2 mt-2">
-                <NetworkBackground />
-                <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/90 to-slate-900 pointer-events-none"></div>
+            <section className="relative bg-slate-900 pt-24 pb-48 overflow-hidden rounded-b-[4rem] mx-2 mt-2">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-emerald-600/20 pointer-events-none"></div>
+                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
 
-                <div className="container mx-auto px-6 relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-10">
-                    <div className="max-w-3xl">
-                        <motion.div
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-bold uppercase tracking-widest mb-6 backdrop-blur-sm"
-                        >
-                            <Users className="w-4 h-4" /> Nosso Time
-                        </motion.div>
-                        <motion.h1
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.1 }}
-                            className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
-                        >
-                            Membros do <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">GSIPP</span>
-                        </motion.h1>
-                        <motion.p
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 }}
-                            className="text-gray-400 text-lg leading-relaxed max-w-2xl"
-                        >
-                            Conheça os pesquisadores, estudantes e profissionais que compõem nosso grupo e impulsionam a inovação em segurança e privacidade.
-                        </motion.p>
-                    </div>
-
-                    {/* Quick Stats */}
-                    <motion.div 
+                <div className="container mx-auto px-6 relative z-10 text-center max-w-4xl">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-black uppercase tracking-[0.3em] mb-8 backdrop-blur-sm mx-auto"
+                    >
+                        <Users className="w-3.5 h-3.5" /> NOSSO TIME
+                    </motion.div>
+                    <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="flex gap-6 mt-8 md:mt-0"
+                        transition={{ delay: 0.1 }}
+                        className="text-5xl md:text-7xl font-black text-white mb-8 leading-[1.1]"
                     >
-                        <div className="bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-6 min-w-[140px]">
-                            <div className="text-blue-400 mb-2"><Activity className="w-6 h-6" /></div>
-                            <div className="text-3xl font-bold text-white mb-1">
-                                {loading ? '-' : members.length}
-                            </div>
-                            <div className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Pesquisadores</div>
-                        </div>
-                        <div className="bg-white/5 border border-white/10 backdrop-blur-md rounded-2xl p-6 min-w-[140px]">
-                            <div className="text-emerald-400 mb-2"><Target className="w-6 h-6" /></div>
-                            <div className="text-3xl font-bold text-white mb-1">
-                                {loading ? '-' : new Set(members.map(m => m.area_pesquisa)).size}
-                            </div>
-                            <div className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Linhas de Pesquisa</div>
-                        </div>
-                    </motion.div>
+                        Membros do <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">GSIPP</span>
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-slate-400 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto font-medium"
+                    >
+                        Conheça os pesquisadores, estudantes e profissionais que compõem nosso grupo e impulsionam a inovação em segurança e privacidade.
+                    </motion.p>
                 </div>
             </section>
 
             {/* Search and Filter Section */}
-            <section className="relative z-20 -mt-8 mb-12 container mx-auto px-6">
-                <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100 p-4 md:p-6 flex flex-col md:flex-row gap-4">
-                    <div className="relative flex-grow">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <input 
-                            type="text" 
-                            placeholder="Buscar por nome ou tecnologia..." 
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-gray-700"
-                        />
-                    </div>
-                    <div className="relative min-w-[250px]">
-                        <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                        <select
-                            value={selectedArea}
-                            onChange={(e) => setSelectedArea(e.target.value)}
-                            className="w-full pl-12 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-gray-700 appearance-none cursor-pointer"
-                        >
-                            <option value="Todas">Todas as Áreas</option>
-                            {allAreas.map(area => (
-                                <option key={area} value={area}>{area}</option>
-                            ))}
-                        </select>
+            <section className="-mt-12 mb-20 relative z-20">
+                <div className="container mx-auto px-6">
+                    <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl shadow-slate-900/10 border border-slate-100 p-3 md:p-4 flex flex-col md:flex-row gap-4 items-center">
+                        <div className="relative flex-grow w-full">
+                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                            <input 
+                                type="text" 
+                                placeholder="Buscar por nome ou tecnologia..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-16 pr-6 py-5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-900 font-bold placeholder:text-slate-300"
+                            />
+                        </div>
+                        <div className="relative w-full md:w-auto min-w-[200px]">
+                            <Filter className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-white z-10 pointer-events-none" />
+                            <select
+                                value={selectedArea}
+                                onChange={(e) => setSelectedArea(e.target.value)}
+                                className="w-full pl-14 pr-10 py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all outline-none appearance-none cursor-pointer shadow-lg shadow-slate-900/20"
+                            >
+                                <option value="Todas">TODAS AS ÁREAS</option>
+                                {allAreas.map(area => (
+                                    <option key={area} value={area} className="bg-white text-slate-900 font-bold uppercase">{area.toUpperCase()}</option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
             </section>
