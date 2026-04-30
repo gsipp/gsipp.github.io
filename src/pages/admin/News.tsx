@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, Newspaper, Bold, Italic, List, Link as LinkIcon, Quote, Code, Eye, FileEdit, FileText, Layout, Maximize2, Table, Strikethrough, Minus, CheckSquare, Image as ImageIcon, Type, Heading1, Heading2, Heading3 } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, Newspaper, Bold, Italic, List, Link as LinkIcon, Quote, Code, Eye, FileEdit, FileText, Layout, Maximize2, Table, Strikethrough, Minus, CheckSquare, Image as ImageIcon, Heading1, Heading2, Heading3 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useToast } from '../../contexts/ToastContext';

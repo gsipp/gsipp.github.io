@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, FileText, CheckCircle, Mail, CreditCard, Clock, Search } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, FileText, CheckCircle, Mail, Clock, Search, Users } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
