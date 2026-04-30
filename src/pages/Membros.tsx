@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { motion } from 'framer-motion';
-import { Users, Mail, Linkedin, Activity, Target, Search, Filter, ArrowRight } from 'lucide-react';
+import { Users, Mail, Linkedin, Search, Filter, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
-import NetworkBackground from '../components/NetworkBackground';
 
 const LattesIcon = ({ className }: { className?: string }) => (
     <svg 

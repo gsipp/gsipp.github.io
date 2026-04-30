@@ -3,7 +3,6 @@ import { supabase } from '../lib/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookText, ExternalLink, FileDown, Search, Filter, X, Users, Calendar, BookOpen, Tag, UserCheck } from 'lucide-react';
 import SEO from '../components/SEO';
-import NetworkBackground from '../components/NetworkBackground';
 
 interface Publication {
     id: string;
@@ -77,16 +76,7 @@ const Publicacoes = () => {
         return matchesSearch && matchesYear;
     });
 
-    const stats = {
-        artigos: publications.filter(p => {
-            const t = formatTipo(p.tipo);
-            return t.includes('Artigo') || t === 'Preprint';
-        }).length,
-        tccs: publications.filter(p => {
-            const t = formatTipo(p.tipo);
-            return ['TCC', 'Tese', 'Dissertação'].includes(t);
-        }).length
-    };
+
 
     const years: (number | 'Todos')[] = (['Todos', ...Array.from(new Set(publications.map(p => p.ano)))] as (number | 'Todos')[]).sort((a, b) => {
         if (a === 'Todos') return -1;

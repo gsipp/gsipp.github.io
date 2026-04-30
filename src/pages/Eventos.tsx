@@ -3,7 +3,6 @@ import { supabase } from '../lib/supabaseClient';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Clock, ChevronRight, GraduationCap, Presentation, Users as UsersIcon, Download, AlertCircle, Search } from 'lucide-react';
 import SEO from '../components/SEO';
-import NetworkBackground from '../components/NetworkBackground';
 
 interface Event {
     id: string;

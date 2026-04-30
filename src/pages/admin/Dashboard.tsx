@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Users, Newspaper, Calendar, ArrowRight, TrendingUp, MapPin, Activity, BookOpen, Clock, Plus } from 'lucide-react';
+import { Users, Newspaper, Calendar, ArrowRight, MapPin, Activity, BookOpen, Clock, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 

@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Calendar, FileDown, AlertCircle, Clock, Activity, Search, Filter } from 'lucide-react';
+import { FileText, Calendar, FileDown, AlertCircle, Clock, Search, Filter } from 'lucide-react';
 import SEO from '../components/SEO';
-import NetworkBackground from '../components/NetworkBackground';
 
 interface Edital {
     id: string;
