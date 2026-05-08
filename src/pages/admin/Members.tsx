@@ -26,6 +26,7 @@ interface Member {
     curso?: string;
     orientador?: string;
     total_horas?: string;
+    researchgate_url?: string;
 }
 
 const getLattesPhotoUrl = (member: Member): string | null => {
@@ -106,21 +107,22 @@ const Members = () => {
         const payload = {
             nome: formData.nome,
             cargo: formData.cargo,
-            area_pesquisa: formData.area_pesquisa,
-            lattes_url: formData.lattes_url,
-            lattes_id: formData.lattes_id,
-            linkedin_url: formData.linkedin_url,
-            foto_url: formData.foto_url,
-            ordem: formData.ordem,
-            cpf: formData.cpf,
-            email: formData.email,
-            carga_horaria: formData.carga_horaria,
-            data_entrada: formData.data_entrada,
-            data_saida: formData.data_saida,
-            matricula: formData.matricula,
-            curso: formData.curso,
-            orientador: formData.orientador,
-            total_horas: formData.total_horas
+            area_pesquisa: formData.area_pesquisa || null,
+            lattes_url: formData.lattes_url || null,
+            lattes_id: formData.lattes_id || null,
+            linkedin_url: formData.linkedin_url || null,
+            foto_url: formData.foto_url || null,
+            ordem: formData.ordem || 0,
+            cpf: formData.cpf || null,
+            email: formData.email || null,
+            carga_horaria: formData.carga_horaria || null,
+            data_entrada: formData.data_entrada || null,
+            data_saida: formData.data_saida || null,
+            matricula: formData.matricula || null,
+            curso: formData.curso || null,
+            orientador: formData.orientador || null,
+            total_horas: formData.total_horas || null,
+            researchgate_url: formData.researchgate_url || null
         };
 
         if (editingMember) {
@@ -294,7 +296,7 @@ const Members = () => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-right">
-                                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex items-center justify-end gap-1">
                                                 <button
                                                     onClick={() => generateDeclaration(member)}
                                                     className="p-2.5 hover:bg-white text-gray-400 hover:text-blue-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
@@ -489,6 +491,10 @@ const Members = () => {
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">LinkedIn</label>
                                         <input type="url" value={formData.linkedin_url || ''} onChange={e => setFormData({ ...formData, linkedin_url: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">ResearchGate</label>
+                                        <input type="url" value={formData.researchgate_url || ''} onChange={e => setFormData({ ...formData, researchgate_url: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm" />
                                     </div>
                                 </div>
 
