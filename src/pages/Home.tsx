@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, Lock, Eye, Fingerprint, Wifi, AlertTriangle, ArrowRight, Users, Mail, Linkedin, Newspaper, Calendar, MapPin } from 'lucide-react';
+import { Shield, Lock, Eye, Fingerprint, Wifi, AlertTriangle, ArrowRight, Users, Mail, Linkedin } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import NetworkBackground from '../components/NetworkBackground';
 
