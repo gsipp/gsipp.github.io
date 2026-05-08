@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, Lock, Eye, Fingerprint, Wifi, AlertTriangle, ArrowRight, Users, Mail, Linkedin } from 'lucide-react';
+import { Shield, Lock, Eye, Fingerprint, Wifi, AlertTriangle, ArrowRight, Users, Mail, Linkedin, Newspaper, Calendar, MapPin } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 import NetworkBackground from '../components/NetworkBackground';
 
@@ -174,8 +174,8 @@ const Home = () => {
             </header>
 
             {/* Strategic Partners (Fomento) */}
-            <div className="border-b border-gray-200 bg-white overflow-hidden">
-                <div className="container mx-auto px-6 py-10">
+            <div className="border-b border-gray-200 bg-white overflow-hidden pt-20 pb-10">
+                <div className="container mx-auto px-6">
                     <motion.p
                         initial={{ opacity: 0 }}
                         whileInView={{ opacity: 1 }}
