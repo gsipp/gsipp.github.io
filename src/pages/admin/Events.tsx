@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Pencil, Trash2, MapPin, Loader2, Save, Clock, Calendar, Link as LinkIcon, User as UserIcon, GraduationCap, Presentation, Users as UsersIcon, Info, Search, ChevronLeft } from 'lucide-react';
+import { Plus, Pencil, Trash2, MapPin, Loader2, Save, Clock, Link as LinkIcon, User as UserIcon, Users as UsersIcon, Info, Search, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
@@ -166,14 +166,6 @@ const Events = () => {
         }
     };
 
-    const getTipoIcon = (tipo: string) => {
-        switch (tipo) {
-            case 'Defesa': return <GraduationCap className="w-4 h-4" />;
-            case 'Palestra': return <Presentation className="w-4 h-4" />;
-            case 'Workshop': return <UsersIcon className="w-4 h-4" />;
-            default: return <Calendar className="w-4 h-4" />;
-        }
-    };
 
     return (
         <div className="max-w-[1400px] mx-auto pb-20">
