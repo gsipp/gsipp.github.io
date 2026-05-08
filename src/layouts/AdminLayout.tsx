@@ -1,11 +1,22 @@
+import { useState, useEffect } from 'react';
 import { Outlet, Navigate, NavLink, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { Shield, Users, Newspaper, LogOut, LayoutDashboard, Calendar, UserCog, BookOpen, ClipboardList, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { 
+    Shield, Users, Newspaper, LogOut, LayoutDashboard, 
+    Calendar, UserCog, BookOpen, ClipboardList, Settings, 
+    Menu, X 
+} from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
 
 const AdminLayout = () => {
     const { user, loading, signOut } = useAuth();
     const location = useLocation();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // Close sidebar on route change (for mobile)
+    useEffect(() => {
+        setIsSidebarOpen(false);
+    }, [location.pathname]);
 
     if (loading) {
         return (
@@ -40,9 +51,41 @@ const AdminLayout = () => {
 
     return (
         <div className="flex min-h-screen bg-slate-50 font-sans">
+            {/* Mobile Header */}
+            <div className="lg:hidden fixed top-0 left-0 right-0 bg-slate-900 text-white p-4 z-40 flex justify-between items-center shadow-lg">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-white" />
+                    </div>
+                    <span className="font-black text-lg tracking-tighter">GSIPP Admin</span>
+                </div>
+                <button 
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    className="p-2 hover:bg-white/10 rounded-xl transition-colors"
+                >
+                    {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                </button>
+            </div>
+
+            {/* Sidebar Overlay (Mobile) */}
+            <AnimatePresence>
+                {isSidebarOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsSidebarOpen(false)}
+                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 lg:hidden"
+                    />
+                )}
+            </AnimatePresence>
+
             {/* Sidebar */}
-            <aside className="w-64 bg-slate-900 text-white flex flex-col fixed h-full z-30 shadow-2xl">
-                <div className="p-8 border-b border-white/5">
+            <aside className={`
+                w-64 bg-slate-900 text-white flex flex-col fixed h-full z-40 shadow-2xl transition-transform duration-300 ease-in-out
+                ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            `}>
+                <div className="p-8 border-b border-white/5 hidden lg:block">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
                             <Shield className="w-6 h-6 text-white" />
@@ -54,6 +97,9 @@ const AdminLayout = () => {
                     </div>
                 </div>
 
+                {/* Mobile Header Spacer */}
+                <div className="h-16 lg:hidden" />
+
                 <nav className="flex-1 p-6 space-y-2 overflow-y-auto custom-scrollbar">
                     {navItems.map((item) => (
                         <NavLink
@@ -63,7 +109,7 @@ const AdminLayout = () => {
                             className={({ isActive }) =>
                                 `flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 font-bold text-sm group ${
                                     isActive
-                                        ? 'bg-blue-500 text-white translate-x-1'
+                                        ? 'bg-blue-500 text-white translate-x-1 shadow-lg shadow-blue-500/20'
                                         : 'text-slate-400 hover:text-white hover:bg-white/5'
                                 }`
                             }
@@ -76,7 +122,7 @@ const AdminLayout = () => {
 
                 <div className="p-6 border-t border-white/5 space-y-4">
                     <div className="bg-white/5 rounded-2xl p-4 flex items-center gap-3 border border-white/5">
-                        <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-blue-500 border border-white/10">
+                        <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center font-black text-blue-500 border border-white/10 shrink-0">
                             {user.email?.substring(0, 1).toUpperCase()}
                         </div>
                         <div className="min-w-0">
@@ -95,11 +141,14 @@ const AdminLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 ml-64 min-h-screen relative overflow-hidden">
+            <main className="flex-1 lg:ml-64 min-h-screen relative overflow-hidden flex flex-col">
+                {/* Mobile top spacer */}
+                <div className="h-16 lg:hidden" />
+                
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/carbon-fibre.png")' }}></div>
                 
-                <div className="p-10 max-w-7xl mx-auto relative z-10">
+                <div className="p-4 md:p-8 lg:p-10 max-w-7xl mx-auto relative z-10 w-full flex-grow">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={location.pathname}

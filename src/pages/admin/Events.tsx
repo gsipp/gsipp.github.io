@@ -209,100 +209,111 @@ const Events = () => {
                             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            {filteredEvents.map((item) => (
-                                <div key={item.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center gap-6 group hover:shadow-lg hover:shadow-blue-500/5 transition-all">
-                                    <div className="w-16 h-16 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shrink-0 border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                        {getTipoIcon(item.tipo)}
-                                    </div>
-                                    <div className="flex-grow min-w-0">
-                                        <div className="flex items-center gap-3 mb-1">
-                                            <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md">
-                                                {item.data_evento ? new Date(item.data_evento).toLocaleDateString('pt-BR') : 'Sem data'}
+                        <div className="space-y-12">
+                            {/* Eventos Próximos */}
+                            <div className="space-y-4">
+                                <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                                    Próximas Atividades
+                                </h2>
+                                {filteredEvents
+                                    .filter(e => getSafeDate(e.data_evento) >= new Date(new Date().setHours(0, 0, 0, 0)))
+                                    .map((item) => (
+                                    <div key={item.id} className="bg-white rounded-3xl p-5 border border-slate-100 flex flex-col md:flex-row items-center gap-6 group hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500">
+                                        <div className="w-20 h-20 rounded-2xl bg-blue-50 flex flex-col items-center justify-center text-blue-600 shrink-0 border border-blue-100 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner">
+                                            <span className="text-[10px] font-black uppercase leading-none mb-1 opacity-60">
+                                                {getSafeDate(item.data_evento).toLocaleString('pt-BR', { month: 'short' })}
                                             </span>
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                                {item.horario?.slice(0, 5) || '--:--'}
+                                            <span className="text-2xl font-black leading-none">
+                                                {getSafeDate(item.data_evento).toLocaleString('pt-BR', { day: '2-digit' })}
                                             </span>
                                         </div>
-                                        <h3 className="font-bold text-gray-900 truncate text-lg leading-tight">{item.titulo}</h3>
-                                        <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                                            <div className="flex items-center gap-1.5 truncate">
-                                                <MapPin className="w-3.5 h-3.5 text-blue-500" />
-                                                <span className="truncate">{item.local || 'Local não definido'}</span>
+                                        <div className="flex-grow min-w-0 text-center md:text-left">
+                                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-2">
+                                                <span className="px-2.5 py-1 bg-blue-50 text-blue-600 text-[10px] font-black uppercase tracking-widest rounded-lg border border-blue-100">
+                                                    {item.tipo}
+                                                </span>
+                                                <span className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                                    <Clock className="w-3.5 h-3.5 text-blue-400" /> {item.horario?.slice(0, 5) || '--:--'}
+                                                </span>
                                             </div>
-                                            <div className="flex items-center gap-1.5 shrink-0">
-                                                <Info className="w-3.5 h-3.5 text-blue-500" />
-                                                <span>{item.tipo}</span>
+                                            <h3 className="font-bold text-slate-900 text-xl leading-tight mb-2 group-hover:text-blue-600 transition-colors">{item.titulo}</h3>
+                                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm text-slate-500">
+                                                <div className="flex items-center gap-1.5">
+                                                    <MapPin className="w-4 h-4 text-blue-500/50" />
+                                                    <span className="font-medium">{item.local || 'Local não definido'}</span>
+                                                </div>
                                             </div>
                                         </div>
+                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
+                                            <button
+                                                onClick={() => openForm(item)}
+                                                className="p-3 bg-slate-50 hover:bg-blue-50 rounded-2xl text-slate-400 hover:text-blue-600 transition-all border border-transparent hover:border-blue-100"
+                                                title="Editar"
+                                            >
+                                                <Pencil className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => setConfirmDelete(item.id)}
+                                                className="p-3 bg-slate-50 hover:bg-red-50 rounded-2xl text-slate-400 hover:text-red-600 transition-all border border-transparent hover:border-red-100"
+                                                title="Excluir"
+                                            >
+                                                <Trash2 className="w-5 h-5" />
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                            onClick={() => openForm(item)}
-                                            className="p-3 hover:bg-blue-50 rounded-xl text-gray-400 hover:text-blue-600 transition-all"
-                                            title="Editar"
-                                        >
-                                            <Pencil className="w-5 h-5" />
-                                        </button>
-                                        <button
-                                            onClick={() => setConfirmDelete(item.id)}
-                                            className="p-3 hover:bg-red-50 rounded-xl text-gray-400 hover:text-red-600 transition-all"
-                                            title="Excluir"
-                                        >
-                                            <Trash2 className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                            {filteredEvents.length === 0 && (
-                                <div className="py-20 text-center">
-                                    <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <Calendar className="w-10 h-10 text-gray-300" />
-                                    </div>
-                                    <p className="text-gray-400 font-medium">Nenhum evento encontrado.</p>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                                ))}
+                            </div>
 
                             {/* Eventos Passados */}
-                            <section>
-                                <h2 className="text-xl font-bold text-gray-400 mb-6 flex items-center gap-2">
+                            <div className="pt-10 border-t border-slate-100">
+                                <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
                                     <Clock className="w-5 h-5" />
                                     Histórico de Atividades
                                 </h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {filteredEvents
-                                        .filter(e => {
-                                            const eventDate = getSafeDate(e.data_evento);
-                                            return eventDate < new Date(new Date().setHours(0, 0, 0, 0));
-                                        })
+                                        .filter(e => getSafeDate(e.data_evento) < new Date(new Date().setHours(0, 0, 0, 0)))
                                         .map((event) => (
-                                            <div key={event.id} className="bg-white px-5 py-4 rounded-xl border border-gray-100 flex items-center gap-4 group opacity-75 hover:opacity-100 transition-all shadow-sm">
-                                                <div className="flex-shrink-0 bg-gray-100 text-gray-500 w-12 h-12 rounded-lg flex flex-col items-center justify-center border border-gray-200 text-center">
-                                                    <span className="text-[10px] font-bold uppercase leading-none">{getSafeDate(event.data_evento).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', month: 'short' })}</span>
-                                                    <span className="text-lg font-bold leading-none">{getSafeDate(event.data_evento).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit' })}</span>
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <h3 className="font-bold text-gray-700 text-sm truncate">{event.titulo}</h3>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] text-gray-400 font-medium">{getSafeDate(event.data_evento).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</span>
-                                                        <span className="text-[10px] text-slate-300">•</span>
-                                                        <span className="text-[10px] font-bold text-slate-400 uppercase">{event.tipo}</span>
+                                            <div key={event.id} className="bg-slate-50/50 p-6 rounded-[2rem] border border-slate-100 flex flex-col gap-4 group hover:bg-white hover:border-blue-200 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-500">
+                                                <div className="flex justify-between items-start">
+                                                    <div className="bg-white text-slate-400 w-12 h-12 rounded-2xl flex flex-col items-center justify-center border border-slate-100 text-center shadow-sm group-hover:border-blue-100 group-hover:text-blue-500 transition-colors">
+                                                        <span className="text-[9px] font-black uppercase leading-none">{getSafeDate(event.data_evento).toLocaleString('pt-BR', { month: 'short' })}</span>
+                                                        <span className="text-lg font-black leading-none">{getSafeDate(event.data_evento).toLocaleString('pt-BR', { day: '2-digit' })}</span>
+                                                    </div>
+                                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button onClick={() => openForm(event)} className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-xl transition-colors">
+                                                            <Pencil className="w-4 h-4" />
+                                                        </button>
+                                                        <button onClick={() => setConfirmDelete(event.id)} className="p-2 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-xl transition-colors">
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
                                                     </div>
                                                 </div>
-                                                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => openForm(event)} className="p-1.5 hover:bg-slate-50 text-gray-400 hover:text-slate-600 rounded-lg transition-colors">
-                                                        <Pencil className="w-3.5 h-3.5" />
-                                                    </button>
-                                                    <button onClick={() => setConfirmDelete(event.id)} className="p-1.5 hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-lg transition-colors">
-                                                        <Trash2 className="w-3.5 h-3.5" />
-                                                    </button>
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[9px] font-black uppercase tracking-widest rounded-md group-hover:bg-blue-50 group-hover:text-blue-600">
+                                                            {event.tipo}
+                                                        </span>
+                                                        <span className="text-[10px] text-slate-400 font-bold">{event.horario?.slice(0, 5)}</span>
+                                                    </div>
+                                                    <h3 className="font-bold text-slate-700 text-base leading-snug line-clamp-2 group-hover:text-slate-900 transition-colors">{event.titulo}</h3>
+                                                    <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                                                        <MapPin className="w-3.5 h-3.5 opacity-50" />
+                                                        <span className="truncate">{event.local}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
                                 </div>
-                            </section>
+                                {filteredEvents.filter(e => getSafeDate(e.data_evento) < new Date(new Date().setHours(0, 0, 0, 0))).length === 0 && (
+                                    <div className="text-center py-10 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200 text-slate-400 text-sm italic">
+                                        Nenhum evento no histórico.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                         </>
                     ) : (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>

@@ -105,8 +105,8 @@ const Noticias = () => {
             {/* Search and Filters - Floating Design */}
             <section className="-mt-12 mb-20 relative z-20">
                 <div className="container mx-auto px-6">
-                    <div className="max-w-4xl mx-auto bg-white rounded-[2rem] shadow-2xl shadow-slate-900/10 border border-slate-100 p-2 md:p-3 flex flex-col md:flex-row gap-2">
-                        <div className="relative flex-grow">
+                    <div className="max-w-4xl mx-auto bg-white rounded-[2rem] shadow-2xl shadow-slate-900/10 border border-slate-100 p-2 md:p-3">
+                        <div className="relative">
                             <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
                             <input
                                 type="text"
@@ -118,9 +118,6 @@ const Noticias = () => {
                                 }}
                                 className="w-full pl-16 pr-6 py-5 bg-slate-50/50 border-none rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none text-slate-900 font-bold placeholder:text-slate-300"
                             />
-                        </div>
-                        <div className="hidden md:flex items-center gap-3 px-8 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-slate-900/20">
-                            <Filter className="w-4 h-4" /> FILTRAR
                         </div>
                     </div>
                 </div>

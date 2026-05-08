@@ -266,7 +266,7 @@ const Dashboard = () => {
                         <div className="space-y-2">
                             <ProgressBar label="Docentes" value={roleDistribution['Docente'] || 0} total={statsData.members} colorClass="bg-slate-900" />
                             <ProgressBar label="Mestrandos" value={roleDistribution['Mestrando'] || 0} total={statsData.members} colorClass="bg-blue-500" />
-                            <ProgressBar label="Graduação" value={roleDistribution['Graduando'] || 0} total={statsData.members} colorClass="bg-blue-200" />
+                            <ProgressBar label="Graduação" value={(roleDistribution['Graduação'] || 0) + (roleDistribution['Graduando'] || 0)} total={statsData.members} colorClass="bg-blue-200" />
                             <ProgressBar label="Egressos" value={roleDistribution['Egresso'] || 0} total={statsData.members} colorClass="bg-slate-200" />
                         </div>
                     </motion.div>

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Menu, X, FileText, Calendar, Users, Newspaper, Home, MapPin, Mail, Github } from 'lucide-react';
+import { Menu, X, FileText, Calendar, Users, Newspaper, Home, MapPin, Mail, Github, Instagram } from 'lucide-react';
 import { useState } from 'react';
 import Logo from '../assets/images/gsipp-logo.svg';
 
@@ -16,6 +16,17 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         { name: 'Eventos', path: '/eventos', icon: <Calendar className="w-4 h-4 mr-2" /> },
         { name: 'Editais', path: '/editais', icon: <FileText className="w-4 h-4 mr-2" /> },
     ];
+    
+    const ResearchGateIcon = ({ className }: { className?: string }) => (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 448 512"
+            fill="currentColor"
+            className={className}
+        >
+            <path d="M0 32v448h448V32H0zm262.2 334.4c-6.6 3-33.2 6-50-14.2-9.2-10.6-25.3-33.3-42.2-63.6-8.9 0-14.7 0-21.4-.6v46.4c0 23.5 6 21.2 25.8 23.9v8.1c-6.9-.3-31.1 0-35.6-.3v-8.1c9.8-.7 12-2.4 12-23.9V225c0-20.5-2.6-22.9-13.5-23.9v-8.4c3.4-.6 32.1-.3 39.3-.3 52.8 0 59.5 29.5 59.5 48.6 0 22.8-10.9 44.6-29.2 52.4l20.5 31.4c25.8 38.7 41.1 38.5 54.8 38.5v8.1zm-64.7-142.2c0-14.6-5.8-37.1-39.5-37.1h-12.7v76.8h12.1c25.6 0 40.1-15 40.1-39.7zM360 300.2h-63.5v65.6c0 15 2.1 19 12.3 19.9v7.9c-2.9-.3-24.1 0-27.9-.3v-7.9c10.3-.9 11.7-4.1 11.7-19.9v-108.5c0-15-2.1-19-12-19.9v-7.9c3.2-.3 23.8 0 28.5-.3h55.2c41.3 0 51.5 24.3 51.5 48.6 0 15.3-3.8 28.4-15 36.4l23.5 35.5c4.7 6.8 11.7 8.2 18.5 8.2v8.1c-15.3-.3-25.3-1.8-35.2-16.2l-23.1-34.6h-24.5zm0-24.3c15.8 0 24.1-11.4 24.1-27.9 0-17.6-9.1-26.4-24.1-26.4h-35.8v54.3h35.8z" />
+        </svg>
+    );
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-50 text-gray-900 font-sans">
@@ -100,8 +111,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                                 Grupo de Excelência em Pesquisa focado em Segurança da Informação, Criptografia e Preservação da Privacidade no mundo digital.
                             </p>
                             <div className="flex items-center gap-4">
-                                <a href="https://github.com/gsipp" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white hover:border-blue-500 transition-all shadow-lg hover:shadow-blue-500/25">
+                                <a href="https://github.com/gsipp" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white hover:border-blue-500 transition-all shadow-lg hover:shadow-blue-500/25" title="GitHub">
                                     <Github className="w-4 h-4" />
+                                </a>
+                                <a href="https://www.instagram.com/gsipp_ufc/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-pink-600 hover:text-white hover:border-pink-500 transition-all shadow-lg hover:shadow-pink-500/25" title="Instagram">
+                                    <Instagram className="w-4 h-4" />
+                                </a>
+                                <a href="https://www.researchgate.net/lab/Grupo-de-Pesquisa-em-Seguranca-da-Informacao-e-Preservacao-da-privacidade-Emerson-B-Tomaz" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-emerald-600 hover:text-white hover:border-emerald-500 transition-all shadow-lg hover:shadow-emerald-500/25" title="ResearchGate">
+                                    <ResearchGateIcon className="w-5 h-5" />
                                 </a>
                             </div>
                         </div>

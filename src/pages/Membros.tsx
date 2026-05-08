@@ -31,6 +31,7 @@ interface Member {
     id: string;
     nome: string;
     cargo: string;
+    categoria: string;
     area_pesquisa: string;
     curso: string;
     lattes_url: string;
@@ -40,6 +41,7 @@ interface Member {
     researchgate_url?: string;
     email: string;
     ordem: number;
+    foto_posicao?: string;
 }
 
 const getLattesPhotoUrl = (member: Member): string | null => {
@@ -191,7 +193,12 @@ const Membros = () => {
                         <div className="space-y-32">
                             {categories.map((cat) => {
                                 const catMembers = members.filter(m => {
-                                    if (m.cargo !== cat.key) return false;
+                                    // Accept both 'Graduação' and 'Graduando' for the undergraduate section
+                                    if (cat.key === 'Graduação') {
+                                        if (m.cargo !== 'Graduação' && m.cargo !== 'Graduando') return false;
+                                    } else {
+                                        if (m.cargo !== cat.key) return false;
+                                    }
 
                                     const matchesSearch = m.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                                         (m.area_pesquisa && m.area_pesquisa.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -230,9 +237,19 @@ const Membros = () => {
                                                         <div className="w-28 h-28 rounded-full p-1 bg-white border border-gray-100 group-hover:border-blue-100 transition-colors duration-300">
                                                             <div className="w-full h-full rounded-full overflow-hidden bg-gray-50 flex items-center justify-center">
                                                                 {member.foto_url ? (
-                                                                    <img src={member.foto_url} alt={member.nome} className="w-full h-full object-cover" />
+                                                                    <img 
+                                                                        src={member.foto_url} 
+                                                                        alt={member.nome} 
+                                                                        className="w-full h-full object-cover" 
+                                                                        style={{ objectPosition: member.foto_posicao || 'center center' }}
+                                                                    />
                                                                 ) : getLattesPhotoUrl(member) ? (
-                                                                    <img src={getLattesPhotoUrl(member)!} alt={member.nome} className="w-full h-full object-cover" />
+                                                                    <img 
+                                                                        src={getLattesPhotoUrl(member)!} 
+                                                                        alt={member.nome} 
+                                                                        className="w-full h-full object-cover" 
+                                                                        style={{ objectPosition: member.foto_posicao || 'center center' }}
+                                                                    />
                                                                 ) : (
                                                                     <div className={`w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold text-2xl`}>
                                                                         {member.nome.substring(0, 2).toUpperCase()}

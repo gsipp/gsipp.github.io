@@ -27,6 +27,7 @@ interface Member {
     orientador?: string;
     total_horas?: string;
     researchgate_url?: string;
+    foto_posicao?: string;
 }
 
 const getLattesPhotoUrl = (member: Member): string | null => {
@@ -122,7 +123,8 @@ const Members = () => {
             curso: formData.curso || null,
             orientador: formData.orientador || null,
             total_horas: formData.total_horas || null,
-            researchgate_url: formData.researchgate_url || null
+            researchgate_url: formData.researchgate_url || null,
+            foto_posicao: formData.foto_posicao || 'center'
         };
 
         if (editingMember) {
@@ -242,100 +244,167 @@ const Members = () => {
                     <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
                 </div>
             ) : (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-50/50 border-b border-gray-100">
-                                <tr>
-                                    <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Membro</th>
-                                    <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Dados Internos</th>
-                                    <th className="px-6 py-4 font-semibold text-gray-600 text-sm text-right">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50">
-                                {filteredMembers.map((member) => (
-                                    <tr key={member.id} className="hover:bg-blue-50/40 transition-colors group">
-                                        <td className="px-6 py-5">
-                                            <div className="flex items-center gap-4">
-                                                <div className="relative">
-                                                    <div className="w-12 h-12 rounded-2xl bg-gray-100 overflow-hidden border-2 border-white shadow-sm shrink-0">
-                                                        {member.foto_url ? (
-                                                            <img src={member.foto_url} alt={member.nome} className="w-full h-full object-cover" />
-                                                        ) : getLattesPhotoUrl(member) ? (
-                                                            <img src={getLattesPhotoUrl(member)!} alt={member.nome} className="w-full h-full object-cover" />
-                                                        ) : (
-                                                            <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-700 text-xs font-black">
-                                                                {member.nome.substring(0, 2).toUpperCase()}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                                        <span className="text-[10px] font-black text-blue-600">#{member.ordem}</span>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <div className="font-bold text-gray-900 text-base">{member.nome}</div>
-                                                    <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md inline-block mt-1">
-                                                        {member.cargo}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5">
-                                            <div className="text-sm text-gray-600 space-y-1.5">
-                                                {member.email && (
-                                                    <div className="flex items-center gap-2 group/info">
-                                                        <Mail className="w-4 h-4 text-gray-300 group-hover/info:text-blue-500 transition-colors" />
-                                                        <span className="font-medium">{member.email}</span>
-                                                    </div>
-                                                )}
-                                                <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                    <Clock className="w-3.5 h-3.5" /> 
-                                                    {member.carga_horaria ? `${member.carga_horaria}h semanais` : 'Carga horária n/d'}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-5 text-right">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <button
-                                                    onClick={() => generateDeclaration(member)}
-                                                    className="p-2.5 hover:bg-white text-gray-400 hover:text-blue-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
-                                                    title="Gerar Declaração"
-                                                >
-                                                    <FileText className="w-5 h-5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => openModal(member)}
-                                                    className="p-2.5 hover:bg-white text-gray-400 hover:text-blue-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
-                                                    title="Editar"
-                                                >
-                                                    <Pencil className="w-5 h-5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => setConfirmDelete(member.id)}
-                                                    className="p-2.5 hover:bg-white text-gray-400 hover:text-red-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
-                                                    title="Excluir"
-                                                >
-                                                    <Trash2 className="w-5 h-5" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {filteredMembers.length === 0 && (
+                <>
+                    {/* Desktop Table View */}
+                    <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-50/50 border-b border-gray-100">
                                     <tr>
-                                        <td colSpan={3} className="px-6 py-20 text-center">
-                                            <div className="bg-gray-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                                                <Users className="w-8 h-8 text-gray-300" />
-                                            </div>
-                                            <p className="text-gray-400 font-medium">Nenhum membro encontrado.</p>
-                                        </td>
+                                        <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Membro</th>
+                                        <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Dados Internos</th>
+                                        <th className="px-6 py-4 font-semibold text-gray-600 text-sm text-right">Ações</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {filteredMembers.map((member) => (
+                                        <tr key={member.id} className="hover:bg-blue-50/40 transition-colors group">
+                                            <td className="px-6 py-5">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="relative">
+                                                        <div className="w-12 h-12 rounded-2xl bg-gray-100 overflow-hidden border-2 border-white shadow-sm shrink-0">
+                                                            {member.foto_url ? (
+                                                                <img 
+                                                                    src={member.foto_url} 
+                                                                    alt={member.nome} 
+                                                                    className="w-full h-full object-cover" 
+                                                                    style={{ objectPosition: member.foto_posicao || 'center center' }}
+                                                                />
+                                                            ) : getLattesPhotoUrl(member) ? (
+                                                                <img 
+                                                                    src={getLattesPhotoUrl(member)!} 
+                                                                    alt={member.nome} 
+                                                                    className="w-full h-full object-cover" 
+                                                                    style={{ objectPosition: member.foto_posicao || 'center center' }}
+                                                                />
+                                                            ) : (
+                                                                <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-700 text-xs font-black">
+                                                                    {member.nome.substring(0, 2).toUpperCase()}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
+                                                            <span className="text-[10px] font-black text-blue-600">#{member.ordem}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-bold text-gray-900 text-base">{member.nome}</div>
+                                                        <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md inline-block mt-1">
+                                                            {member.cargo}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5">
+                                                <div className="text-sm text-gray-600 space-y-1.5">
+                                                    {member.email && (
+                                                        <div className="flex items-center gap-2 group/info">
+                                                            <Mail className="w-4 h-4 text-gray-300 group-hover/info:text-blue-500 transition-colors" />
+                                                            <span className="font-medium">{member.email}</span>
+                                                        </div>
+                                                    )}
+                                                    <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                                                        <Clock className="w-3.5 h-3.5" /> 
+                                                        {member.carga_horaria ? `${member.carga_horaria}h semanais` : 'Carga horária n/d'}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-5 text-right">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <button
+                                                        onClick={() => generateDeclaration(member)}
+                                                        className="p-2.5 hover:bg-white text-gray-400 hover:text-blue-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
+                                                        title="Gerar Declaração"
+                                                    >
+                                                        <FileText className="w-5 h-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => openModal(member)}
+                                                        className="p-2.5 hover:bg-white text-gray-400 hover:text-blue-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
+                                                        title="Editar"
+                                                    >
+                                                        <Pencil className="w-5 h-5" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setConfirmDelete(member.id)}
+                                                        className="p-2.5 hover:bg-white text-gray-400 hover:text-red-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
+                                                        title="Excluir"
+                                                    >
+                                                        <Trash2 className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+
+                    {/* Mobile Card View */}
+                    <div className="lg:hidden space-y-4">
+                        {filteredMembers.map((member) => (
+                            <div key={member.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-2xl bg-gray-100 overflow-hidden border border-gray-100 shrink-0">
+                                        {member.foto_url ? (
+                                            <img 
+                                                src={member.foto_url} 
+                                                alt={member.nome} 
+                                                className="w-full h-full object-cover" 
+                                                style={{ objectPosition: member.foto_posicao || 'center center' }}
+                                            />
+                                        ) : getLattesPhotoUrl(member) ? (
+                                            <img 
+                                                src={getLattesPhotoUrl(member)!} 
+                                                alt={member.nome} 
+                                                className="w-full h-full object-cover" 
+                                                style={{ objectPosition: member.foto_posicao || 'center center' }}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-700 font-black">
+                                                {member.nome.substring(0, 2).toUpperCase()}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <h3 className="font-bold text-gray-900 truncate">{member.nome}</h3>
+                                        <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md inline-block">
+                                            {member.cargo}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-2 text-[11px] font-medium text-gray-500 pt-2 border-t border-gray-50">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] uppercase font-black text-gray-400">Email</span>
+                                        <span className="truncate">{member.email || 'N/D'}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] uppercase font-black text-gray-400">Carga Horária</span>
+                                        <span>{member.carga_horaria ? `${member.carga_horaria}h/sem` : 'N/D'}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-2 border-t border-gray-50">
+                                    <div className="text-[10px] font-black text-gray-300 uppercase">#ORDEM {member.ordem}</div>
+                                    <div className="flex gap-2">
+                                        <button onClick={() => generateDeclaration(member)} className="p-2 bg-slate-50 text-slate-400 rounded-lg"><FileText className="w-4 h-4" /></button>
+                                        <button onClick={() => openModal(member)} className="p-2 bg-blue-50 text-blue-600 rounded-lg"><Pencil className="w-4 h-4" /></button>
+                                        <button onClick={() => setConfirmDelete(member.id)} className="p-2 bg-red-50 text-red-600 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {filteredMembers.length === 0 && (
+                        <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 lg:hidden">
+                            <Users className="w-10 h-10 text-gray-200 mx-auto mb-3" />
+                            <p className="text-gray-400 font-medium">Nenhum membro encontrado.</p>
+                        </div>
+                    )}
+                </>
             )}
 
             {/* Modal */}
@@ -371,7 +440,12 @@ const Members = () => {
                                     <div className="relative group w-32 h-32">
                                         <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-slate-100 bg-slate-50 flex items-center justify-center relative">
                                             {formData.foto_url ? (
-                                                <img src={formData.foto_url} alt="Profile" className="w-full h-full object-cover" />
+                                                <img 
+                                                    src={formData.foto_url} 
+                                                    alt="Profile" 
+                                                    className="w-full h-full object-cover transition-all duration-300" 
+                                                    style={{ objectPosition: formData.foto_posicao || 'center center' }}
+                                                />
                                             ) : (
                                                 <Upload className="w-10 h-10 text-slate-300" />
                                             )}
@@ -380,6 +454,18 @@ const Members = () => {
                                                     <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
                                                 </div>
                                             )}
+                                        </div>
+                                        <div className="absolute -right-12 top-0 flex flex-col gap-2">
+                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Ajuste</label>
+                                            <select 
+                                                className="p-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20"
+                                                value={formData.foto_posicao || 'center'}
+                                                onChange={e => setFormData({ ...formData, foto_posicao: e.target.value })}
+                                            >
+                                                <option value="center top">Topo</option>
+                                                <option value="center center">Centro</option>
+                                                <option value="center bottom">Baixo</option>
+                                            </select>
                                         </div>
                                         <label className="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full text-white cursor-pointer hover:bg-blue-700 shadow-md transition-all z-30">
                                             <Pencil className="w-4 h-4" />

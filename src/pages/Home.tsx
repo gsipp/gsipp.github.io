@@ -44,6 +44,7 @@ interface Membro {
     linkedin_url: string | null;
     researchgate_url?: string | null;
     email: string | null;
+    foto_posicao?: string | null;
 }
 
 const getLattesPhotoUrl = (member: Membro): string | null => {
@@ -406,9 +407,19 @@ const Home = () => {
                                                         <div className="w-28 h-28 rounded-full p-1 bg-white border border-gray-100 group-hover:border-blue-100 transition-colors duration-300">
                                                             <div className="w-full h-full rounded-full overflow-hidden bg-gray-50 flex items-center justify-center">
                                                                 {member.foto_url ? (
-                                                                    <img src={member.foto_url} alt={member.nome} className="w-full h-full object-cover" />
+                                                                    <img 
+                                                                        src={member.foto_url} 
+                                                                        alt={member.nome} 
+                                                                        className="w-full h-full object-cover" 
+                                                                        style={{ objectPosition: member.foto_posicao || 'center center' }}
+                                                                    />
                                                                 ) : getLattesPhotoUrl(member) ? (
-                                                                    <img src={getLattesPhotoUrl(member)!} alt={member.nome} className="w-full h-full object-cover" />
+                                                                    <img 
+                                                                        src={getLattesPhotoUrl(member)!} 
+                                                                        alt={member.nome} 
+                                                                        className="w-full h-full object-cover" 
+                                                                        style={{ objectPosition: member.foto_posicao || 'center center' }}
+                                                                    />
                                                                 ) : (
                                                                     <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold text-xl">
                                                                         {member.nome.substring(0, 2).toUpperCase()}

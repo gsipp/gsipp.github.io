@@ -243,8 +243,8 @@ const NewsAdmin = () => {
                     ) : (
                         <div className="space-y-4">
                             {filteredNews.map((item) => (
-                                <div key={item.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex items-center gap-6 group hover:shadow-lg hover:shadow-blue-500/5 transition-all">
-                                    <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100 border border-gray-100">
+                                <div key={item.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 group hover:shadow-lg hover:shadow-blue-500/5 transition-all">
+                                    <div className="w-full sm:w-24 h-48 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100 border border-gray-100">
                                         {item.imagem_capa_url ? (
                                             <img src={item.imagem_capa_url} alt="" className="w-full h-full object-cover" />
                                         ) : (
@@ -253,8 +253,8 @@ const NewsAdmin = () => {
                                             </div>
                                         )}
                                     </div>
-                                    <div className="flex-grow min-w-0">
-                                        <div className="flex items-center gap-3 mb-1">
+                                    <div className="flex-grow min-w-0 w-full text-center sm:text-left">
+                                        <div className="flex items-center justify-center sm:justify-start gap-3 mb-1">
                                             <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md">
                                                 {(() => {
                                                     const [year, month, day] = item.data_publicacao.split('T')[0].split('-').map(Number);
@@ -265,17 +265,17 @@ const NewsAdmin = () => {
                                         <h3 className="font-bold text-gray-900 truncate text-lg">{item.titulo}</h3>
                                         <p className="text-sm text-gray-500 line-clamp-1">{item.resumo}</p>
                                     </div>
-                                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex items-center gap-2 sm:opacity-0 group-hover:opacity-100 transition-opacity w-full sm:w-auto justify-center sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0">
                                         <button
                                             onClick={() => handleEdit(item)}
-                                            className="p-3 hover:bg-blue-50 rounded-xl text-gray-400 hover:text-blue-600 transition-all"
+                                            className="p-3 bg-blue-50 sm:bg-transparent hover:bg-blue-50 rounded-xl text-blue-600 sm:text-gray-400 sm:hover:text-blue-600 transition-all flex-1 sm:flex-none flex justify-center"
                                             title="Editar"
                                         >
                                             <Pencil className="w-5 h-5" />
                                         </button>
                                         <button
                                             onClick={() => setConfirmDelete(item.id)}
-                                            className="p-3 hover:bg-red-50 rounded-xl text-gray-400 hover:text-red-600 transition-all"
+                                            className="p-3 bg-red-50 sm:bg-transparent hover:bg-red-50 rounded-xl text-red-600 sm:text-gray-400 sm:hover:text-red-600 transition-all flex-1 sm:flex-none flex justify-center"
                                             title="Excluir"
                                         >
                                             <Trash2 className="w-5 h-5" />

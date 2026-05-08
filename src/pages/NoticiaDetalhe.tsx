@@ -21,6 +21,7 @@ const NoticiaDetalhe = () => {
     const { slug } = useParams<{ slug: string }>();
     const [news, setNews] = useState<NewsItem | null>(null);
     const [loading, setLoading] = useState(true);
+    const [copied, setCopied] = useState(false);
 
     useEffect(() => {
         const fetchNewsDetail = async () => {
@@ -75,6 +76,25 @@ const NoticiaDetalhe = () => {
         });
     };
 
+    const handleShare = async () => {
+        if (!news) return;
+        try {
+            await navigator.share({
+                title: news.titulo,
+                text: news.resumo,
+                url: window.location.href,
+            });
+        } catch (err) {
+            console.error('Error sharing:', err);
+        }
+    };
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(window.location.href);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
     return (
         <div className="min-h-screen bg-white pt-[80px] pb-24">
             <SEO 
@@ -84,7 +104,7 @@ const NoticiaDetalhe = () => {
             />
 
             {/* Premium Header */}
-            <header className="relative bg-slate-900 pt-24 pb-48 overflow-hidden rounded-b-[4rem] mx-2 mt-2">
+            <header className="relative bg-slate-900 pt-16 pb-24 md:pt-24 md:pb-48 overflow-hidden rounded-b-[3rem] md:rounded-b-[4rem] mx-2 mt-2">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-emerald-600/20 pointer-events-none"></div>
                 <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10"></div>
                 
@@ -108,7 +128,7 @@ const NoticiaDetalhe = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="text-4xl md:text-6xl font-black text-white mb-10 leading-[1.1] tracking-tight"
+                            className="text-3xl md:text-6xl font-black text-white mb-6 md:mb-10 leading-[1.1] tracking-tight"
                         >
                             {news.titulo}
                         </motion.h1>
@@ -117,11 +137,11 @@ const NoticiaDetalhe = () => {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            className="flex flex-wrap items-center gap-8 py-8 border-t border-white/10"
+                            className="flex flex-col sm:flex-row sm:items-center gap-6 py-6 md:py-8 border-t border-white/10"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
-                                    <User className="w-6 h-6" />
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
+                                    <User className="w-5 h-5 md:w-6 md:h-6" />
                                 </div>
                                 <div>
                                     <p className="text-sm font-bold text-white leading-none mb-1">Equipe GSIPP</p>
@@ -129,11 +149,11 @@ const NoticiaDetalhe = () => {
                                 </div>
                             </div>
                             <div className="flex items-center gap-6">
-                                <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
+                                <div className="flex items-center gap-2 text-slate-300 text-xs md:text-sm font-medium">
                                     <Calendar className="w-4 h-4 text-blue-400" /> {formatDate(news.data_publicacao)}
                                 </div>
-                                <div className="flex items-center gap-2 text-slate-300 text-sm font-medium">
-                                    <Clock className="w-4 h-4 text-emerald-400" /> 5 min de leitura
+                                <div className="flex items-center gap-2 text-slate-300 text-xs md:text-sm font-medium">
+                                    <Clock className="w-4 h-4 text-emerald-400" /> 5 min
                                 </div>
                             </div>
                         </motion.div>
@@ -142,12 +162,12 @@ const NoticiaDetalhe = () => {
             </header>
 
             {/* Featured Image Container */}
-            <section className="container mx-auto px-6 -mt-20 relative z-20">
+            <section className="container mx-auto px-4 md:px-6 -mt-12 md:-mt-20 relative z-20">
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.3 }}
-                    className="max-w-5xl mx-auto aspect-[16/8] overflow-hidden rounded-[3rem] border-8 border-white shadow-2xl shadow-slate-900/20 bg-slate-100"
+                    className="max-w-5xl mx-auto aspect-[16/9] md:aspect-[16/8] overflow-hidden rounded-3xl md:rounded-[3rem] border-4 md:border-8 border-white shadow-2xl shadow-slate-900/20 bg-slate-100"
                 >
                     {news.imagem_capa_url ? (
                         <img
@@ -179,9 +199,10 @@ const NoticiaDetalhe = () => {
                         prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline 
                         prose-img:rounded-[2rem] prose-img:shadow-xl prose-strong:text-slate-900 
                         prose-blockquote:border-l-blue-500 prose-blockquote:bg-blue-50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-2xl
-                        prose-pre:bg-slate-900 prose-pre:rounded-2xl prose-code:text-blue-600">
+                        prose-pre:bg-slate-900 prose-pre:rounded-2xl prose-code:text-blue-600
+                        break-words overflow-x-hidden">
                         
-                        <div className="overflow-x-auto overflow-y-hidden custom-scrollbar pb-4">
+                        <div className="overflow-x-auto custom-scrollbar pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                 {news.conteudo}
                             </ReactMarkdown>
@@ -196,11 +217,21 @@ const NoticiaDetalhe = () => {
                                 <p className="text-slate-500">Compartilhe com sua rede e ajude a divulgar a pesquisa brasileira.</p>
                             </div>
                             <div className="flex flex-wrap justify-center gap-4">
-                                <button className="inline-flex items-center gap-3 px-8 py-4 bg-white text-slate-900 font-bold rounded-2xl hover:bg-slate-900 hover:text-white transition-all border border-slate-200 shadow-sm">
+                                <button 
+                                    onClick={handleShare}
+                                    className="inline-flex items-center gap-3 px-8 py-4 bg-white text-slate-900 font-bold rounded-2xl hover:bg-slate-900 hover:text-white transition-all border border-slate-200 shadow-sm"
+                                >
                                     <Share2 className="w-5 h-5 text-blue-500" /> Compartilhar
                                 </button>
-                                <button className="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20">
-                                    Copiar Link
+                                <button 
+                                    onClick={handleCopyLink}
+                                    className={`inline-flex items-center gap-3 px-8 py-4 font-bold rounded-2xl transition-all shadow-lg ${
+                                        copied 
+                                        ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
+                                        : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-500/20'
+                                    }`}
+                                >
+                                    {copied ? 'Copiado!' : 'Copiar Link'}
                                 </button>
                             </div>
                         </div>
