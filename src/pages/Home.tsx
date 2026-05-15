@@ -27,10 +27,10 @@ const ResearchGateIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 import SEO from '../components/SEO';
-// import ufcLogo from '../assets/images/logotipo-ufc-horizontal.png';
-// import cnpqLogo from '../assets/images/CNPq.png';
-// import capesLogo from '../assets/images/capes.png';
-// import funcapLogo from '../assets/images/funcap.png';
+import ufcLogo from '../assets/images/logotipo-ufc-horizontal.png';
+import cnpqLogo from '../assets/images/CNPq.png';
+import capesLogo from '../assets/images/capes.png';
+import funcapLogo from '../assets/images/funcap.png';
 
 interface Membro {
     id: string;
