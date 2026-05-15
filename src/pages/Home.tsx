@@ -127,14 +127,6 @@ const Home = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900/95 to-blue-900/40 pointer-events-none"></div>
 
                 <div className="container mx-auto px-6 relative z-10 flex flex-col items-center text-center pb-20 pt-10">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8 }}
-                        className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium backdrop-blur-sm"
-                    >
-                        <Shield className="w-4 h-4" /> Grupo de Excelência em Pesquisa
-                    </motion.div>
 
                     <motion.h1
                         className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 leading-tight"
