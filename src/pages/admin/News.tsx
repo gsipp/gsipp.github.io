@@ -78,7 +78,7 @@ const NewsAdmin = () => {
         
         if (formData.conteudo && !window.confirm('Isso irá substituir o conteúdo atual. Continuar?')) return;
         setFormData({ ...formData, conteudo: templates[type] });
-        setFormTab('write');
+        setViewMode('write');
     };
 
     const wordCount = (text: string) => text ? text.trim().split(/\s+/).length : 0;
