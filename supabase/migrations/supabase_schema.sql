@@ -37,7 +37,8 @@ create table if not exists noticias (
   conteudo text,                    -- Markdown
   data_publicacao timestamp with time zone default timezone('America/Sao_Paulo'::text, now()),
   imagem_capa_url text,
-  publicado boolean default true
+  publicado boolean default true,
+  tags text[] default '{}'
 );
 
 -- ------------------------------------------

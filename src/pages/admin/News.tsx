@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, Newspaper, Bold, Italic, List, Link as LinkIcon, Quote, Code, Eye, FileEdit, FileText, Layout, Maximize2, Table, Strikethrough, Minus, CheckSquare, Image as ImageIcon, Heading1, Heading2, Heading3 } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, Newspaper, Bold, Italic, List, Link as LinkIcon, Quote, Code, Eye, FileEdit, FileText, Layout, Maximize2, Table, Strikethrough, Minus, CheckSquare, Image as ImageIcon, Heading1, Heading2, Heading3, Search } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useToast } from '../../contexts/ToastContext';
@@ -15,6 +15,8 @@ interface News {
     conteudo: string;
     imagem_capa_url: string;
     data_publicacao: string;
+    publicado: boolean;
+    tags: string[];
 }
 
 const NewsAdmin = () => {
@@ -27,7 +29,8 @@ const NewsAdmin = () => {
     const [uploading, setUploading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-    const [formTab, setFormTab] = useState<'write' | 'preview'>('write');
+    const [viewMode, setViewMode] = useState<'write' | 'preview' | 'split'>('write');
+    const [tagInput, setTagInput] = useState('');
     const [isFullScreen, setIsFullScreen] = useState(false);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const toast = useToast();
@@ -110,10 +113,34 @@ const NewsAdmin = () => {
         fetchNews();
     }, []);
 
+    // Autosave logic
+    useEffect(() => {
+        if (view === 'form' && formData.titulo) {
+            const timer = setTimeout(() => {
+                localStorage.setItem('gsipp_news_draft', JSON.stringify({
+                    formData,
+                    editingNews,
+                    timestamp: new Date().getTime()
+                }));
+            }, 2000); // Save after 2s of inactivity
+            return () => clearTimeout(timer);
+        }
+    }, [formData, view, editingNews]);
+
+    const recoverDraft = () => {
+        const saved = localStorage.getItem('gsipp_news_draft');
+        if (saved) {
+            const { formData: savedData, editingNews: savedEdit } = JSON.parse(saved);
+            setFormData(savedData);
+            setEditingNews(savedEdit);
+            toast.success('Rascunho recuperado localmente.');
+        }
+    };
+
     // Filter news
     const filteredNews = news.filter(item =>
         item.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.resumo.toLowerCase().includes(searchTerm.toLowerCase())
+        (item.resumo && item.resumo.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
     // Handle Delete
@@ -128,9 +155,16 @@ const NewsAdmin = () => {
     };
 
     // Handle Form Submit
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSubmit = async (e: React.FormEvent, forceStatus?: boolean) => {
+        if (e) e.preventDefault();
         setSaving(true);
+
+        // Se forceStatus for provido, usamos ele. 
+        // Caso contrário, se for edição, mantemos o status atual.
+        // Se for criação e não houver forceStatus, assume publicado.
+        const isPublished = forceStatus !== undefined 
+            ? forceStatus 
+            : (editingNews ? formData.publicado : true);
 
         const payload = {
             titulo: formData.titulo,
@@ -138,7 +172,9 @@ const NewsAdmin = () => {
             resumo: formData.resumo,
             conteudo: formData.conteudo,
             imagem_capa_url: formData.imagem_capa_url,
-            data_publicacao: formData.data_publicacao || new Date().toISOString()
+            data_publicacao: formData.data_publicacao || new Date().toISOString(),
+            publicado: isPublished,
+            tags: formData.tags || []
         };
 
         if (editingNews) {
@@ -148,14 +184,14 @@ const NewsAdmin = () => {
                 .eq('id', editingNews.id);
 
             if (error) toast.error('Erro ao atualizar: ' + error.message);
-            else toast.success('Notícia atualizada com sucesso.');
+            else toast.success(isPublished ? 'Notícia atualizada e publicada!' : 'Alterações salvas como rascunho.');
         } else {
             const { error } = await supabase
                 .from('noticias')
                 .insert([payload]);
 
-            if (error) toast.error('Erro ao publicar notícia: ' + error.message);
-            else toast.success('Notícia publicada com sucesso.');
+            if (error) toast.error('Erro ao salvar notícia: ' + error.message);
+            else toast.success(isPublished ? 'Notícia publicada com sucesso!' : 'Notícia salva como rascunho.');
         }
 
         setSaving(false);
@@ -188,6 +224,75 @@ const NewsAdmin = () => {
         setUploading(false);
     };
 
+    // Handle Content Image Upload (Drag & Drop / Paste)
+    const handleContentImageUpload = async (file: File) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `news/content/${fileName}`;
+
+        setUploading(true);
+        const { error: uploadError } = await supabase.storage
+            .from('images')
+            .upload(filePath, file);
+
+        if (uploadError) {
+            toast.error('Erro no upload da imagem: ' + uploadError.message);
+        } else {
+            const { data } = supabase.storage.from('images').getPublicUrl(filePath);
+            const markdownImage = `\n![imagem](${data.publicUrl})\n`;
+            
+            const textarea = textareaRef.current;
+            if (textarea) {
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const text = textarea.value;
+                const before = text.substring(0, start);
+                const after = text.substring(end);
+                setFormData({ ...formData, conteudo: before + markdownImage + after });
+            }
+        }
+        setUploading(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files && files[0] && files[0].type.startsWith('image/')) {
+            handleContentImageUpload(files[0]);
+        }
+    };
+
+    const handlePaste = (e: React.ClipboardEvent) => {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                const file = items[i].getAsFile();
+                if (file) handleContentImageUpload(file);
+            }
+        }
+    };
+
+    const addTag = (e?: React.KeyboardEvent) => {
+        if (e && e.key !== 'Enter') return;
+        if (e) e.preventDefault();
+
+        const tag = tagInput.trim().toLowerCase();
+        if (tag && !formData.tags?.includes(tag)) {
+            setFormData({
+                ...formData,
+                tags: [...(formData.tags || []), tag]
+            });
+        }
+        setTagInput('');
+    };
+
+    const removeTag = (tagToRemove: string) => {
+        setFormData({
+            ...formData,
+            tags: formData.tags?.filter(t => t !== tagToRemove)
+        });
+    };
+
     const handleEdit = (item: News) => {
         setEditingNews(item);
         const dataPub = item.data_publicacao ? item.data_publicacao.split('T')[0] : '';
@@ -200,7 +305,10 @@ const NewsAdmin = () => {
 
     const handleCreate = () => {
         setEditingNews(null);
-        setFormData({ data_publicacao: new Date().toISOString().split('T')[0] });
+        setFormData({ 
+            data_publicacao: new Date().toISOString().split('T')[0],
+            publicado: true 
+        });
         setView('form');
     };
 
@@ -233,6 +341,15 @@ const NewsAdmin = () => {
                             >
                                 <Plus className="w-5 h-5" /> <span className="hidden md:inline">Nova Notícia</span>
                             </button>
+                            {localStorage.getItem('gsipp_news_draft') && (
+                                <button
+                                    onClick={recoverDraft}
+                                    className="p-2.5 text-amber-600 hover:bg-amber-50 rounded-xl transition-all"
+                                    title="Recuperar Rascunho"
+                                >
+                                    <FileText className="w-6 h-6" />
+                                </button>
+                            )}
                         </div>
                     </div>
 
@@ -257,10 +374,17 @@ const NewsAdmin = () => {
                                         <div className="flex items-center justify-center sm:justify-start gap-3 mb-1">
                                             <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md">
                                                 {(() => {
-                                                    const [year, month, day] = item.data_publicacao.split('T')[0].split('-').map(Number);
+                                                    if (!item.data_publicacao) return '-';
+                                                    const datePart = item.data_publicacao.split('T')[0];
+                                                    const [year, month, day] = datePart.split('-').map(Number);
                                                     return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR');
                                                 })()}
                                             </span>
+                                            {item.publicado === false && (
+                                                <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">
+                                                    Rascunho
+                                                </span>
+                                            )}
                                         </div>
                                         <h3 className="font-bold text-gray-900 truncate text-lg">{item.titulo}</h3>
                                         <p className="text-sm text-gray-500 line-clamp-1">{item.resumo}</p>
@@ -352,26 +476,33 @@ const NewsAdmin = () => {
                                         </div>
 
                                         <div className="md:col-span-2">
-                                            <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md py-4 mb-4 border-b border-gray-100 -mx-8 px-8">
+                                            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md py-4 mb-4 border-b border-gray-100 -mx-8 px-8 shadow-sm">
                                                 <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                                                     <div className="flex p-1 bg-gray-100 rounded-xl w-fit shrink-0">
                                                         <button 
                                                             type="button"
-                                                            onClick={() => setFormTab('write')}
-                                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${formTab === 'write' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                                            onClick={() => setViewMode('write')}
+                                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'write' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                                                         >
                                                             <FileEdit className="w-4 h-4" /> Escrever
                                                         </button>
                                                         <button 
                                                             type="button"
-                                                            onClick={() => setFormTab('preview')}
-                                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${formTab === 'preview' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                                            onClick={() => setViewMode('split')}
+                                                            className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'split' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                                                        >
+                                                            <Layout className="w-4 h-4" /> Lado a Lado
+                                                        </button>
+                                                        <button 
+                                                            type="button"
+                                                            onClick={() => setViewMode('preview')}
+                                                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${viewMode === 'preview' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                                                         >
                                                             <Eye className="w-4 h-4" /> Visualizar
                                                         </button>
                                                     </div>
 
-                                                    {formTab === 'write' && (
+                                                    {viewMode !== 'preview' && (
                                                         <div className="flex flex-wrap items-center gap-3">
                                                             {/* Text Formatting Group */}
                                                             <div className="flex gap-1 bg-gray-50 p-1 rounded-xl border border-gray-100">
@@ -414,37 +545,43 @@ const NewsAdmin = () => {
                                                 </div>
                                             </div>
 
-                                            {formTab === 'write' ? (
-                                                <div className="relative">
-                                                    <textarea
-                                                        ref={textareaRef}
-                                                        rows={25}
-                                                        required
-                                                        value={formData.conteudo || ''}
-                                                        onChange={e => setFormData({ ...formData, conteudo: e.target.value })}
-                                                        onKeyDown={handleKeyDown}
-                                                        className="w-full px-8 py-8 rounded-2xl border border-gray-100 text-gray-900 focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 outline-none transition-all font-mono text-sm leading-relaxed bg-gray-50/20 min-h-[600px] shadow-sm"
-                                                        placeholder="Escreva sua notícia aqui usando Markdown..."
-                                                    />
-                                                    <div className="absolute bottom-4 right-6 flex items-center gap-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-gray-100 shadow-sm">
-                                                        <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-blue-500" /> {wordCount(formData.conteudo || '')} palavras</span>
-                                                        <span className="w-px h-3 bg-gray-200"></span>
-                                                        <span>{charCount(formData.conteudo || '')} caracteres</span>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div className="w-full min-h-[500px] px-8 py-8 rounded-2xl border border-gray-200 bg-white overflow-auto prose prose-slate prose-blue max-w-none">
-                                                    {formData.conteudo ? (
-                                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                                                            {formData.conteudo}
-                                                        </ReactMarkdown>
-                                                    ) : (
-                                                        <div className="h-full flex items-center justify-center text-gray-400 italic">
-                                                            Nada para visualizar ainda...
+                                            <div className={`grid gap-6 ${viewMode === 'split' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
+                                                {(viewMode === 'write' || viewMode === 'split') && (
+                                                    <div className="relative">
+                                                        <textarea
+                                                            ref={textareaRef}
+                                                            rows={25}
+                                                            required
+                                                            value={formData.conteudo || ''}
+                                                            onChange={e => setFormData({ ...formData, conteudo: e.target.value })}
+                                                            onKeyDown={handleKeyDown}
+                                                            onDrop={handleDrop}
+                                                            onPaste={handlePaste}
+                                                            className="w-full px-8 py-8 rounded-2xl border border-gray-100 text-gray-900 focus:ring-4 focus:ring-blue-500/5 focus:border-blue-200 outline-none transition-all font-mono text-sm leading-relaxed bg-gray-50/20 min-h-[600px] shadow-sm"
+                                                            placeholder="Escreva sua notícia aqui usando Markdown... Arraste imagens para cá!"
+                                                        />
+                                                        <div className="absolute bottom-4 right-6 flex items-center gap-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest bg-white/80 backdrop-blur-md px-4 py-2 rounded-full border border-gray-100 shadow-sm">
+                                                            <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5 text-blue-500" /> {wordCount(formData.conteudo || '')} palavras</span>
+                                                            <span className="w-px h-3 bg-gray-200"></span>
+                                                            <span>{charCount(formData.conteudo || '')} caracteres</span>
                                                         </div>
-                                                    )}
-                                                </div>
-                                            )}
+                                                    </div>
+                                                )}
+
+                                                {(viewMode === 'preview' || viewMode === 'split') && (
+                                                    <div className="w-full min-h-[600px] px-8 py-8 rounded-2xl border border-gray-200 bg-white overflow-auto prose prose-slate prose-blue max-w-none shadow-sm">
+                                                        {formData.conteudo ? (
+                                                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                                                {formData.conteudo}
+                                                            </ReactMarkdown>
+                                                        ) : (
+                                                            <div className="h-full flex items-center justify-center text-gray-400 italic">
+                                                                Nada para visualizar ainda...
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -470,6 +607,37 @@ const NewsAdmin = () => {
                                                 <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">URL Base (Slug)</label>
                                                 <div className="px-4 py-3 bg-gray-100 rounded-xl text-gray-500 text-sm break-all font-mono">
                                                     /{generateSlug(formData.titulo || 'titulo-da-noticia')}
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Tags / Categorias</label>
+                                                <div className="space-y-3">
+                                                    <div className="flex gap-2">
+                                                        <input
+                                                            type="text"
+                                                            value={tagInput}
+                                                            onChange={e => setTagInput(e.target.value)}
+                                                            onKeyDown={addTag}
+                                                            placeholder="Adicionar tag..."
+                                                            className="flex-1 px-3 py-2 rounded-lg border border-gray-200 focus:border-blue-500 outline-none text-sm transition-all"
+                                                        />
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={() => addTag()}
+                                                            className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition-all"
+                                                        >
+                                                            <Plus className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-1.5">
+                                                        {formData.tags?.map(tag => (
+                                                            <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-600 rounded-md text-[10px] font-black uppercase tracking-widest border border-blue-100">
+                                                                {tag}
+                                                                <button type="button" onClick={() => removeTag(tag)} className="hover:text-blue-800"><X className="w-3 h-3" /></button>
+                                                            </span>
+                                                        ))}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -504,9 +672,24 @@ const NewsAdmin = () => {
                                         </div>
                                     </div>
 
-                                    <div className="pt-6">
+                                    <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-xl overflow-hidden relative group">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 blur-[50px] rounded-full"></div>
+                                        <label className="block text-xs font-bold text-blue-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+                                            <Search className="w-3.5 h-3.5" /> Google Preview
+                                        </label>
+                                        <div className="space-y-1.5">
+                                            <div className="text-[12px] text-gray-400 truncate">gsipp.github.io › noticias › {generateSlug(formData.titulo || '')}</div>
+                                            <div className="text-xl text-blue-400 font-medium hover:underline cursor-pointer truncate">{formData.titulo || 'Título da Notícia'} | GSIPP</div>
+                                            <div className="text-[13px] text-gray-300 line-clamp-2 leading-relaxed opacity-80">
+                                                {formData.resumo || 'O resumo da sua notícia aparecerá aqui nos resultados de busca do Google...'}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-6 space-y-3">
                                         <button
-                                            type="submit"
+                                            type="button"
+                                            onClick={(e) => handleSubmit(e as unknown as React.FormEvent, true)}
                                             disabled={saving}
                                             className="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3.5 rounded-xl font-bold text-base flex items-center justify-center gap-3 transition-all shadow-lg shadow-blue-500/20 disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-0.5 active:translate-y-0"
                                         >
@@ -518,14 +701,31 @@ const NewsAdmin = () => {
                                             ) : (
                                                 <div className="flex items-center gap-3">
                                                     <Save className="w-5 h-5" />
-                                                    {editingNews ? 'Salvar Alterações' : 'Publicar Notícia'}
+                                                    {editingNews ? 'Salvar e Publicar' : 'Publicar Notícia'}
                                                 </div>
                                             )}
                                         </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={(e) => handleSubmit(e as unknown as React.FormEvent, false)}
+                                            disabled={saving}
+                                            className="w-full bg-white border border-gray-200 text-gray-700 px-6 py-3.5 rounded-xl font-bold text-base flex items-center justify-center gap-3 transition-all hover:bg-gray-50 disabled:opacity-70 disabled:cursor-not-allowed"
+                                        >
+                                            {saving ? (
+                                                <Loader2 className="w-5 h-5 animate-spin" />
+                                            ) : (
+                                                <>
+                                                    <FileText className="w-5 h-5 text-gray-400" />
+                                                    Salvar Rascunho
+                                                </>
+                                            )}
+                                        </button>
+
                                         <button
                                             type="button"
                                             onClick={handleCancel}
-                                            className="w-full mt-3 px-6 py-3 rounded-xl text-gray-500 font-bold text-sm hover:bg-gray-100 transition-colors"
+                                            className="w-full mt-3 px-6 py-3 rounded-xl text-gray-400 font-bold text-xs hover:text-gray-600 transition-colors uppercase tracking-widest"
                                         >
                                             Cancelar e Voltar
                                         </button>

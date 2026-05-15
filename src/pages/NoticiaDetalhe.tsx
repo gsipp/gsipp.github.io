@@ -29,6 +29,7 @@ const NoticiaDetalhe = () => {
                 .from('noticias')
                 .select('*')
                 .eq('slug', slug)
+                .eq('publicado', true)
                 .single();
 
             if (error) console.error('Error fetching news detail:', error);

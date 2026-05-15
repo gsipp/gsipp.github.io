@@ -127,14 +127,6 @@ const Home = () => {
                 <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-900/95 to-blue-900/40 pointer-events-none"></div>
 
                 <div className="container mx-auto px-6 relative z-10 flex flex-col items-center text-center pb-20 pt-10">
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8 }}
-                        className="mb-8 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm font-medium backdrop-blur-sm"
-                    >
-                        <Shield className="w-4 h-4" /> Grupo de Excelência em Pesquisa
-                    </motion.div>
 
                     <motion.h1
                         className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 leading-tight"
@@ -154,7 +146,7 @@ const Home = () => {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4, duration: 0.8 }}
                     >
-                        Pioneirismo científico e inovação tecnológica para um mundo digital mais seguro e confiável.
+                        Pesquisa e inovação tecnológica para um mundo digital mais seguro e confiável.
                     </motion.p>
 
                     <motion.div
@@ -175,7 +167,7 @@ const Home = () => {
             </header>
 
             {/* Strategic Partners (Fomento) */}
-            <div className="border-b border-gray-200 bg-white overflow-hidden pt-20 pb-10">
+            {/* <div className="border-b border-gray-200 bg-white overflow-hidden pt-20 pb-10">
                 <div className="container mx-auto px-6">
                     <motion.p
                         initial={{ opacity: 0 }}
@@ -219,7 +211,7 @@ const Home = () => {
                         />
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             {/* Sobre o Grupo */}
             <section id="sobre" className="py-20 relative overflow-hidden bg-white">
@@ -233,7 +225,7 @@ const Home = () => {
                             transition={{ duration: 0.8 }}
                         >
                             <h2 className="text-blue-600 font-bold tracking-wide uppercase text-sm mb-2">Quem Somos</h2>
-                            <h3 className="text-4xl font-bold text-gray-900 mb-6">Pioneirismo em Segurança e Privacidade</h3>
+                            <h3 className="text-4xl font-bold text-gray-900 mb-6">Grupo de pesquisa em Segurança e Privacidade</h3>
                             <div className="space-y-6 text-lg text-gray-600 leading-relaxed">
                                 <p>
                                     Fundado em 2023 no campus de Crateús da UFC, o <span className="text-gray-900 font-semibold">GSIPP</span> é um hub de inovação que une professores, pesquisadores e alunos em torno de um objetivo comum: tornar o mundo digital mais seguro.
@@ -330,10 +322,10 @@ const Home = () => {
 
                                 <div className="space-y-6 text-gray-300 leading-relaxed text-lg">
                                     <p>
-                                        Doutor em Ciência da Computação pela UFC, com vasta experiência em Redes de Computadores e Segurança da Informação.
+                                        Doutor em Ciência da Computação pela UFC, com experiência em Redes de Computadores e Segurança da Informação.
                                     </p>
                                     <p>
-                                        Atua na graduação e pós-graduação, liderando projetos inovadores em criptografia, IoT e blockchain.
+                                        Atua na graduação, liderando projetos nas areas de criptografia, IoT e blockchain.
                                     </p>
                                 </div>
 
@@ -343,8 +335,8 @@ const Home = () => {
                                         <div className="text-xs text-blue-300 uppercase tracking-widest">Início Carreira</div>
                                     </div>
                                     <div className="text-center border-l border-white/10 pl-6">
-                                        <div className="text-2xl font-bold text-white">CNPq</div>
-                                        <div className="text-xs text-blue-300 uppercase tracking-widest">Pesquisador</div>
+                                        <div className="text-2xl font-bold text-white">Bolsista de produtividade de pesquisa Funcap</div>
+                                        {/* <div className="text-xs text-blue-300 uppercase tracking-widest">Pesquisador</div> */}
                                     </div>
                                 </div>
                             </div>
@@ -407,17 +399,17 @@ const Home = () => {
                                                         <div className="w-28 h-28 rounded-full p-1 bg-white border border-gray-100 group-hover:border-blue-100 transition-colors duration-300">
                                                             <div className="w-full h-full rounded-full overflow-hidden bg-gray-50 flex items-center justify-center">
                                                                 {member.foto_url ? (
-                                                                    <img 
-                                                                        src={member.foto_url} 
-                                                                        alt={member.nome} 
-                                                                        className="w-full h-full object-cover" 
+                                                                    <img
+                                                                        src={member.foto_url}
+                                                                        alt={member.nome}
+                                                                        className="w-full h-full object-cover"
                                                                         style={{ objectPosition: member.foto_posicao || 'center center' }}
                                                                     />
                                                                 ) : getLattesPhotoUrl(member) ? (
-                                                                    <img 
-                                                                        src={getLattesPhotoUrl(member)!} 
-                                                                        alt={member.nome} 
-                                                                        className="w-full h-full object-cover" 
+                                                                    <img
+                                                                        src={getLattesPhotoUrl(member)!}
+                                                                        alt={member.nome}
+                                                                        className="w-full h-full object-cover"
                                                                         style={{ objectPosition: member.foto_posicao || 'center center' }}
                                                                     />
                                                                 ) : (
