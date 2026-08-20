@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookText, ExternalLink, FileDown, Search, Filter, X, Users, Calendar, BookOpen, Tag, UserCheck } from 'lucide-react';
+import { ExternalLink, FileDown, Search, X, Users, Calendar, BookOpen, UserCheck, BookText, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import SEO from '../components/SEO';
 
 interface Publication {
@@ -17,18 +17,6 @@ interface Publication {
     co_orientador?: string;
 }
 
-const TYPE_COLORS: Record<string, { bar: string; badge: string; text: string }> = {
-    'Artigo em Periódico':   { bar: 'bg-blue-500',   badge: 'bg-blue-50 border-blue-200 text-blue-700',   text: 'text-blue-600' },
-    'Artigo em Conferência': { bar: 'bg-violet-500', badge: 'bg-violet-50 border-violet-200 text-violet-700', text: 'text-violet-600' },
-    'Artigo':                { bar: 'bg-blue-500',   badge: 'bg-blue-50 border-blue-200 text-blue-700',   text: 'text-blue-600' },
-    'Tese':                  { bar: 'bg-amber-500',  badge: 'bg-amber-50 border-amber-200 text-amber-700',  text: 'text-amber-600' },
-    'Dissertação':           { bar: 'bg-orange-500', badge: 'bg-orange-50 border-orange-200 text-orange-700', text: 'text-orange-600' },
-    'Livro':                 { bar: 'bg-emerald-500',badge: 'bg-emerald-50 border-emerald-200 text-emerald-700', text: 'text-emerald-600' },
-    'Capítulo de Livro':     { bar: 'bg-teal-500',   badge: 'bg-teal-50 border-teal-200 text-teal-700',   text: 'text-teal-600' },
-    'Preprint':              { bar: 'bg-pink-500',   badge: 'bg-pink-50 border-pink-200 text-pink-700',   text: 'text-pink-600' },
-    'TCC':                   { bar: 'bg-emerald-500', badge: 'bg-emerald-50 border-emerald-200 text-emerald-700', text: 'text-emerald-600' },
-};
-
 const TYPE_TRANSLATIONS: Record<string, string> = {
     'proceedings-article': 'Artigo em Conferência',
     'journal-article': 'Artigo em Periódico',
@@ -38,55 +26,130 @@ const TYPE_TRANSLATIONS: Record<string, string> = {
     'JOURNAL_ARTICLE': 'Artigo em Periódico',
 };
 
-const getTypeStyle = (tipo: string) => {
-    const translated = TYPE_TRANSLATIONS[tipo] || tipo;
-    return TYPE_COLORS[translated] || { bar: 'bg-slate-400', badge: 'bg-slate-50 border-slate-200 text-slate-600', text: 'text-slate-600' };
+const formatTipo = (tipo: string) => TYPE_TRANSLATIONS[tipo] || tipo;
+
+const TYPE_COLORS: Record<string, { badge: string; icon: string }> = {
+    'Artigo em Periódico':   { badge: 'bg-blue-50 text-blue-700 border-blue-200', icon: 'text-blue-500' },
+    'Artigo em Conferência': { badge: 'bg-violet-50 text-violet-700 border-violet-200', icon: 'text-violet-500' },
+    'Artigo':                { badge: 'bg-blue-50 text-blue-700 border-blue-200', icon: 'text-blue-500' },
+    'Tese':                  { badge: 'bg-amber-50 text-amber-700 border-amber-200', icon: 'text-amber-500' },
+    'Dissertação':           { badge: 'bg-orange-50 text-orange-700 border-orange-200', icon: 'text-orange-500' },
+    'Livro':                 { badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: 'text-emerald-500' },
+    'Capítulo de Livro':     { badge: 'bg-teal-50 text-teal-700 border-teal-200', icon: 'text-teal-500' },
+    'Preprint':              { badge: 'bg-pink-50 text-pink-700 border-pink-200', icon: 'text-pink-500' },
+    'TCC':                   { badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: 'text-emerald-500' },
 };
 
-const formatTipo = (tipo: string) => TYPE_TRANSLATIONS[tipo] || tipo;
+const getTypeStyle = (tipo: string) => {
+    const translated = formatTipo(tipo);
+    return TYPE_COLORS[translated] || { badge: 'bg-slate-100 text-slate-700 border-slate-200', icon: 'text-slate-500' };
+};
+
+const checkIsMember = (authorName: string, members: string[]) => {
+    const authorStr = authorName.toLowerCase().trim();
+    if (!authorStr) return false;
+    
+    return members.some(m => {
+        const memStr = m.toLowerCase().trim();
+        if (memStr === authorStr) return true;
+        if (memStr.includes(authorStr) || authorStr.includes(memStr)) return true;
+        
+        const memParts = memStr.split(' ').filter(p => p.length > 2);
+        const lastName = memParts[memParts.length - 1];
+        if (lastName && authorStr.includes(lastName)) {
+            const firstName = memParts[0];
+            if (firstName && authorStr.includes(firstName)) return true;
+            const initial = memStr.charAt(0) + '.';
+            if (authorStr.includes(initial)) return true;
+        }
+        
+        return false;
+    });
+};
+
+const getExternalLinkText = (tipo: string) => {
+    const t = tipo?.toLowerCase() || '';
+    if (t.includes('tcc') || t.includes('tese') || t.includes('dissertação')) return "Acessar Repositório";
+    return "Acessar DOI Oficial";
+};
+
+const getPdfText = (tipo: string) => {
+    const t = tipo?.toLowerCase() || '';
+    if (t.includes('tcc')) return "Visualizar TCC";
+    if (t.includes('tese')) return "Visualizar Tese";
+    if (t.includes('dissertação')) return "Visualizar Dissertação";
+    return "Baixar PDF";
+};
+
+const formatAuthorName = (authorStr: string) => {
+    if (authorStr.includes(',')) {
+        const parts = authorStr.split(',');
+        if (parts.length === 2) {
+            const lastName = parts[0].trim();
+            const firstName = parts[1].trim();
+            return `${firstName} ${lastName}`;
+        }
+    }
+    return authorStr;
+};
 
 const Publicacoes = () => {
     const [publications, setPublications] = useState<Publication[]>([]);
+    const [memberNames, setMemberNames] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedYear, setSelectedYear] = useState<number | 'Todos'>('Todos');
     const [selectedPub, setSelectedPub] = useState<Publication | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // Resetar página ao buscar
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
     useEffect(() => {
-        const fetchPublications = async () => {
-            const { data, error } = await supabase
-                .from('publicacoes')
-                .select('*')
-                .order('ano', { ascending: false })
-                .order('created_at', { ascending: false });
+        const fetchData = async () => {
+            const [pubRes, memRes] = await Promise.all([
+                supabase.from('publicacoes').select('*').order('ano', { ascending: false }).order('created_at', { ascending: false }),
+                supabase.from('membros').select('nome')
+            ]);
 
-            if (error) console.error('Error fetching publications:', error);
-            else setPublications(data || []);
+            if (pubRes.error) console.error('Error fetching publications:', pubRes.error);
+            else setPublications(pubRes.data || []);
+            
+            if (memRes.error) console.error('Error fetching members:', memRes.error);
+            else setMemberNames((memRes.data || []).map(m => m.nome));
+
             setLoading(false);
         };
-        fetchPublications();
+        fetchData();
     }, []);
 
-    const filteredPublications = publications.filter(pub => {
-        const matchesSearch =
+    // Filtra e Agrupa por Ano
+    const { groupedPubs, sortedYears, totalPages } = useMemo(() => {
+        const filtered = publications.filter(pub =>
             pub.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             pub.autores?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            pub.veiculo?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesYear = selectedYear === 'Todos' || pub.ano === selectedYear;
-        return matchesSearch && matchesYear;
-    });
+            pub.veiculo?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
+        const totalPages = Math.ceil(filtered.length / itemsPerPage);
+        
+        // Paginação
+        const currentItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+        const grouped = currentItems.reduce((acc, pub) => {
+            if (!acc[pub.ano]) acc[pub.ano] = [];
+            acc[pub.ano].push(pub);
+            return acc;
+        }, {} as Record<number, Publication[]>);
 
-    const years: (number | 'Todos')[] = (['Todos', ...Array.from(new Set(publications.map(p => p.ano)))] as (number | 'Todos')[]).sort((a, b) => {
-        if (a === 'Todos') return -1;
-        if (b === 'Todos') return 1;
-        return (b as number) - (a as number);
-    });
+        const years = Object.keys(grouped).map(Number).sort((a, b) => b - a);
+        return { groupedPubs: grouped, sortedYears: years, totalPages };
+    }, [publications, searchTerm, currentPage]);
 
     return (
-        <div className="min-h-screen bg-slate-50 pt-[80px] relative">
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/white-diamond.png')] opacity-20 pointer-events-none"></div>
+        <div className="min-h-screen bg-slate-50 pt-[80px]">
             <SEO
                 title="Produção Acadêmica"
                 description="Explore nosso acervo de artigos científicos, conferências e periódicos do GSIPP."
@@ -123,139 +186,171 @@ const Publicacoes = () => {
                 </div>
             </section>
 
-            {/* Filters */}
-            <section className="-mt-12 mb-20 relative z-20">
-                <div className="container mx-auto px-6">
-                    <div className="max-w-5xl mx-auto bg-white rounded-[2rem] shadow-2xl shadow-slate-900/10 border border-slate-100 overflow-hidden">
-                        <div className="p-2 md:p-3 flex flex-col md:flex-row gap-2">
-                            <div className="relative flex-grow">
-                                <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                                <input
-                                    type="text"
-                                    placeholder="Buscar por título, autores ou veículo..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-16 pr-6 py-5 bg-slate-50/50 border-none rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none text-slate-900 font-bold placeholder:text-slate-300"
-                                />
-                            </div>
-                            <div className="hidden md:flex items-center gap-3 px-8 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-slate-900/20">
-                                <Filter className="w-4 h-4" /> FILTRAR
-                            </div>
-                        </div>
-                        
-                        <div className="bg-slate-50/50 border-t border-slate-100 p-4 md:px-8 flex flex-col md:flex-row items-center gap-6">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap">Selecione o Ano:</span>
-                            <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide w-full">
-                                {years.map(year => (
-                                    <button
-                                        key={year}
-                                        onClick={() => setSelectedYear(year)}
-                                        className={`px-6 py-2.5 rounded-xl font-black text-[10px] whitespace-nowrap transition-all uppercase tracking-widest border-2 ${selectedYear === year
-                                            ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-500/30 scale-105'
-                                            : 'bg-white border-transparent text-slate-400 hover:border-slate-200 hover:text-slate-600'}`}
-                                    >
-                                        {year}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+            {/* Busca Elegante */}
+            <section className="-mt-12 relative z-20 mb-16">
+                <div className="container mx-auto px-6 max-w-3xl">
+                    <div className="relative group rounded-2xl bg-white border border-slate-200 transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-6 h-6 group-focus-within:text-blue-500 transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Buscar por título, autores ou evento..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-16 pr-6 py-5 bg-transparent border-none rounded-2xl outline-none text-slate-800 text-lg font-medium placeholder:text-slate-400"
+                        />
                     </div>
                 </div>
             </section>
 
-            {/* Publications List */}
-            <section className="pb-24">
-                <div className="container mx-auto px-6">
+            {/* Lista Agrupada por Ano */}
+            <section className="pb-32">
+                <div className="container mx-auto px-6 max-w-4xl">
                     {loading ? (
-                        <div className="space-y-4">
-                            {[1, 2, 3, 4].map(i => (
-                                <div key={i} className="bg-white rounded-2xl border border-gray-100 h-28 animate-pulse" />
+                        <div className="space-y-6">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="bg-white rounded-2xl border border-slate-200 h-32 animate-pulse" />
                             ))}
                         </div>
-                    ) : filteredPublications.length === 0 ? (
-                        <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-gray-200">
-                            <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <Search className="w-10 h-10 text-gray-300" />
+                    ) : sortedYears.length === 0 ? (
+                        <div className="text-center py-24">
+                            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Search className="w-8 h-8 text-slate-300" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900">Nenhuma publicação encontrada</h3>
-                            <p className="text-gray-500 mt-2">Tente ajustar seus filtros de busca ou ano.</p>
+                            <h3 className="text-xl font-bold text-slate-900">Nenhuma publicação encontrada</h3>
+                            <p className="text-slate-500 mt-2">Tente buscar por outras palavras-chave.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 gap-3">
-                            {filteredPublications.map((pub, idx) => {
-                                const style = getTypeStyle(pub.tipo);
-                                return (
-                                    <motion.div
-                                        key={pub.id}
-                                        initial={{ opacity: 0, y: 16 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ delay: idx % 10 * 0.04 }}
-                                        onClick={() => setSelectedPub(pub)}
-                                        className="group bg-white border border-slate-100 rounded-2xl overflow-hidden hover:border-blue-200 hover:shadow-md transition-all cursor-pointer flex"
-                                    >
-                                        {/* Barra lateral colorida por tipo */}
-                                        <div className={`w-1.5 shrink-0 ${style.bar}`} />
+                        <div className="space-y-16">
+                            {sortedYears.map(year => (
+                                <div key={year}>
+                                    {/* Cabecalho do Ano */}
+                                    <div className="flex items-center gap-6 mb-8">
+                                        <h2 className="text-3xl font-black text-slate-900 tracking-tight">{year}</h2>
+                                        <div className="h-px bg-slate-200 flex-1"></div>
+                                    </div>
+                                    
+                                    <div className="flex flex-col gap-4">
+                                        {groupedPubs[year].map((pub, idx) => {
+                                            const style = getTypeStyle(pub.tipo);
+                                            return (
+                                                <motion.div
+                                                    key={pub.id}
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    whileInView={{ opacity: 1, y: 0 }}
+                                                    viewport={{ once: true, margin: "-50px" }}
+                                                    transition={{ delay: idx * 0.05 }}
+                                                    onClick={() => setSelectedPub(pub)}
+                                                    className="group bg-white border border-slate-200 rounded-2xl p-6 hover:border-blue-300 hover:bg-slate-50/50 transition-all cursor-pointer flex flex-col md:flex-row gap-6 relative"
+                                                >
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex flex-wrap items-center gap-2 mb-3">
+                                                            {pub.tipo && (
+                                                                <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border ${style.badge}`}>
+                                                                    {formatTipo(pub.tipo)}
+                                                                </span>
+                                                            )}
+                                                            {pub.veiculo && (
+                                                                <span className="text-xs text-slate-500 font-medium bg-slate-50 border border-slate-200 px-3 py-1 rounded-md truncate max-w-[300px]">
+                                                                    {pub.veiculo}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        
+                                                        {/* Titulo completo (sem line-clamp) */}
+                                                        <h3 className="text-lg md:text-xl font-bold text-slate-900 leading-snug mb-2 group-hover:text-blue-600 transition-colors">
+                                                            {pub.titulo}
+                                                        </h3>
+                                                        
+                                                        {/* Autores completos */}
+                                                        <p className="text-slate-600 text-sm md:text-base font-medium leading-relaxed flex flex-wrap items-center gap-x-1.5 gap-y-1">
+                                                            {pub.autores?.split(';').map((author, i, arr) => {
+                                                                const originalAuthorName = author.trim();
+                                                                if (!originalAuthorName) return null;
+                                                                const authorName = formatAuthorName(originalAuthorName);
+                                                                const isMem = checkIsMember(originalAuthorName, memberNames) || checkIsMember(authorName, memberNames);
+                                                                return (
+                                                                    <span key={i} className={`inline-flex items-center ${isMem ? 'text-slate-800 font-bold' : ''}`}>
+                                                                        {authorName}
+                                                                        {isMem && <span title="Membro do GSIPP" className="ml-1 flex items-center"><CheckCircle2 className="w-4 h-4 text-blue-500" /></span>}
+                                                                        {i < arr.length - 1 ? <span className="text-slate-400 font-normal ml-0.5">;</span> : ''}
+                                                                    </span>
+                                                                );
+                                                            })}
+                                                        </p>
 
-                                        <div className="flex-1 p-5 flex flex-col md:flex-row gap-4 md:items-center">
-                                            {/* Ano em destaque */}
-                                            <div className="hidden md:flex flex-col items-center justify-center w-14 h-14 bg-slate-50 rounded-xl shrink-0 border border-slate-100">
-                                                <span className="text-lg font-black text-slate-800 leading-none">{pub.ano}</span>
-                                                <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Ano</span>
-                                            </div>
+                                                        {/* Orientador / Co-orientador no Card */}
+                                                        {(pub.orientador || pub.co_orientador) && (
+                                                            <div className="mt-2 flex flex-wrap items-center gap-4 text-xs md:text-sm text-slate-500">
+                                                                {pub.orientador && (
+                                                                    <span className="flex items-center gap-1.5">
+                                                                        <UserCheck className="w-3.5 h-3.5 text-slate-400" />
+                                                                        <span className="font-bold text-slate-600">Orientador:</span> {pub.orientador}
+                                                                    </span>
+                                                                )}
+                                                                {pub.co_orientador && (
+                                                                    <span className="flex items-center gap-1.5">
+                                                                        <UserCheck className="w-3.5 h-3.5 text-slate-400 opacity-70" />
+                                                                        <span className="font-bold text-slate-600">Co-orientador:</span> {pub.co_orientador}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </div>
 
-                                            {/* Conteúdo principal */}
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex flex-wrap items-center gap-2 mb-2">
-                                                    <span className="md:hidden text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">{pub.ano}</span>
-                                                    {pub.tipo && (
-                                                        <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${style.badge}`}>
-                                                            {formatTipo(pub.tipo)}
-                                                        </span>
-                                                    )}
-                                                    {pub.veiculo && (
-                                                        <span className="text-xs text-slate-500 font-medium bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-full truncate max-w-[240px]">
-                                                            {pub.veiculo}
-                                                        </span>
-                                                    )}
-                                                </div>
+                                                    {/* Acoes Rapidas */}
+                                                    <div className="flex items-center gap-2 shrink-0 md:self-start md:mt-1" onClick={e => e.stopPropagation()}>
+                                                        {pub.link_doi && (
+                                                            <a href={pub.link_doi} target="_blank" rel="noopener noreferrer"
+                                                                className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all"
+                                                                title={getExternalLinkText(pub.tipo)}
+                                                            >
+                                                                <ExternalLink className="w-4 h-4" />
+                                                            </a>
+                                                        )}
+                                                        {pub.link_pdf && (
+                                                            <a href={pub.link_pdf} target="_blank" rel="noopener noreferrer"
+                                                                className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center hover:bg-blue-600 transition-all"
+                                                                title={getPdfText(pub.tipo)}
+                                                            >
+                                                                <FileDown className="w-4 h-4" />
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </motion.div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
-                                                <h3 className={`font-bold text-slate-900 text-base leading-snug mb-1.5 line-clamp-2 group-hover:${style.text} transition-colors`}>
-                                                    {pub.titulo}
-                                                </h3>
-
-                                                <p className="text-slate-400 text-sm truncate">{pub.autores}</p>
-                                            </div>
-
-                                            {/* Links rápidos */}
-                                            <div className="flex items-center gap-1.5 shrink-0 self-end md:self-center" onClick={e => e.stopPropagation()}>
-                                                {pub.link_doi && (
-                                                    <a href={pub.link_doi} target="_blank" rel="noopener noreferrer"
-                                                        className="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 transition-colors flex items-center gap-1.5"
-                                                        title="Abrir DOI"
-                                                    >
-                                                        DOI <ExternalLink className="w-3.5 h-3.5" />
-                                                    </a>
-                                                )}
-                                                {pub.link_pdf && (
-                                                    <a href={pub.link_pdf} target="_blank" rel="noopener noreferrer"
-                                                        className="px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-slate-800 hover:bg-blue-600 transition-colors flex items-center gap-1.5"
-                                                        title="Ver PDF"
-                                                    >
-                                                        PDF <FileDown className="w-3.5 h-3.5" />
-                                                    </a>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                );
-                            })}
+                    {/* Controles de Paginação */}
+                    {totalPages > 1 && (
+                        <div className="flex justify-center items-center gap-4 mt-16 pb-8">
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 disabled:opacity-50 hover:bg-slate-50 transition-all font-medium hover:border-blue-300 disabled:hover:border-slate-200"
+                            >
+                                <ChevronLeft className="w-4 h-4" /> Anterior
+                            </button>
+                            <span className="text-sm font-medium text-slate-500 bg-white px-4 py-2.5 rounded-xl border border-slate-200">
+                                Página {currentPage} de {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 disabled:opacity-50 hover:bg-slate-50 transition-all font-medium hover:border-blue-300 disabled:hover:border-slate-200"
+                            >
+                                Próxima <ChevronRight className="w-4 h-4" />
+                            </button>
                         </div>
                     )}
                 </div>
             </section>
 
-            {/* Detail Modal */}
+            {/* Modal Premium */}
             <AnimatePresence>
                 {selectedPub && (() => {
                     const style = getTypeStyle(selectedPub.tipo);
@@ -264,140 +359,118 @@ const Publicacoes = () => {
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                             <motion.div
                                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                                className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
                                 onClick={() => setSelectedPub(null)}
                             />
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl relative z-10 overflow-hidden"
+                                className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh]"
                             >
-                                {/* Top bar */}
-                                <div className={`h-1.5 w-full ${style.bar}`} />
-
-                                <div className="p-8">
-                                    {/* Header */}
-                                    <div className="flex items-start justify-between gap-4 mb-6">
-                                        <div className="flex flex-wrap gap-2">
+                                {/* Header do Modal - Cinza claro para destacar do corpo */}
+                                <div className="bg-slate-50 border-b border-slate-100 p-6 sm:p-8 flex items-start justify-between gap-4 shrink-0">
+                                    <div>
+                                        <div className="flex flex-wrap gap-2 mb-3">
                                             {selectedPub.tipo && (
-                                                <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${style.badge}`}>
+                                                <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border ${style.badge}`}>
                                                     {formatTipo(selectedPub.tipo)}
                                                 </span>
                                             )}
-                                            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full flex items-center gap-1">
+                                            <span className="text-[10px] font-bold text-slate-500 bg-white border border-slate-200 px-2.5 py-1 rounded-md flex items-center gap-1">
                                                 <Calendar className="w-3 h-3" /> {selectedPub.ano}
                                             </span>
-                                            {selectedPub.veiculo && (
-                                                <span className="text-xs font-bold text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full flex items-center gap-1">
-                                                    <BookOpen className="w-3 h-3" /> {selectedPub.veiculo}
-                                                </span>
-                                            )}
                                         </div>
-                                        <button onClick={() => setSelectedPub(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors shrink-0">
-                                            <X className="w-5 h-5 text-slate-400" />
-                                        </button>
+                                        <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">{selectedPub.titulo}</h2>
                                     </div>
-
-                                    {/* Title */}
-                                    <h2 className="text-xl font-black text-slate-900 leading-snug mb-6">{selectedPub.titulo}</h2>
-
-                                    {/* Info Grid */}
-                                    <div className="space-y-4">
-                                        {/* Venue */}
-                                        {selectedPub.veiculo && (
-                                            <div className="flex items-start gap-3">
-                                                <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
-                                                    <BookOpen className="w-4 h-4 text-slate-500" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Evento / Revista</p>
-                                                    <p className="text-slate-800 font-semibold">{selectedPub.veiculo}</p>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Authors */}
-                                        {authorsList.length > 0 && (
-                                            <div className="flex items-start gap-3">
-                                                <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
-                                                    <Users className="w-4 h-4 text-slate-500" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Autores</p>
-                                                    <div className="flex flex-wrap gap-1.5">
-                                                        {authorsList.map((author, i) => (
-                                                            <span key={i} className="text-xs font-medium text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">
-                                                                {author}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Advisors */}
-                                        {(selectedPub.orientador || selectedPub.co_orientador) && (
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                                {selectedPub.orientador && (
-                                                    <div className="flex items-start gap-3">
-                                                        <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
-                                                            <UserCheck className="w-4 h-4 text-blue-500" />
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Orientador</p>
-                                                            <p className="text-slate-800 font-semibold text-sm">{selectedPub.orientador}</p>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                                {selectedPub.co_orientador && (
-                                                    <div className="flex items-start gap-3">
-                                                        <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center shrink-0">
-                                                            <Users className="w-4 h-4 text-emerald-500" />
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Co-orientador</p>
-                                                            <p className="text-slate-800 font-semibold text-sm">{selectedPub.co_orientador}</p>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {/* Type */}
-                                        {selectedPub.tipo && (
-                                            <div className="flex items-start gap-3">
-                                                <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center shrink-0">
-                                                    <Tag className="w-4 h-4 text-slate-500" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-0.5">Tipo de Publicação</p>
-                                                    <p className="text-slate-800 font-semibold">{formatTipo(selectedPub.tipo)}</p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Actions */}
-                                    {(selectedPub.link_doi || selectedPub.link_pdf) && (
-                                        <div className="flex gap-3 mt-8 pt-6 border-t border-slate-100">
-                                            {selectedPub.link_doi && (
-                                                <a href={selectedPub.link_doi} target="_blank" rel="noopener noreferrer"
-                                                    className="flex-1 flex items-center justify-center gap-2 py-3 border-2 border-slate-200 text-slate-700 font-bold rounded-2xl hover:border-slate-900 hover:bg-slate-900 hover:text-white transition-all"
-                                                >
-                                                    Acessar DOI <ExternalLink className="w-4 h-4" />
-                                                </a>
-                                            )}
-                                            {selectedPub.link_pdf && (
-                                                <a href={selectedPub.link_pdf} target="_blank" rel="noopener noreferrer"
-                                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-slate-900 text-white font-bold rounded-2xl hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/30 transition-all"
-                                                >
-                                                    Ver PDF <FileDown className="w-4 h-4" />
-                                                </a>
-                                            )}
-                                        </div>
-                                    )}
+                                    <button onClick={() => setSelectedPub(null)} className="p-2 hover:bg-slate-200 rounded-full transition-colors shrink-0 bg-white border border-slate-200">
+                                        <X className="w-5 h-5 text-slate-500" />
+                                    </button>
                                 </div>
+
+                                {/* Corpo Rolavel */}
+                                <div className="p-6 sm:p-8 overflow-y-auto">
+                                    <div className="space-y-6">
+                                        {/* Autores */}
+                                        {authorsList.length > 0 && (
+                                            <div>
+                                                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                                    <Users className="w-4 h-4" /> Autoria
+                                                </h3>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {authorsList.map((author, i) => {
+                                                        const authorName = formatAuthorName(author);
+                                                        const isMem = checkIsMember(author, memberNames) || checkIsMember(authorName, memberNames);
+                                                        return (
+                                                            <span key={i} className={`text-sm font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5 border ${
+                                                                isMem ? 'bg-blue-50 text-blue-800 border-blue-200' : 'bg-slate-50 text-slate-700 border-slate-200'
+                                                            }`}>
+                                                                {authorName}
+                                                                {isMem && <span title="Membro do GSIPP"><CheckCircle2 className="w-4 h-4 text-blue-500" /></span>}
+                                                            </span>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                            {/* Local / Evento */}
+                                            {selectedPub.veiculo && (
+                                                <div>
+                                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                        <BookOpen className="w-4 h-4" /> Publicado em
+                                                    </h3>
+                                                    <p className="text-slate-800 font-medium bg-slate-50 border border-slate-100 p-4 rounded-xl">
+                                                        {selectedPub.veiculo}
+                                                    </p>
+                                                </div>
+                                            )}
+
+                                            {/* Orientação */}
+                                            {(selectedPub.orientador || selectedPub.co_orientador) && (
+                                                <div className="space-y-4">
+                                                    {selectedPub.orientador && (
+                                                        <div>
+                                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                                <UserCheck className="w-4 h-4" /> Orientador
+                                                            </h3>
+                                                            <p className="text-slate-800 font-medium">{selectedPub.orientador}</p>
+                                                        </div>
+                                                    )}
+                                                    {selectedPub.co_orientador && (
+                                                        <div>
+                                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                                                                <UserCheck className="w-4 h-4 opacity-70" /> Co-orientador
+                                                            </h3>
+                                                            <p className="text-slate-800 font-medium">{selectedPub.co_orientador}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Rodapé com Ações */}
+                                {(selectedPub.link_doi || selectedPub.link_pdf) && (
+                                    <div className="bg-slate-50 border-t border-slate-100 p-6 shrink-0 flex flex-col sm:flex-row gap-3">
+                                        {selectedPub.link_doi && (
+                                            <a href={selectedPub.link_doi} target="_blank" rel="noopener noreferrer"
+                                                className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-white border border-slate-300 text-slate-700 font-bold rounded-xl hover:bg-slate-100 transition-colors"
+                                            >
+                                                {getExternalLinkText(selectedPub.tipo)} <ExternalLink className="w-4 h-4" />
+                                            </a>
+                                        )}
+                                        {selectedPub.link_pdf && (
+                                            <a href={selectedPub.link_pdf} target="_blank" rel="noopener noreferrer"
+                                                className="flex-1 flex items-center justify-center gap-2 py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors"
+                                            >
+                                                {getPdfText(selectedPub.tipo)} <FileDown className="w-4 h-4" />
+                                            </a>
+                                        )}
+                                    </div>
+                                )}
                             </motion.div>
                         </div>
                     );
