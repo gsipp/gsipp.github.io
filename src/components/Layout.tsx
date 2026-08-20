@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Menu, X, FileText, Calendar, Users, Newspaper, Home, MapPin, Mail, Github, Instagram } from 'lucide-react';
+import { Menu, X, FileText, Calendar, Users, Newspaper, Home, MapPin, Mail } from 'lucide-react';
+import { GithubIcon, InstagramIcon } from './BrandIcons';
 import { useState } from 'react';
 import Logo from '../assets/images/gsipp-logo.svg';
 
@@ -112,10 +113,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                             </p>
                             <div className="flex items-center gap-4">
                                 <a href="https://github.com/gsipp" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white hover:border-blue-500 transition-all shadow-lg hover:shadow-blue-500/25" title="GitHub">
-                                    <Github className="w-4 h-4" />
+                                    <GithubIcon className="w-4 h-4" />
                                 </a>
                                 <a href="https://www.instagram.com/gsipp_ufc/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-pink-600 hover:text-white hover:border-pink-500 transition-all shadow-lg hover:shadow-pink-500/25" title="Instagram">
-                                    <Instagram className="w-4 h-4" />
+                                    <InstagramIcon className="w-4 h-4" />
                                 </a>
                                 <a href="https://www.researchgate.net/lab/Grupo-de-Pesquisa-em-Seguranca-da-Informacao-e-Preservacao-da-privacidade-Emerson-B-Tomaz" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-emerald-600 hover:text-white hover:border-emerald-500 transition-all shadow-lg hover:shadow-emerald-500/25" title="ResearchGate">
                                     <ResearchGateIcon className="w-5 h-5" />
@@ -159,6 +160,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                                     <Mail className="w-5 h-5 text-blue-500 shrink-0" />
                                     <a href="mailto:gsipp@crateus.ufc.br" className="hover:text-white transition-colors">
                                         gsipp@crateus.ufc.br
+                                    </a>
+                                </li>
+                                <li className="flex items-center gap-3 pt-4 border-t border-slate-800">
+                                    <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                                        <InstagramIcon className="w-5 h-5" />
+                                    </a>
+                                    <a href="https://github.com/GSIPP" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
+                                        <GithubIcon className="w-5 h-5" />
                                     </a>
                                 </li>
                             </ul>

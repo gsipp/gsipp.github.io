@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { motion } from 'framer-motion';
-import { Users, Mail, Linkedin, Search, Filter, ArrowRight } from 'lucide-react';
+import { Users, Search, Mail, Filter, ArrowRight } from 'lucide-react';
+import { LinkedinIcon } from '../components/BrandIcons';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
 
@@ -283,7 +284,7 @@ const Membros = () => {
                                                         )}
                                                         {member.linkedin_url && (
                                                             <a href={member.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700 transition-colors" title="LinkedIn">
-                                                                <Linkedin className="w-5 h-5" />
+                                                                <LinkedinIcon className="w-5 h-5" />
                                                             </a>
                                                         )}
                                                         {member.researchgate_url && (

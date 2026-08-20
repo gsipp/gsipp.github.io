@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
+import { translateAuthError } from '../../utils/authErrors';
 
 import { Shield, Lock, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -23,7 +24,7 @@ const Login = () => {
         });
 
         if (error) {
-            setError('Credenciais inválidas. Verifique e tente novamente.');
+            setError(translateAuthError(error.message));
             setLoading(false);
         } else {
             navigate('/gestao-gsipp');
@@ -78,6 +79,11 @@ const Login = () => {
                                 placeholder="••••••••"
                             />
                             <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                        </div>
+                        <div className="flex justify-end mt-2">
+                            <Link to="/gestao-gsipp/recuperar-senha" className="text-sm text-blue-600 hover:text-blue-700 transition-colors">
+                                Esqueceu a senha?
+                            </Link>
                         </div>
                     </div>
 
