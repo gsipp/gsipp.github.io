@@ -291,13 +291,13 @@ const Publicacoes = () => {
                                                                 {pub.orientador && (
                                                                     <span className="flex items-center gap-1.5">
                                                                         <UserCheck className="w-3.5 h-3.5 text-slate-400" />
-                                                                        <span className="font-bold text-slate-600">Orientador:</span> {pub.orientador}
+                                                                        <span className="font-bold text-slate-600">Orientador:</span> {pub.orientador.split(';').map(o => formatAuthorName(o.trim())).join('; ')}
                                                                     </span>
                                                                 )}
                                                                 {pub.co_orientador && (
                                                                     <span className="flex items-center gap-1.5">
                                                                         <UserCheck className="w-3.5 h-3.5 text-slate-400 opacity-70" />
-                                                                        <span className="font-bold text-slate-600">Co-orientador:</span> {pub.co_orientador}
+                                                                        <span className="font-bold text-slate-600">Co-orientador:</span> {pub.co_orientador.split(';').map(o => formatAuthorName(o.trim())).join('; ')}
                                                                     </span>
                                                                 )}
                                                             </div>
