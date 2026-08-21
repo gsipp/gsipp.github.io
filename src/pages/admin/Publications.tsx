@@ -34,7 +34,6 @@ const Publications = () => {
 
     // Fetch publications
     const fetchPublications = async () => {
-        setLoading(true);
         const { data, error } = await supabase
             .from('publicacoes')
             .select('*')
@@ -47,6 +46,7 @@ const Publications = () => {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line
         fetchPublications();
     }, []);
 

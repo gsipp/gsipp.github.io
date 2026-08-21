@@ -91,16 +91,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 {children}
             </main>
 
-            {/* Premium Footer */}
-            <footer className="relative bg-slate-950 text-slate-400 pt-20 pb-10 overflow-hidden border-t border-white/5">
-                {/* Decorative Top Glow */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"></div>
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/4 h-[2px] bg-gradient-to-r from-transparent via-blue-400 to-transparent blur-sm"></div>
-
+            {/* Footer */}
+            <footer className="bg-slate-900 text-slate-400 border-t border-slate-800 pt-12 pb-6">
                 <div className="container mx-auto px-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-16 mb-16">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 mb-8">
                         {/* Column 1: Brand & About */}
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                             <div className="flex items-center space-x-3">
                                 <img src={Logo} alt="GSIPP Logo" className="h-10 w-auto grayscale brightness-200 opacity-90" />
                                 <div className="flex flex-col">
@@ -109,16 +105,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                                 </div>
                             </div>
                             <p className="text-sm leading-relaxed text-slate-400">
-                                Grupo de Excelência em Pesquisa focado em Segurança da Informação, Criptografia e Preservação da Privacidade no mundo digital.
+                                Grupo de Pesquisa focado em Segurança da Informação, Criptografia e Preservação da Privacidade no mundo digital.
                             </p>
                             <div className="flex items-center gap-4">
-                                <a href="https://github.com/gsipp" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-blue-600 hover:text-white hover:border-blue-500 transition-all shadow-lg hover:shadow-blue-500/25" title="GitHub">
+                                <a href="https://github.com/gsipp" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-slate-700 hover:text-white transition-all shadow-sm" title="GitHub">
                                     <GithubIcon className="w-4 h-4" />
                                 </a>
-                                <a href="https://www.instagram.com/gsipp_ufc/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-pink-600 hover:text-white hover:border-pink-500 transition-all shadow-lg hover:shadow-pink-500/25" title="Instagram">
+                                <a href="https://www.instagram.com/gsipp_ufc/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-pink-600 hover:text-white hover:border-pink-500 transition-all shadow-sm" title="Instagram">
                                     <InstagramIcon className="w-4 h-4" />
                                 </a>
-                                <a href="https://www.researchgate.net/lab/Grupo-de-Pesquisa-em-Seguranca-da-Informacao-e-Preservacao-da-privacidade-Emerson-B-Tomaz" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:bg-emerald-600 hover:text-white hover:border-emerald-500 transition-all shadow-lg hover:shadow-emerald-500/25" title="ResearchGate">
+                                <a href="https://www.researchgate.net/lab/Grupo-de-Pesquisa-em-Seguranca-da-Informacao-e-Preservacao-da-privacidade-Emerson-B-Tomaz" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 hover:bg-emerald-600 hover:text-white hover:border-emerald-500 transition-all shadow-sm" title="ResearchGate">
                                     <ResearchGateIcon className="w-5 h-5" />
                                 </a>
                             </div>
@@ -162,20 +158,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                                         gsipp@crateus.ufc.br
                                     </a>
                                 </li>
-                                <li className="flex items-center gap-3 pt-4 border-t border-slate-800">
-                                    <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                                        <InstagramIcon className="w-5 h-5" />
-                                    </a>
-                                    <a href="https://github.com/GSIPP" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                                        <GithubIcon className="w-5 h-5" />
-                                    </a>
-                                </li>
                             </ul>
                         </div>
                     </div>
 
                     {/* Bottom Bar */}
-                    <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div className="border-t border-white/5 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
                         <p className="text-xs text-slate-500">
                             &copy; 2025 - {new Date().getFullYear()} <span className="text-slate-300 font-semibold">GSIPP</span>. Todos os direitos reservados.
                         </p>

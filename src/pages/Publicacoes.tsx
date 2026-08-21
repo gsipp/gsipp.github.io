@@ -104,6 +104,7 @@ const Publicacoes = () => {
 
     // Resetar página ao buscar
     useEffect(() => {
+        // eslint-disable-next-line
         setCurrentPage(1);
     }, [searchTerm]);
 
@@ -298,21 +299,23 @@ const Publicacoes = () => {
                                                     </div>
 
                                                     {/* Acoes Rapidas */}
-                                                    <div className="flex items-center gap-2 shrink-0 md:self-start md:mt-1" onClick={e => e.stopPropagation()}>
+                                                    <div className="flex flex-wrap items-center gap-2 shrink-0 md:self-start md:mt-1" onClick={e => e.stopPropagation()}>
                                                         {pub.link_doi && (
                                                             <a href={pub.link_doi} target="_blank" rel="noopener noreferrer"
-                                                                className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all"
+                                                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all text-sm font-semibold shadow-sm"
                                                                 title={getExternalLinkText(pub.tipo)}
                                                             >
                                                                 <ExternalLink className="w-4 h-4" />
+                                                                <span className="hidden sm:inline">DOI</span>
                                                             </a>
                                                         )}
                                                         {pub.link_pdf && (
                                                             <a href={pub.link_pdf} target="_blank" rel="noopener noreferrer"
-                                                                className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center hover:bg-blue-600 transition-all"
+                                                                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-white hover:bg-blue-600 transition-all text-sm font-semibold shadow-sm"
                                                                 title={getPdfText(pub.tipo)}
                                                             >
                                                                 <FileDown className="w-4 h-4" />
+                                                                <span className="hidden sm:inline">PDF</span>
                                                             </a>
                                                         )}
                                                     </div>

@@ -103,22 +103,20 @@ const Noticias = () => {
             </section>
 
             {/* Search and Filters - Floating Design */}
-            <section className="-mt-12 mb-20 relative z-20">
-                <div className="container mx-auto px-6">
-                    <div className="max-w-4xl mx-auto bg-white rounded-[2rem] shadow-2xl shadow-slate-900/10 border border-slate-100 p-2 md:p-3">
-                        <div className="relative">
-                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                            <input
-                                type="text"
-                                placeholder="Buscar notícias..."
-                                value={searchTerm}
-                                onChange={(e) => {
-                                    setSearchTerm(e.target.value);
-                                    setCurrentPage(1);
-                                }}
-                                className="w-full pl-16 pr-6 py-5 bg-slate-50/50 border-none rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-500/5 transition-all outline-none text-slate-900 font-bold placeholder:text-slate-300"
-                            />
-                        </div>
+            <section className="-mt-12 mb-16 relative z-20">
+                <div className="container mx-auto px-6 max-w-3xl">
+                    <div className="relative group rounded-2xl bg-white border border-slate-200 transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-6 h-6 group-focus-within:text-blue-500 transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Buscar notícias..."
+                            value={searchTerm}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setCurrentPage(1);
+                            }}
+                            className="w-full pl-16 pr-6 py-5 bg-transparent border-none rounded-2xl outline-none text-slate-800 text-lg font-medium placeholder:text-slate-400"
+                        />
                     </div>
                 </div>
             </section>
@@ -127,24 +125,22 @@ const Noticias = () => {
             <section className="pb-32">
                 <div className="container mx-auto px-6">
                     {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                             {[1, 2, 3, 4, 5, 6].map(i => (
-                                <div key={`skeleton-news-${i}`} className="bg-slate-50 rounded-[2.5rem] p-8 space-y-6 animate-pulse border border-slate-100">
-                                    <div className="aspect-[16/10] bg-slate-200 rounded-[2rem] w-full"></div>
+                                <div key={`skeleton-news-${i}`} className="bg-white rounded-2xl p-6 space-y-6 animate-pulse border border-slate-200">
+                                    <div className="aspect-[16/10] bg-slate-200 rounded-xl w-full"></div>
                                     <div className="space-y-4">
                                         <div className="h-3 w-24 bg-slate-200 rounded-full"></div>
-                                        <div className="h-8 w-full bg-slate-200 rounded-xl"></div>
-                                        <div className="h-4 w-5/6 bg-slate-200 rounded-lg"></div>
+                                        <div className="h-6 w-full bg-slate-200 rounded-md"></div>
+                                        <div className="h-4 w-5/6 bg-slate-200 rounded-md"></div>
                                     </div>
                                 </div>
                             ))}
                         </div>
                     ) : currentNews.length === 0 ? (
-                        <div className="text-center py-32 bg-slate-50 rounded-[4rem] border-4 border-dashed border-slate-100 max-w-4xl mx-auto">
-                            <div className="bg-white w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl">
-                                <Search className="w-10 h-10 text-slate-200" />
-                            </div>
-                            <h3 className="text-2xl font-black text-slate-900 mb-4">Nenhuma notícia encontrada</h3>
+                        <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-slate-200 max-w-4xl mx-auto">
+                            <Search className="w-16 h-16 text-slate-300 mx-auto mb-6" />
+                            <h3 className="text-2xl font-bold text-slate-900 mb-4">Nenhuma notícia encontrada</h3>
                             <p className="text-slate-500 font-medium max-w-md mx-auto leading-relaxed">Não encontramos resultados para sua busca. Tente buscar por outros termos ou explore as notícias recentes.</p>
                         </div>
                     ) : (
@@ -160,45 +156,45 @@ const Noticias = () => {
                                         transition={{ delay: idx * 0.1 }}
                                         className="group"
                                     >
-                                        <Link to={`/noticias/${item.slug}`} className="block h-full bg-white rounded-[3rem] border border-slate-100 p-4 transition-all duration-500 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 relative overflow-hidden group">
-                                            <div className="aspect-[16/10] rounded-[2.2rem] overflow-hidden relative mb-8 shadow-inner border border-slate-50">
+                                        <Link to={`/noticias/${item.slug}`} className="block h-full bg-white border border-slate-200 rounded-2xl p-5 transition-all hover:border-blue-300 hover:bg-slate-50/50 group flex flex-col relative">
+                                            <div className="aspect-[16/10] rounded-xl overflow-hidden relative mb-5 border border-slate-100">
                                                 {item.imagem_capa_url ? (
                                                     <img
                                                         src={item.imagem_capa_url}
                                                         alt={item.titulo}
-                                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                                                     />
                                                 ) : (
-                                                    <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                                                        <Newspaper className="w-12 h-12 text-slate-300" />
+                                                    <div className="w-full h-full bg-slate-50 flex items-center justify-center">
+                                                        <Newspaper className="w-10 h-10 text-slate-300" />
                                                     </div>
                                                 )}
-                                                <div className="absolute top-6 left-6 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-[10px] font-black text-slate-900 uppercase tracking-widest shadow-sm">
+                                                <div className="absolute top-3 left-3 px-2.5 py-1 bg-white/90 backdrop-blur-md rounded-md text-[10px] font-bold text-slate-700 uppercase tracking-widest border border-white/20">
                                                     Blog Post
                                                 </div>
                                             </div>
 
-                                            <div className="px-4 pb-4">
-                                                <div className="flex items-center gap-4 mb-4">
-                                                    <span className="text-blue-600 text-[10px] font-black flex items-center gap-2 uppercase tracking-widest">
+                                            <div className="flex flex-col flex-grow">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <span className="text-slate-500 text-[11px] font-bold flex items-center gap-1.5 uppercase tracking-widest">
                                                         <Calendar className="w-3.5 h-3.5" /> {formatDate(item.data_publicacao)}
                                                     </span>
-                                                    <span className="w-1 h-1 rounded-full bg-slate-200"></span>
-                                                    <span className="text-slate-400 text-[10px] font-black flex items-center gap-2 uppercase tracking-widest">
+                                                    <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                                                    <span className="text-slate-400 text-[11px] font-bold flex items-center gap-1.5 uppercase tracking-widest">
                                                         <Clock className="w-3.5 h-3.5" /> 5 MIN
                                                     </span>
                                                 </div>
 
-                                                <h2 className="text-xl font-black text-slate-900 mb-4 leading-tight group-hover:text-blue-600 transition-colors">
+                                                <h2 className="text-lg md:text-xl font-bold text-slate-900 mb-3 leading-snug group-hover:text-blue-600 transition-colors">
                                                     {item.titulo}
                                                 </h2>
 
-                                                <p className="text-slate-500 text-sm leading-relaxed mb-8 line-clamp-3 font-medium">
+                                                <p className="text-slate-600 text-sm leading-relaxed mb-6 line-clamp-3">
                                                     {item.resumo}
                                                 </p>
 
-                                                <div className="flex items-center gap-2 text-slate-900 font-black text-[10px] uppercase tracking-widest group-hover:gap-4 transition-all">
-                                                    Ler Artigo Completo <ArrowRight className="w-4 h-4 text-blue-500" />
+                                                <div className="mt-auto flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-widest group-hover:gap-3 transition-all">
+                                                    Ler Artigo <ArrowRight className="w-3.5 h-3.5" />
                                                 </div>
                                             </div>
                                         </Link>
@@ -213,23 +209,23 @@ const Noticias = () => {
             {/* Pagination Controls - Premium Styling */}
             {totalPages > 1 && (
                 <section className="pb-32">
-                    <div className="container mx-auto px-6 flex justify-center items-center gap-16">
+                    <div className="container mx-auto px-6 flex justify-center items-center gap-12">
                         <button
                             onClick={() => paginate(currentPage - 1)}
                             disabled={currentPage === 1}
-                            className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-blue-600 disabled:opacity-30 disabled:hover:text-slate-400 transition-all group"
+                            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-blue-600 disabled:opacity-30 disabled:hover:text-slate-500 transition-all group"
                         >
-                            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-2 transition-transform" /> ANTERIOR
+                            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Anterior
                         </button>
 
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                             {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                                 <button
                                     key={page}
                                     onClick={() => paginate(page)}
-                                    className={`w-12 h-12 rounded-2xl text-xs font-black transition-all ${currentPage === page
-                                            ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20 scale-110'
-                                            : 'bg-white text-slate-400 hover:bg-slate-50 border border-slate-100'
+                                    className={`w-10 h-10 rounded-xl text-sm font-bold transition-all ${currentPage === page
+                                            ? 'bg-blue-600 text-white'
+                                            : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
                                         }`}
                                 >
                                     {page}
@@ -240,9 +236,9 @@ const Noticias = () => {
                         <button
                             onClick={() => paginate(currentPage + 1)}
                             disabled={currentPage === totalPages}
-                            className="flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-blue-600 disabled:opacity-30 disabled:hover:text-slate-400 transition-all group"
+                            className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-blue-600 disabled:opacity-30 disabled:hover:text-slate-500 transition-all group"
                         >
-                            PRÓXIMO <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                            Próximo <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </button>
                     </div>
                 </section>

@@ -137,20 +137,18 @@ const Eventos = () => {
                 </div>
             </section>
 
-            {/* Search Section */}
-            <section className="-mt-12 mb-12 relative z-20">
-                <div className="container mx-auto px-6">
-                    <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-2xl shadow-slate-900/10 border border-slate-100 p-3 md:p-4">
-                        <div className="relative w-full">
-                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                            <input
-                                type="text"
-                                placeholder="Buscar eventos por título, descrição ou participante..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-16 pr-6 py-5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-900 font-bold placeholder:text-slate-300"
-                            />
-                        </div>
+            {/* Busca Elegante */}
+            <section className="-mt-12 relative z-20 mb-16">
+                <div className="container mx-auto px-6 max-w-3xl">
+                    <div className="relative group rounded-2xl bg-white border border-slate-200 transition-all focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10">
+                        <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-6 h-6 group-focus-within:text-blue-500 transition-colors" />
+                        <input
+                            type="text"
+                            placeholder="Buscar eventos por título, descrição ou participante..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-16 pr-6 py-5 bg-transparent border-none rounded-2xl outline-none text-slate-800 text-lg font-medium placeholder:text-slate-400"
+                        />
                     </div>
                 </div>
             </section>
@@ -195,102 +193,89 @@ const Eventos = () => {
                                                 key={event.id}
                                                 initial={{ opacity: 0, scale: 0.95 }}
                                                 whileInView={{ opacity: 1, scale: 1 }}
-                                                viewport={{ once: true }}
+                                                viewport={{ once: true, margin: "-50px" }}
                                                 transition={{ delay: idx * 0.1 }}
-                                                className="group flex flex-col bg-white rounded-3xl overflow-hidden border border-gray-100 transition-all duration-500"
+                                                className="group bg-white border border-slate-200 rounded-2xl p-6 hover:border-blue-300 hover:bg-slate-50/50 transition-all flex flex-col gap-4 relative"
                                             >
-                                                <div className="flex flex-col sm:flex-row h-full">
-                                                    {/* Date Panel */}
-                                                    <div className={`sm:w-40 p-8 flex flex-col items-center justify-center text-white shrink-0 transition-colors duration-500 ${event.tipo === 'Defesa' ? 'bg-blue-600 group-hover:bg-blue-700' :
-                                                        event.tipo === 'Palestra' ? 'bg-purple-600 group-hover:bg-purple-700' :
-                                                            'bg-slate-900 group-hover:bg-slate-800'
+                                                <div className="flex flex-wrap items-center gap-2 mb-1">
+                                                    <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border flex items-center gap-1.5 ${event.tipo === 'Defesa' ? 'bg-blue-50 text-blue-600 border-blue-200' :
+                                                        event.tipo === 'Palestra' ? 'bg-purple-50 text-purple-600 border-purple-200' :
+                                                            'bg-slate-50 text-slate-600 border-slate-200'
                                                         }`}>
-                                                        <span className="text-sm font-black tracking-widest uppercase mb-1">{dateInfo.month}</span>
-                                                        <span className="text-5xl font-black">{dateInfo.day}</span>
-                                                        <div className="mt-4 flex flex-col items-center gap-1">
-                                                            <span className="text-xs font-bold opacity-70">{dateInfo.time}</span>
-                                                            <div className="w-8 h-1 bg-white/30 rounded-full"></div>
-                                                        </div>
-                                                    </div>
+                                                        {getTipoIcon(event.tipo)} {event.tipo}
+                                                    </span>
+                                                    <span className="text-xs text-slate-500 font-medium bg-slate-50 border border-slate-200 px-3 py-1 rounded-md flex items-center gap-1.5">
+                                                        <Calendar className="w-3.5 h-3.5" />
+                                                        {dateInfo.full} às {dateInfo.time}
+                                                    </span>
+                                                    {event.duracao && (
+                                                        <span className="text-xs text-slate-500 font-medium bg-slate-50 border border-slate-200 px-3 py-1 rounded-md flex items-center gap-1.5">
+                                                            <Clock className="w-3.5 h-3.5" />
+                                                            {event.duracao}
+                                                        </span>
+                                                    )}
+                                                </div>
 
-                                                    {/* Content Panel */}
-                                                    <div className="p-10 flex flex-col flex-grow relative">
-                                                        <div className="flex items-center gap-2 mb-4">
-                                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 ${event.tipo === 'Defesa' ? 'bg-blue-50 text-blue-600' :
-                                                                event.tipo === 'Palestra' ? 'bg-purple-50 text-purple-600' :
-                                                                    'bg-slate-100 text-slate-600'
-                                                                }`}>
-                                                                {getTipoIcon(event.tipo)} {event.tipo}
+                                                <h3 className="text-lg md:text-xl font-bold text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
+                                                    {event.titulo}
+                                                </h3>
+
+                                                {event.tipo === 'Defesa' && event.estudante && (
+                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1">
+                                                        <span className="inline-flex items-center text-sm md:text-base font-medium">
+                                                            <span className="text-slate-500 mr-1.5">Estudante:</span>
+                                                            <span className="text-slate-800 font-bold">{event.estudante.nome}</span>
+                                                        </span>
+                                                        {hasOrientadores && (
+                                                            <span className="inline-flex items-center text-sm md:text-base font-medium">
+                                                                <span className="text-slate-500 mr-1.5">Orientador(es):</span>
+                                                                <span className="text-slate-800 font-bold">{event.membros_orientadores_ids.map(id => members[id]).filter(Boolean).join(', ')}</span>
                                                             </span>
-                                                            {event.duracao && (
-                                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 bg-gray-50 px-3 py-1 rounded-full">
-                                                                    <Clock className="w-3 h-3" /> {event.duracao}
-                                                                </span>
-                                                            )}
-                                                        </div>
-
-                                                        <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors leading-tight">
-                                                            {event.titulo}
-                                                        </h3>
-
-                                                        {event.tipo === 'Defesa' && event.estudante && (
-                                                            <div className="mb-4 p-4 bg-blue-50/50 rounded-2xl border border-blue-100/50">
-                                                                <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-1">Estudante</p>
-                                                                <p className="text-slate-900 font-bold">{event.estudante.nome}</p>
-                                                                {hasOrientadores && (
-                                                                    <div className="mt-3 pt-3 border-t border-blue-100/50">
-                                                                        <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-1">Orientadores</p>
-                                                                        <p className="text-slate-600 text-sm font-medium">
-                                                                            {event.membros_orientadores_ids.map(id => members[id]).filter(Boolean).join(', ')}
-                                                                        </p>
-                                                                    </div>
-                                                                )}
-                                                            </div>
                                                         )}
-
-                                                        {(event.tipo === 'Palestra' || event.tipo === 'Workshop' || event.tipo === 'Minicurso') && (
-                                                            <div className="mb-4">
-                                                                {(hasMemberSpeakers || event.palestrante_externo) && (
-                                                                    <div className="p-4 bg-purple-50/50 rounded-2xl border border-purple-100/50">
-                                                                        <p className="text-xs font-black text-purple-600 uppercase tracking-widest mb-1">Palestrante(s)</p>
-                                                                        <div className="flex flex-wrap gap-2 text-slate-900 font-bold">
-                                                                            {[
-                                                                                ...(event.membros_palestrantes_ids?.map(id => members[id]).filter(Boolean) || []),
-                                                                                event.palestrante_externo
-                                                                            ].filter(Boolean).join(', ')}
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        )}
-
-                                                        <p className="text-gray-500 line-clamp-2 mb-8 text-sm leading-relaxed">
-                                                            {event.descricao}
-                                                        </p>
-
-                                                        <div className="mt-auto flex flex-wrap gap-4">
-                                                            {event.link_transmissao && (
-                                                                <a
-                                                                    href={event.link_transmissao}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="inline-flex items-center gap-2 text-xs font-black text-slate-900 hover:text-blue-600 transition-colors py-2 border-b-2 border-slate-900 hover:border-blue-600"
-                                                                >
-                                                                    {event.tipo === 'Defesa' ? 'ASSISTIR TRANSMISSÃO' : 'LINK DE INSCRIÇÃO'} <ChevronRight className="w-4 h-4" />
-                                                                </a>
-                                                            )}
-                                                            {event.link_certificado && (
-                                                                <a
-                                                                    href={event.link_certificado}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="inline-flex items-center gap-2 text-xs font-black text-emerald-600 hover:text-emerald-700 transition-colors py-2 border-b-2 border-emerald-600 hover:border-emerald-700"
-                                                                >
-                                                                    OBTER CERTIFICADO <Download className="w-4 h-4" />
-                                                                </a>
-                                                            )}
-                                                        </div>
                                                     </div>
+                                                )}
+
+                                                {(event.tipo === 'Palestra' || event.tipo === 'Workshop' || event.tipo === 'Minicurso') && (
+                                                    (hasMemberSpeakers || event.palestrante_externo) && (
+                                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-1">
+                                                            <span className="inline-flex items-center text-sm md:text-base font-medium">
+                                                                <span className="text-slate-500 mr-1.5">Palestrante(s):</span>
+                                                                <span className="text-slate-800 font-bold">
+                                                                    {[
+                                                                        ...(event.membros_palestrantes_ids?.map(id => members[id]).filter(Boolean) || []),
+                                                                        event.palestrante_externo
+                                                                    ].filter(Boolean).join(', ')}
+                                                                </span>
+                                                            </span>
+                                                        </div>
+                                                    )
+                                                )}
+
+                                                <p className="text-slate-600 text-sm md:text-base leading-relaxed line-clamp-3">
+                                                    {event.descricao}
+                                                </p>
+
+                                                <div className="mt-2 flex flex-wrap gap-4">
+                                                    {event.link_transmissao && (
+                                                        <a
+                                                            href={event.link_transmissao}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 text-blue-600 font-bold text-sm hover:bg-blue-100 transition-colors border border-blue-200"
+                                                        >
+                                                            {event.tipo === 'Defesa' ? 'Assistir Transmissão' : 'Link de Inscrição'} <ChevronRight className="w-4 h-4" />
+                                                        </a>
+                                                    )}
+                                                    {event.link_certificado && (
+                                                        <a
+                                                            href={event.link_certificado}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 font-bold text-sm hover:bg-emerald-100 transition-colors border border-emerald-200"
+                                                        >
+                                                            Obter Certificado <Download className="w-4 h-4" />
+                                                        </a>
+                                                    )}
                                                 </div>
                                             </motion.div>
                                         );
@@ -317,31 +302,33 @@ const Eventos = () => {
                                                 key={event.id}
                                                 initial={{ opacity: 0, y: 20 }}
                                                 whileInView={{ opacity: 1, y: 0 }}
-                                                viewport={{ once: true }}
+                                                viewport={{ once: true, margin: "-50px" }}
                                                 transition={{ delay: idx * 0.05 }}
-                                                className="group bg-white rounded-3xl border border-gray-100 p-8 transition-all duration-500 opacity-75 hover:opacity-100 flex flex-col h-full relative overflow-hidden"
+                                                className="group bg-white border border-slate-200 rounded-2xl p-6 transition-all duration-500 opacity-75 hover:opacity-100 flex flex-col gap-3 relative"
                                             >
-                                                <div className="absolute top-0 left-0 w-1.5 h-full rounded-l-3xl bg-slate-900 opacity-10 group-hover:opacity-40 transition-opacity duration-500"></div>
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <div className="text-gray-400 text-[10px] font-black flex items-center gap-2 uppercase tracking-widest">
-                                                        <Calendar className="w-3 h-3" /> {dateInfo.full}
-                                                    </div>
-                                                    <span className={`text-[9px] font-black uppercase tracking-widest ${event.tipo === 'Defesa' ? 'text-blue-500' : 'text-slate-400'
+                                                <div className="flex flex-wrap items-center gap-2 mb-1">
+                                                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border flex items-center gap-1.5 ${event.tipo === 'Defesa' ? 'bg-blue-50 text-blue-600 border-blue-200' :
+                                                        event.tipo === 'Palestra' ? 'bg-purple-50 text-purple-600 border-purple-200' :
+                                                            'bg-slate-50 text-slate-600 border-slate-200'
                                                         }`}>
-                                                        {event.tipo}
+                                                        {getTipoIcon(event.tipo)} {event.tipo}
+                                                    </span>
+                                                    <span className="text-xs text-slate-500 font-medium flex items-center gap-1">
+                                                        <Calendar className="w-3.5 h-3.5" /> {dateInfo.full}
                                                     </span>
                                                 </div>
-                                                <h3 className="text-lg font-bold text-gray-900 mb-4 leading-tight group-hover:text-blue-600 transition-colors">
+
+                                                <h3 className="text-lg font-bold text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
                                                     {event.titulo}
                                                 </h3>
 
                                                 <div className="mt-auto pt-4 flex flex-col gap-2">
-                                                    <div className="flex items-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                                                        <MapPin className="w-3 h-3 shrink-0" /> {event.local}
+                                                    <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+                                                        <MapPin className="w-3.5 h-3.5 shrink-0" /> {event.local}
                                                     </div>
                                                     {event.link_certificado && (
-                                                        <a href={event.link_certificado} target="_blank" rel="noopener noreferrer" className="text-[10px] font-black text-emerald-600 hover:underline">
-                                                            CERTIFICADO DISPONÍVEL
+                                                        <a href={event.link_certificado} target="_blank" rel="noopener noreferrer" className="text-[10px] font-black text-emerald-600 hover:underline inline-flex items-center gap-1 mt-1">
+                                                            <Download className="w-3 h-3" /> CERTIFICADO DISPONÍVEL
                                                         </a>
                                                     )}
                                                 </div>

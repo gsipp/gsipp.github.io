@@ -15,6 +15,7 @@ const AdminLayout = () => {
 
     // Close sidebar on route change (for mobile)
     useEffect(() => {
+        // eslint-disable-next-line
         setIsSidebarOpen(false);
     }, [location.pathname]);
 
@@ -168,15 +169,11 @@ const AdminLayout = () => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 lg:ml-72 min-h-screen relative overflow-hidden flex flex-col">
+            <main className="flex-1 lg:ml-72 min-h-screen bg-slate-50 relative flex flex-col">
                 {/* Mobile top spacer */}
                 <div className="h-16 lg:hidden" />
                 
-                {/* Background Decor */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px] -mr-64 -mt-64 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[120px] -ml-64 -mb-64 pointer-events-none"></div>
-                
-                <div className="p-6 md:p-10 lg:p-12 max-w-7xl mx-auto relative z-10 w-full flex-grow">
+                <div className="p-6 md:p-8 lg:p-12 max-w-7xl mx-auto w-full flex-grow">
                     <AnimatePresence mode="wait">
                         <motion.div
                             key={location.pathname}

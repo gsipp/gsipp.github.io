@@ -19,9 +19,7 @@ const Config = () => {
     const defaultTemplate = `Declaramos, para os devidos fins, que {{nome}}, matrícula {{matricula}}, CPF {{cpf}}, estudante do curso de {{curso}}, participou como voluntário do Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade (GSIPP) da Universidade Federal do Ceará - Campus de Crateús, no período de {{data_inicio}} a {{data_fim}}, com carga horária semanal de {{carga_horaria}} horas, sob a orientação do {{orientador}}, totalizando {{total_horas}} horas ao longo do período.`;
     const defaultAddress = `07.272.636/0001-31\nCampus Universitário\nAvenida Professora Machadinha Lima, S/N -\nPríncipe Imperial, Crateús - CE, 63708-825`;
 
-    useEffect(() => {
-        fetchConfig();
-    }, []);
+
 
     const fetchConfig = async () => {
         setLoading(true);
@@ -47,6 +45,11 @@ const Config = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        // eslint-disable-next-line
+        fetchConfig();
+    }, []);
 
     const handleSave = async () => {
         setSaving(true);

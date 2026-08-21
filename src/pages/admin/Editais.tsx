@@ -30,7 +30,6 @@ const Editais = () => {
 
     // Fetch editais
     const fetchEditais = async () => {
-        setLoading(true);
         const { data, error } = await supabase
             .from('editais')
             .select('*')
@@ -44,6 +43,7 @@ const Editais = () => {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line
         fetchEditais();
     }, []);
 

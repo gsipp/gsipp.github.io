@@ -97,7 +97,6 @@ const NewsAdmin = () => {
 
     // Fetch news
     const fetchNews = async () => {
-        setLoading(true);
         const { data, error } = await supabase
             .from('noticias')
             .select('*')
@@ -110,6 +109,7 @@ const NewsAdmin = () => {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line
         fetchNews();
     }, []);
 
@@ -358,63 +358,85 @@ const NewsAdmin = () => {
                             <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            {filteredNews.map((item) => (
-                                <div key={item.id} className="bg-white rounded-2xl p-4 border border-gray-100 flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 group hover:shadow-lg hover:shadow-blue-500/5 transition-all">
-                                    <div className="w-full sm:w-24 h-48 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-gray-100 border border-gray-100">
-                                        {item.imagem_capa_url ? (
-                                            <img src={item.imagem_capa_url} alt="" className="w-full h-full object-cover" />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                                <Newspaper className="w-8 h-8" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="flex-grow min-w-0 w-full text-center sm:text-left">
-                                        <div className="flex items-center justify-center sm:justify-start gap-3 mb-1">
-                                            <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md">
-                                                {(() => {
-                                                    if (!item.data_publicacao) return '-';
-                                                    const datePart = item.data_publicacao.split('T')[0];
-                                                    const [year, month, day] = datePart.split('-').map(Number);
-                                                    return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR');
-                                                })()}
-                                            </span>
-                                            {item.publicado === false && (
-                                                <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest bg-amber-50 px-2 py-0.5 rounded-md border border-amber-100">
-                                                    Rascunho
-                                                </span>
-                                            )}
+                        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-slate-50 border-b border-slate-200">
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-16">Capa</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-1/2">Título</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                                            <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {filteredNews.map((item) => (
+                                            <tr key={item.id} className="hover:bg-slate-50/50 transition-colors group">
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="w-16 h-12 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center">
+                                                        {item.imagem_capa_url ? (
+                                                            <img src={item.imagem_capa_url} alt="" className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <Newspaper className="w-5 h-5 text-slate-300" />
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <h3 className="font-bold text-slate-900 line-clamp-1">{item.titulo}</h3>
+                                                    <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{item.resumo}</p>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <div className="flex flex-col gap-1.5">
+                                                        {item.publicado === false ? (
+                                                            <span className="inline-flex w-fit items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-600 border border-amber-200">
+                                                                Rascunho
+                                                            </span>
+                                                        ) : (
+                                                            <span className="inline-flex w-fit items-center px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-600 border border-emerald-200">
+                                                                Publicado
+                                                            </span>
+                                                        )}
+                                                        <span className="text-[10px] font-semibold text-slate-400">
+                                                            {(() => {
+                                                                if (!item.data_publicacao) return '-';
+                                                                const datePart = item.data_publicacao.split('T')[0];
+                                                                const [year, month, day] = datePart.split('-').map(Number);
+                                                                return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR');
+                                                            })()}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-right">
+                                                    <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <button
+                                                            onClick={() => handleEdit(item)}
+                                                            className="p-2 hover:bg-blue-50 text-slate-400 hover:text-blue-600 rounded-lg transition-colors"
+                                                            title="Editar"
+                                                        >
+                                                            <Pencil className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setConfirmDelete(item.id)}
+                                                            className="p-2 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition-colors"
+                                                            title="Excluir"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {filteredNews.length === 0 && (
+                                    <div className="py-20 text-center border-t border-slate-100">
+                                        <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+                                            <Newspaper className="w-6 h-6 text-slate-300" />
                                         </div>
-                                        <h3 className="font-bold text-gray-900 truncate text-lg">{item.titulo}</h3>
-                                        <p className="text-sm text-gray-500 line-clamp-1">{item.resumo}</p>
+                                        <p className="text-slate-500 font-medium">Nenhuma notícia encontrada.</p>
                                     </div>
-                                    <div className="flex items-center gap-2 sm:opacity-0 group-hover:opacity-100 transition-opacity w-full sm:w-auto justify-center sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0">
-                                        <button
-                                            onClick={() => handleEdit(item)}
-                                            className="p-3 bg-blue-50 sm:bg-transparent hover:bg-blue-50 rounded-xl text-blue-600 sm:text-gray-400 sm:hover:text-blue-600 transition-all flex-1 sm:flex-none flex justify-center"
-                                            title="Editar"
-                                        >
-                                            <Pencil className="w-5 h-5" />
-                                        </button>
-                                        <button
-                                            onClick={() => setConfirmDelete(item.id)}
-                                            className="p-3 bg-red-50 sm:bg-transparent hover:bg-red-50 rounded-xl text-red-600 sm:text-gray-400 sm:hover:text-red-600 transition-all flex-1 sm:flex-none flex justify-center"
-                                            title="Excluir"
-                                        >
-                                            <Trash2 className="w-5 h-5" />
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                            {filteredNews.length === 0 && (
-                                <div className="py-20 text-center">
-                                    <div className="bg-gray-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        <Newspaper className="w-10 h-10 text-gray-300" />
-                                    </div>
-                                    <p className="text-gray-400 font-medium">Nenhuma notícia encontrada.</p>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                     )}
                 </>

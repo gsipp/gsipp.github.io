@@ -58,6 +58,15 @@ const getLattesPhotoUrl = (member: Membro): string | null => {
     return null;
 };
 
+const toTitleCase = (str: string) => {
+    if (!str) return '';
+    const lowercaseWords = ['de', 'da', 'do', 'das', 'dos', 'e', 'em', 'na', 'no', 'nas', 'nos'];
+    return str.toLowerCase().split(' ').map((word, index) => {
+        if (index > 0 && lowercaseWords.includes(word)) return word;
+        return word.charAt(0).toUpperCase() + word.slice(1);
+    }).join(' ');
+};
+
 const Home = () => {
     const [members, setMembers] = useState<Membro[]>([]);
     const [loadingMembers, setLoadingMembers] = useState(true);
@@ -154,10 +163,10 @@ const Home = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.6, duration: 0.8 }}
                     >
-                        <a href="#linhas-pesquisa" className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-blue-500/25 flex items-center justify-center gap-2 z-20 group">
+                        <a href="#linhas-pesquisa" className="px-8 py-4 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-xl transition-all shadow-lg flex items-center justify-center gap-2 z-20 group">
                             Nossas Pesquisas <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </a>
-                        <Link to="/membros" className="px-8 py-4 bg-white/5 hover:bg-white/10 text-white border border-white/10 font-semibold rounded-xl backdrop-blur-sm transition-all flex items-center justify-center z-20">
+                        <Link to="/membros" className="px-8 py-4 bg-slate-800/50 hover:bg-slate-800 border border-slate-700 text-white font-semibold rounded-xl backdrop-blur-sm transition-all flex items-center justify-center z-20">
                             Conheça a Equipe
                         </Link>
                     </motion.div>
@@ -207,8 +216,8 @@ const Home = () => {
                             viewport={{ once: true }}
                             transition={{ duration: 0.8 }}
                         >
-                            <h2 className="text-blue-600 font-bold tracking-wide uppercase text-sm mb-2">Quem Somos</h2>
-                            <h3 className="text-4xl font-bold text-gray-900 mb-6">Grupo de pesquisa em Segurança e Privacidade</h3>
+                            <h2 className="text-slate-500 font-bold tracking-widest uppercase text-xs mb-3">Quem Somos</h2>
+                            <h3 className="text-4xl font-bold text-slate-900 mb-6">Grupo de pesquisa em Segurança e Privacidade</h3>
                             <div className="space-y-6 text-lg text-gray-600 leading-relaxed">
                                 <p>
                                     Fundado em 2023 no campus de Crateús da UFC, o <span className="text-gray-900 font-semibold">GSIPP</span> é um hub de inovação que une professores, pesquisadores e alunos em torno de um objetivo comum: tornar o mundo digital mais seguro.
@@ -232,12 +241,24 @@ const Home = () => {
                             transition={{ duration: 0.8 }}
                         >
                             <div className="space-y-4 mt-8">
-                                <div className="bg-blue-600 h-48 rounded-2xl opacity-10 w-full transform rotate-3"></div>
-                                <div className="bg-slate-900 h-64 rounded-2xl w-full shadow-lg"></div>
+                                <div className="bg-slate-50 border border-slate-200 h-48 rounded-2xl w-full transform rotate-3 flex items-center justify-center overflow-hidden relative shadow-sm">
+                                    <Shield className="w-16 h-16 text-slate-400" />
+                                    <div className="absolute inset-0 bg-gradient-to-br from-slate-100/50 to-transparent"></div>
+                                </div>
+                                <div className="bg-slate-900 h-64 rounded-2xl w-full shadow-xl flex items-center justify-center relative overflow-hidden border border-slate-800">
+                                    <Lock className="w-16 h-16 text-slate-600" />
+                                    <div className="absolute inset-0 bg-gradient-to-tl from-slate-800/50 to-transparent"></div>
+                                </div>
                             </div>
                             <div className="space-y-4">
-                                <div className="bg-blue-100 h-64 rounded-2xl w-full"></div>
-                                <div className="bg-blue-600 h-48 rounded-2xl w-full opacity-80"></div>
+                                <div className="bg-white border border-slate-200 h-64 rounded-2xl w-full flex items-center justify-center shadow-sm relative overflow-hidden">
+                                    <Fingerprint className="w-16 h-16 text-slate-300" />
+                                    <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent"></div>
+                                </div>
+                                <div className="bg-slate-800 h-48 rounded-2xl w-full flex items-center justify-center shadow-lg relative overflow-hidden border border-slate-700">
+                                    <Eye className="w-16 h-16 text-slate-500" />
+                                    <div className="absolute inset-0 bg-gradient-to-tr from-slate-700/30 to-transparent"></div>
+                                </div>
                             </div>
                         </motion.div>
                     </div>
@@ -248,9 +269,9 @@ const Home = () => {
             <section id="linhas-pesquisa" className="py-24 bg-gray-50">
                 <div className="container mx-auto px-6">
                     <div className="text-center max-w-3xl mx-auto mb-16">
-                        <h2 className="text-blue-600 font-bold tracking-wide uppercase text-sm mb-2">Áreas de Atuação</h2>
-                        <h3 className="text-4xl font-bold text-gray-900 mb-4">Linhas de Pesquisa</h3>
-                        <p className="text-gray-600 text-lg">Exploramos as fronteiras da tecnologia para desenvolver soluções de segurança robustas.</p>
+                        <h2 className="text-slate-500 font-bold tracking-widest uppercase text-xs mb-3">Áreas de Atuação</h2>
+                        <h3 className="text-4xl font-bold text-slate-900 mb-4">Linhas de Pesquisa</h3>
+                        <p className="text-slate-600 text-lg">Exploramos as fronteiras da tecnologia para desenvolver soluções de segurança robustas.</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -261,16 +282,13 @@ const Home = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ delay: index * 0.1 }}
-                                whileHover={{ y: -5 }}
-                                className="group bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 relative overflow-hidden"
+                                className="group bg-white p-8 rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 relative overflow-hidden"
                             >
-                                <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${line.color} opacity-5 rounded-bl-full transition-opacity group-hover:opacity-10`}></div>
-
-                                <div className="mb-6 inline-block p-4 rounded-xl bg-gray-50 text-gray-900 group-hover:bg-blue-50 transition-colors">
+                                <div className="mb-6">
                                     {line.icon}
                                 </div>
-                                <h4 className="text-xl font-bold text-gray-900 mb-3">{line.title}</h4>
-                                <p className="text-gray-600 leading-relaxed">{line.description}</p>
+                                <h4 className="text-xl font-bold text-slate-900 mb-3">{line.title}</h4>
+                                <p className="text-slate-600 leading-relaxed">{line.description}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -285,23 +303,23 @@ const Home = () => {
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
-                        className="bg-gradient-to-br from-slate-900 to-blue-900 rounded-3xl overflow-hidden shadow-xl text-white"
+                        className="bg-slate-900 rounded-3xl overflow-hidden shadow-2xl text-white border border-slate-800"
                     >
                         <div className="flex flex-col lg:flex-row">
                             <div className="lg:w-2/5 relative min-h-[400px]">
                                 <img
                                     src="https://servicosweb.cnpq.br/wspessoa/servletrecuperafoto?tipo=1&id=K4254574U4"
                                     alt="Emerson B. Tomaz"
-                                    className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-80"
+                                    className="absolute inset-0 w-full h-full object-cover opacity-80 lg:opacity-90 hover:opacity-100 transition-all duration-500"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 lg:bg-gradient-to-r lg:from-transparent lg:to-slate-900/80"></div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-slate-900/60 lg:to-slate-900"></div>
                             </div>
                             <div className="lg:w-3/5 p-12 lg:p-16 flex flex-col justify-center">
-                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-sm font-medium w-fit mb-6">
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-slate-300 text-xs font-bold uppercase tracking-widest w-fit mb-6 border border-slate-700">
                                     <Users className="w-4 h-4" /> Coordenação
                                 </div>
                                 <h3 className="text-3xl lg:text-4xl font-bold mb-2">Prof. Dr. Emerson B. Tomaz</h3>
-                                <p className="text-blue-300 text-lg mb-8 font-medium">Pesquisador Líder</p>
+                                <p className="text-emerald-400 text-lg mb-8 font-medium">Bolsista de Produtividade da FUNCAP</p>
 
                                 <div className="space-y-6 text-gray-300 leading-relaxed text-lg">
                                     <p>
@@ -312,15 +330,16 @@ const Home = () => {
                                     </p>
                                 </div>
 
-                                <div className="mt-10 pt-8 border-t border-white/10 flex gap-6">
-                                    <div className="text-center">
-                                        <div className="text-2xl font-bold text-white">2007</div>
-                                        <div className="text-xs text-blue-300 uppercase tracking-widest">Início Carreira</div>
-                                    </div>
-                                    <div className="text-center border-l border-white/10 pl-6">
-                                        <div className="text-2xl font-bold text-white">Bolsista de produtividade de pesquisa Funcap</div>
-                                        {/* <div className="text-xs text-blue-300 uppercase tracking-widest">Pesquisador</div> */}
-                                    </div>
+                                <div className="mt-10 pt-8 border-t border-white/10 flex">
+                                    <a 
+                                        href="http://buscatextual.cnpq.br/buscatextual/visualizacv.do?id=K4254574U4" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl border border-white/10 hover:border-white/20 transition-all shadow-sm"
+                                    >
+                                        <LattesIcon className="w-5 h-5" />
+                                        Acesse o Lattes
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -337,12 +356,12 @@ const Home = () => {
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
-                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-widest mb-4"
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-500 text-xs font-bold uppercase tracking-widest mb-4 border border-slate-200"
                         >
                             <Users className="w-3 h-3" /> Nosso Time
                         </motion.div>
-                        <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">Equipe de Pesquisa</h2>
-                        <p className="text-gray-600 text-lg leading-relaxed">
+                        <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Equipe de Pesquisa</h2>
+                        <p className="text-slate-600 text-lg leading-relaxed">
                             Conheça os pesquisadores e estudantes que impulsionam a inovação em segurança e privacidade no GSIPP.
                         </p>
                     </div>
@@ -372,31 +391,35 @@ const Home = () => {
                                         </div>
 
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                                            {catMembers.map((member) => (
-                                                <div
+                                            {catMembers.map((member, idx) => (
+                                                <motion.div
                                                     key={member.id}
-                                                    className="group bg-white rounded-2xl p-6 border border-gray-100 hover:border-blue-200 transition-all duration-300 flex flex-col items-center text-center"
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    whileInView={{ opacity: 1, y: 0 }}
+                                                    viewport={{ once: true, margin: "-50px" }}
+                                                    transition={{ delay: idx * 0.05 }}
+                                                    className="group relative bg-white rounded-2xl p-6 border border-slate-200 hover:border-blue-300 hover:bg-slate-50/50 transition-all duration-300 flex flex-col items-center text-center"
                                                 >
-                                                    {/* Profile Image */}
-                                                    <div className="relative mb-6">
-                                                        <div className="w-28 h-28 rounded-full p-1 bg-white border border-gray-100 group-hover:border-blue-100 transition-colors duration-300">
-                                                            <div className="w-full h-full rounded-full overflow-hidden bg-gray-50 flex items-center justify-center">
+                                                    {/* Profile Photo Area */}
+                                                    <div className="relative mb-5">
+                                                        <div className="w-24 h-24 rounded-full p-1 bg-white border border-slate-200 group-hover:border-blue-200 transition-colors duration-300">
+                                                            <div className="w-full h-full rounded-full overflow-hidden bg-slate-50 flex items-center justify-center">
                                                                 {member.foto_url ? (
-                                                                    <img
-                                                                        src={member.foto_url}
-                                                                        alt={member.nome}
-                                                                        className="w-full h-full object-cover"
+                                                                    <img 
+                                                                        src={member.foto_url} 
+                                                                        alt={member.nome} 
+                                                                        className="w-full h-full object-cover" 
                                                                         style={{ objectPosition: member.foto_posicao || 'center center' }}
                                                                     />
                                                                 ) : getLattesPhotoUrl(member) ? (
-                                                                    <img
-                                                                        src={getLattesPhotoUrl(member)!}
-                                                                        alt={member.nome}
-                                                                        className="w-full h-full object-cover"
+                                                                    <img 
+                                                                        src={getLattesPhotoUrl(member)!} 
+                                                                        alt={member.nome} 
+                                                                        className="w-full h-full object-cover" 
                                                                         style={{ objectPosition: member.foto_posicao || 'center center' }}
                                                                     />
                                                                 ) : (
-                                                                    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold text-xl">
+                                                                    <div className={`w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 font-bold text-2xl`}>
                                                                         {member.nome.substring(0, 2).toUpperCase()}
                                                                     </div>
                                                                 )}
@@ -404,45 +427,45 @@ const Home = () => {
                                                         </div>
                                                     </div>
 
-                                                    {/* Name & Title */}
-                                                    <div className="space-y-1">
-                                                        <h4 className="text-lg font-bold text-gray-900">
+                                                    {/* Details */}
+                                                    <div className="w-full space-y-1.5 flex-grow">
+                                                        <h3 className="text-lg font-bold text-slate-900 leading-tight">
                                                             {member.nome}
-                                                        </h4>
-                                                        <p className="text-gray-500 text-xs font-medium">
+                                                        </h3>
+                                                        <p className="text-slate-600 text-sm font-medium">
                                                             {member.area_pesquisa || member.cargo}
                                                         </p>
                                                         {member.curso && (
-                                                            <p className="text-gray-400 text-sm italic font-medium">
-                                                                {member.curso}
+                                                            <p className="text-slate-500 text-xs font-semibold">
+                                                                {toTitleCase(member.curso)}
                                                             </p>
                                                         )}
                                                     </div>
 
-                                                    {/* Social Links */}
-                                                    <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-gray-50 w-full text-gray-400 transition-colors">
+                                                    {/* Action/Social Footer */}
+                                                    <div className="flex items-center justify-center gap-4 mt-5 pt-5 border-t border-slate-100 w-full">
                                                         {member.lattes_url && (
-                                                            <a href={member.lattes_url} target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors" title="Currículo Lattes">
-                                                                <LattesIcon className="w-4 h-4" />
+                                                            <a href={member.lattes_url} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 transition-colors" title="Currículo Lattes">
+                                                                <LattesIcon className="w-5 h-5" />
                                                             </a>
                                                         )}
                                                         {member.linkedin_url && (
-                                                            <a href={member.linkedin_url} target="_blank" rel="noopener noreferrer" className="hover:text-blue-700 transition-colors" title="LinkedIn">
-                                                                <LinkedinIcon className="w-4 h-4" />
+                                                            <a href={member.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700 transition-colors" title="LinkedIn">
+                                                                <LinkedinIcon className="w-5 h-5" />
                                                             </a>
                                                         )}
                                                         {member.researchgate_url && (
-                                                            <a href={member.researchgate_url} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-500 transition-colors" title="ResearchGate">
-                                                                <ResearchGateIcon className="w-4 h-4" />
+                                                            <a href={member.researchgate_url} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-emerald-500 transition-colors" title="ResearchGate">
+                                                                <ResearchGateIcon className="w-5 h-5" />
                                                             </a>
                                                         )}
                                                         {member.email && (
-                                                            <a href={`mailto:${member.email}`} className="hover:text-red-500 transition-colors" title="Enviar E-mail">
-                                                                <Mail className="w-4 h-4" />
+                                                            <a href={`mailto:${member.email}`} className="text-gray-400 hover:text-red-500 transition-colors" title="Enviar E-mail">
+                                                                <Mail className="w-5 h-5" />
                                                             </a>
                                                         )}
                                                     </div>
-                                                </div>
+                                                </motion.div>
                                             ))}
                                         </div>
                                     </div>

@@ -59,7 +59,6 @@ const Events = () => {
 
     // Fetch data
     const fetchData = async () => {
-        setLoading(true);
         const [eventsRes, membersRes] = await Promise.all([
             supabase.from('eventos').select('*').order('data_evento', { ascending: true }),
             supabase.from('membros').select('id, nome, cargo').order('nome', { ascending: true })
@@ -75,6 +74,7 @@ const Events = () => {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line
         fetchData();
     }, []);
 

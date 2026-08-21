@@ -56,7 +56,6 @@ const Members = () => {
 
     // Fetch members
     const fetchMembers = async () => {
-        setLoading(true);
         const { data, error } = await supabase
             .from('membros')
             .select('*')
@@ -69,6 +68,7 @@ const Members = () => {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line
         fetchMembers();
     }, []);
 
@@ -249,16 +249,16 @@ const Members = () => {
                     <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
-                                <thead className="bg-gray-50/50 border-b border-gray-100">
+                                <thead className="bg-slate-50/50 border-b border-slate-100">
                                     <tr>
-                                        <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Membro</th>
-                                        <th className="px-6 py-4 font-semibold text-gray-600 text-sm">Dados Internos</th>
-                                        <th className="px-6 py-4 font-semibold text-gray-600 text-sm text-right">Ações</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Membro</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Dados Internos</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Ações</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-50">
+                                <tbody className="divide-y divide-slate-100">
                                     {filteredMembers.map((member) => (
-                                        <tr key={member.id} className="hover:bg-blue-50/40 transition-colors group">
+                                        <tr key={member.id} className="hover:bg-slate-50/80 transition-colors group">
                                             <td className="px-6 py-5">
                                                 <div className="flex items-center gap-4">
                                                     <div className="relative">
@@ -284,12 +284,12 @@ const Members = () => {
                                                             )}
                                                         </div>
                                                         <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                                            <span className="text-[10px] font-black text-blue-600">#{member.ordem}</span>
+                                                            <span className="text-[10px] font-black text-slate-600">#{member.ordem}</span>
                                                         </div>
                                                     </div>
                                                     <div>
                                                         <div className="font-bold text-gray-900 text-base">{member.nome}</div>
-                                                        <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md inline-block mt-1">
+                                                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded-md inline-block mt-1">
                                                             {member.cargo}
                                                         </div>
                                                     </div>
@@ -299,12 +299,12 @@ const Members = () => {
                                                 <div className="text-sm text-gray-600 space-y-1.5">
                                                     {member.email && (
                                                         <div className="flex items-center gap-2 group/info">
-                                                            <Mail className="w-4 h-4 text-gray-300 group-hover/info:text-blue-500 transition-colors" />
+                                                            <Mail className="w-4 h-4 text-slate-300 group-hover/info:text-slate-500 transition-colors" />
                                                             <span className="font-medium">{member.email}</span>
                                                         </div>
                                                     )}
                                                     <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                        <Clock className="w-3.5 h-3.5" /> 
+                                                        <Clock className="w-3.5 h-3.5 text-slate-400" /> 
                                                         {member.carga_horaria ? `${member.carga_horaria}h semanais` : 'Carga horária n/d'}
                                                     </div>
                                                 </div>
@@ -313,21 +313,21 @@ const Members = () => {
                                                 <div className="flex items-center justify-end gap-1">
                                                     <button
                                                         onClick={() => generateDeclaration(member)}
-                                                        className="p-2.5 hover:bg-white text-gray-400 hover:text-blue-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
+                                                        className="p-2.5 hover:bg-slate-100 text-slate-400 hover:text-slate-700 rounded-xl transition-colors"
                                                         title="Gerar Declaração"
                                                     >
                                                         <FileText className="w-5 h-5" />
                                                     </button>
                                                     <button
                                                         onClick={() => openModal(member)}
-                                                        className="p-2.5 hover:bg-white text-gray-400 hover:text-blue-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
+                                                        className="p-2.5 hover:bg-slate-100 text-slate-400 hover:text-slate-700 rounded-xl transition-colors"
                                                         title="Editar"
                                                     >
                                                         <Pencil className="w-5 h-5" />
                                                     </button>
                                                     <button
                                                         onClick={() => setConfirmDelete(member.id)}
-                                                        className="p-2.5 hover:bg-white text-gray-400 hover:text-red-600 rounded-xl transition-all border border-transparent hover:border-gray-100 hover:shadow-sm"
+                                                        className="p-2.5 hover:bg-slate-100 text-slate-400 hover:text-red-600 rounded-xl transition-colors"
                                                         title="Excluir"
                                                     >
                                                         <Trash2 className="w-5 h-5" />
@@ -368,8 +368,8 @@ const Members = () => {
                                         )}
                                     </div>
                                     <div className="min-w-0">
-                                        <h3 className="font-bold text-gray-900 truncate">{member.nome}</h3>
-                                        <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md inline-block">
+                                        <h3 className="font-bold text-slate-900 truncate">{member.nome}</h3>
+                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded-md inline-block mt-1">
                                             {member.cargo}
                                         </span>
                                     </div>
@@ -386,12 +386,12 @@ const Members = () => {
                                     </div>
                                 </div>
 
-                                <div className="flex items-center justify-between pt-2 border-t border-gray-50">
-                                    <div className="text-[10px] font-black text-gray-300 uppercase">#ORDEM {member.ordem}</div>
+                                <div className="flex items-center justify-between pt-2 border-t border-slate-50">
+                                    <div className="text-[10px] font-black text-slate-400 uppercase">#ORDEM {member.ordem}</div>
                                     <div className="flex gap-2">
-                                        <button onClick={() => generateDeclaration(member)} className="p-2 bg-slate-50 text-slate-400 rounded-lg"><FileText className="w-4 h-4" /></button>
-                                        <button onClick={() => openModal(member)} className="p-2 bg-blue-50 text-blue-600 rounded-lg"><Pencil className="w-4 h-4" /></button>
-                                        <button onClick={() => setConfirmDelete(member.id)} className="p-2 bg-red-50 text-red-600 rounded-lg"><Trash2 className="w-4 h-4" /></button>
+                                        <button onClick={() => generateDeclaration(member)} className="p-2 bg-slate-50 text-slate-400 hover:text-slate-700 rounded-lg"><FileText className="w-4 h-4" /></button>
+                                        <button onClick={() => openModal(member)} className="p-2 bg-slate-50 text-slate-400 hover:text-slate-700 rounded-lg"><Pencil className="w-4 h-4" /></button>
+                                        <button onClick={() => setConfirmDelete(member.id)} className="p-2 bg-slate-50 text-slate-400 hover:text-red-600 rounded-lg"><Trash2 className="w-4 h-4" /></button>
                                     </div>
                                 </div>
                             </div>

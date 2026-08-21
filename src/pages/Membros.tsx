@@ -5,6 +5,7 @@ import { Users, Search, Mail, Filter, ArrowRight } from 'lucide-react';
 import { LinkedinIcon } from '../components/BrandIcons';
 import { Link } from 'react-router-dom';
 import SEO from '../components/SEO';
+import Dropdown from '../components/Dropdown';
 
 const LattesIcon = ({ className }: { className?: string }) => (
     <svg
@@ -55,6 +56,15 @@ const getLattesPhotoUrl = (member: Member): string | null => {
         return `https://servicosweb.cnpq.br/wspessoa/servletrecuperafoto?tipo=1&id=${match[1]}`;
     }
     return null;
+};
+
+const toTitleCase = (str: string) => {
+    if (!str) return '';
+    const lowercaseWords = ['de', 'da', 'do', 'das', 'dos', 'e', 'em', 'na', 'no', 'nas', 'nos'];
+    return str.toLowerCase().split(' ').map((word, index) => {
+        if (index > 0 && lowercaseWords.includes(word)) return word;
+        return word.charAt(0).toUpperCase() + word.slice(1);
+    }).join(' ');
 };
 
 const Membros = () => {
@@ -128,31 +138,29 @@ const Membros = () => {
             </section>
 
             {/* Search and Filter Section */}
-            <section className="-mt-12 mb-20 relative z-20">
-                <div className="container mx-auto px-6">
-                    <div className="max-w-5xl mx-auto bg-white rounded-3xl shadow-2xl shadow-slate-900/10 border border-slate-100 p-3 md:p-4 flex flex-col md:flex-row gap-4 items-center">
+            <section className="-mt-12 mb-16 relative z-20">
+                <div className="container mx-auto px-6 max-w-5xl">
+                    <div className="bg-white rounded-2xl border border-slate-200 p-2 md:p-3 flex flex-col md:flex-row gap-3 items-center group focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/10 transition-all">
                         <div className="relative flex-grow w-full">
-                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5 group-focus-within:text-blue-500 transition-colors" />
                             <input
                                 type="text"
-                                placeholder="Buscar por nome ou tecnologia..."
+                                placeholder="Buscar por nome ou área de pesquisa..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-16 pr-6 py-5 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-900 font-bold placeholder:text-slate-300"
+                                className="w-full pl-14 pr-6 py-4 bg-transparent border-none rounded-xl outline-none text-slate-800 text-lg font-medium placeholder:text-slate-400"
                             />
                         </div>
-                        <div className="relative w-full md:w-auto min-w-[200px]">
-                            <Filter className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-white z-10 pointer-events-none" />
-                            <select
+                        <div className="relative w-full md:w-[260px]">
+                            <Dropdown
                                 value={selectedArea}
-                                onChange={(e) => setSelectedArea(e.target.value)}
-                                className="w-full pl-14 pr-10 py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all outline-none appearance-none cursor-pointer shadow-lg shadow-slate-900/20"
-                            >
-                                <option value="Todas">TODAS AS ÁREAS</option>
-                                {allAreas.map(area => (
-                                    <option key={area} value={area} className="bg-white text-slate-900 font-bold uppercase">{area.toUpperCase()}</option>
-                                ))}
-                            </select>
+                                onChange={setSelectedArea}
+                                options={[
+                                    { label: 'Todas as Áreas', value: 'Todas' },
+                                    ...allAreas.map(area => ({ label: area, value: area }))
+                                ]}
+                                icon={<Filter className="w-4 h-4" />}
+                            />
                         </div>
                     </div>
                 </div>
@@ -174,15 +182,15 @@ const Membros = () => {
                                         </div>
                                         <div className="flex-grow h-px bg-gradient-to-r from-gray-200 to-transparent"></div>
                                     </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                                         {[1, 2, 3, 4].map(i => (
-                                            <div key={`skeleton-card-${i}`} className="bg-white rounded-2xl p-6 border border-gray-100 flex flex-col items-center text-center animate-pulse">
-                                                <div className="w-28 h-28 rounded-full bg-gray-200 mb-6"></div>
-                                                <div className="h-5 w-3/4 bg-gray-200 rounded mb-2"></div>
-                                                <div className="h-4 w-1/2 bg-gray-100 rounded mb-6"></div>
-                                                <div className="flex gap-4 w-full justify-center pt-6 border-t border-gray-50">
-                                                    <div className="w-5 h-5 rounded-full bg-gray-200"></div>
-                                                    <div className="w-5 h-5 rounded-full bg-gray-200"></div>
+                                            <div key={`skeleton-card-${i}`} className="bg-white rounded-2xl p-6 border border-slate-200 flex flex-col items-center text-center animate-pulse">
+                                                <div className="w-24 h-24 rounded-full bg-slate-200 mb-5"></div>
+                                                <div className="h-5 w-3/4 bg-slate-200 rounded mb-2"></div>
+                                                <div className="h-4 w-1/2 bg-slate-100 rounded mb-5"></div>
+                                                <div className="flex gap-4 w-full justify-center pt-5 border-t border-slate-100">
+                                                    <div className="w-5 h-5 rounded-full bg-slate-200"></div>
+                                                    <div className="w-5 h-5 rounded-full bg-slate-200"></div>
                                                 </div>
                                             </div>
                                         ))}
@@ -229,14 +237,14 @@ const Membros = () => {
                                                     key={member.id}
                                                     initial={{ opacity: 0, y: 20 }}
                                                     whileInView={{ opacity: 1, y: 0 }}
-                                                    viewport={{ once: true }}
+                                                    viewport={{ once: true, margin: "-50px" }}
                                                     transition={{ delay: idx * 0.05 }}
-                                                    className="group relative bg-white rounded-2xl p-6 border border-gray-100 hover:border-blue-200 transition-all duration-300 flex flex-col items-center text-center shadow-sm hover:shadow-md"
+                                                    className="group relative bg-white rounded-2xl p-6 border border-slate-200 hover:border-blue-300 hover:bg-slate-50/50 transition-all duration-300 flex flex-col items-center text-center"
                                                 >
                                                     {/* Profile Photo Area */}
-                                                    <div className="relative mb-6">
-                                                        <div className="w-28 h-28 rounded-full p-1 bg-white border border-gray-100 group-hover:border-blue-100 transition-colors duration-300">
-                                                            <div className="w-full h-full rounded-full overflow-hidden bg-gray-50 flex items-center justify-center">
+                                                    <div className="relative mb-5">
+                                                        <div className="w-24 h-24 rounded-full p-1 bg-white border border-slate-200 group-hover:border-blue-200 transition-colors duration-300">
+                                                            <div className="w-full h-full rounded-full overflow-hidden bg-slate-50 flex items-center justify-center">
                                                                 {member.foto_url ? (
                                                                     <img 
                                                                         src={member.foto_url} 
@@ -252,7 +260,7 @@ const Membros = () => {
                                                                         style={{ objectPosition: member.foto_posicao || 'center center' }}
                                                                     />
                                                                 ) : (
-                                                                    <div className={`w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold text-2xl`}>
+                                                                    <div className={`w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 font-bold text-2xl`}>
                                                                         {member.nome.substring(0, 2).toUpperCase()}
                                                                     </div>
                                                                 )}
@@ -261,22 +269,22 @@ const Membros = () => {
                                                     </div>
 
                                                     {/* Details */}
-                                                    <div className="w-full space-y-2">
-                                                        <h3 className="text-xl font-bold text-gray-900 leading-tight">
+                                                    <div className="w-full space-y-1.5 flex-grow">
+                                                        <h3 className="text-lg font-bold text-slate-900 leading-tight">
                                                             {member.nome}
                                                         </h3>
-                                                        <p className="text-gray-500 text-sm font-medium">
+                                                        <p className="text-slate-600 text-sm font-medium">
                                                             {member.area_pesquisa || member.cargo}
                                                         </p>
                                                         {member.curso && (
-                                                            <p className="text-gray-400 text-sm italic font-medium">
-                                                                {member.curso}
+                                                            <p className="text-slate-500 text-xs font-semibold">
+                                                                {toTitleCase(member.curso)}
                                                             </p>
                                                         )}
                                                     </div>
 
                                                     {/* Action/Social Footer */}
-                                                    <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-gray-50 w-full">
+                                                    <div className="flex items-center justify-center gap-4 mt-5 pt-5 border-t border-slate-100 w-full">
                                                         {member.lattes_url && (
                                                             <a href={member.lattes_url} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 transition-colors" title="Currículo Lattes">
                                                                 <LattesIcon className="w-5 h-5" />
@@ -312,15 +320,13 @@ const Membros = () => {
                                     (selectedArea === 'Todas' || m.area_pesquisa === selectedArea)
                                 ).length === 0
                             ) && (
-                                    <div className="text-center py-20">
-                                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                                            <Search className="w-10 h-10 text-gray-400" />
-                                        </div>
-                                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Nenhum pesquisador encontrado</h3>
-                                        <p className="text-gray-500">Tente ajustar seus termos de busca ou filtros.</p>
+                                    <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+                                        <Search className="w-16 h-16 text-slate-300 mx-auto mb-6" />
+                                        <h3 className="text-2xl font-bold text-slate-900 mb-2">Nenhum pesquisador encontrado</h3>
+                                        <p className="text-slate-500">Tente ajustar seus termos de busca ou filtros.</p>
                                         <button
                                             onClick={() => { setSearchTerm(''); setSelectedArea('Todas'); }}
-                                            className="mt-6 px-6 py-2 bg-blue-50 text-blue-600 font-semibold rounded-lg hover:bg-blue-100 transition"
+                                            className="mt-6 px-6 py-2.5 bg-blue-50 text-blue-600 font-bold rounded-xl hover:bg-blue-100 transition-colors"
                                         >
                                             Limpar Filtros
                                         </button>

@@ -10,7 +10,7 @@ interface SEOProps {
 
 const SEO = ({ 
     title = 'GSIPP - Grupo de Segurança da Informação e Preservação da Privacidade', 
-    description = 'Grupo de Excelência em Pesquisa da UFC especializado em segurança cibernética, criptografia, privacidade de dados e IoT.',
+    description = 'Grupo de Pesquisa da UFC especializado em segurança cibernética, criptografia, privacidade de dados e IoT.',
     type = 'website',
     image = 'https://gsipp.github.io/og-image.jpg', // Placeholder, update later
     schema 
