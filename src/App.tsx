@@ -12,6 +12,7 @@ import Publicacoes from './pages/Publicacoes';
 import Eventos from './pages/Eventos';
 import Editais from './pages/Editais';
 import NoticiaDetalhe from './pages/NoticiaDetalhe';
+import MembroPerfil from './pages/MembroPerfil';
 import NotFound from './pages/NotFound';
 import { Loader2 } from 'lucide-react';
 
@@ -53,6 +54,7 @@ function App() {
                                     <Route element={<Layout><Eventos /></Layout>} path="/eventos" />
                                     <Route element={<Layout><Editais /></Layout>} path="/editais" />
                                     <Route element={<Layout><NoticiaDetalhe /></Layout>} path="/noticias/:slug" />
+                                    <Route element={<Layout><MembroPerfil /></Layout>} path="/membros/:id" />
 
                                     {/* Admin Routes */}
                                     <Route path="/gestao-gsipp/login" element={<Login />} />

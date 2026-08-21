@@ -242,46 +242,53 @@ const Membros = () => {
                                                     className="group relative bg-white rounded-2xl p-6 border border-slate-200 hover:border-blue-300 hover:bg-slate-50/50 transition-all duration-300 flex flex-col items-center text-center"
                                                 >
                                                     {/* Profile Photo Area */}
-                                                    <div className="relative mb-5">
-                                                        <div className="w-24 h-24 rounded-full p-1 bg-white border border-slate-200 group-hover:border-blue-200 transition-colors duration-300">
-                                                            <div className="w-full h-full rounded-full overflow-hidden bg-slate-50 flex items-center justify-center">
-                                                                {member.foto_url ? (
-                                                                    <img 
-                                                                        src={member.foto_url} 
-                                                                        alt={member.nome} 
-                                                                        className="w-full h-full object-cover" 
-                                                                        style={{ objectPosition: member.foto_posicao || 'center center' }}
-                                                                    />
-                                                                ) : getLattesPhotoUrl(member) ? (
-                                                                    <img 
-                                                                        src={getLattesPhotoUrl(member)!} 
-                                                                        alt={member.nome} 
-                                                                        className="w-full h-full object-cover" 
-                                                                        style={{ objectPosition: member.foto_posicao || 'center center' }}
-                                                                    />
-                                                                ) : (
-                                                                    <div className={`w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 font-bold text-2xl`}>
-                                                                        {member.nome.substring(0, 2).toUpperCase()}
-                                                                    </div>
-                                                                )}
+                                                    <Link to={`/membros/${member.id}`} className="flex flex-col items-center w-full group/link">
+                                                        <div className="relative mb-5">
+                                                            <div className="w-24 h-24 rounded-full p-1 bg-white border border-slate-200 group-hover:border-blue-200 transition-colors duration-300">
+                                                                <div className="w-full h-full rounded-full overflow-hidden bg-slate-50 flex items-center justify-center">
+                                                                    {member.foto_url ? (
+                                                                        <img 
+                                                                            src={member.foto_url} 
+                                                                            alt={member.nome} 
+                                                                            className="w-full h-full object-cover group-hover/link:scale-110 transition-transform duration-500" 
+                                                                            style={{ objectPosition: member.foto_posicao || 'center center' }}
+                                                                        />
+                                                                    ) : getLattesPhotoUrl(member) ? (
+                                                                        <img 
+                                                                            src={getLattesPhotoUrl(member)!} 
+                                                                            alt={member.nome} 
+                                                                            className="w-full h-full object-cover group-hover/link:scale-110 transition-transform duration-500" 
+                                                                            style={{ objectPosition: member.foto_posicao || 'center center' }}
+                                                                        />
+                                                                    ) : (
+                                                                        <div className={`w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 font-bold text-2xl`}>
+                                                                            {member.nome.substring(0, 2).toUpperCase()}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                    {/* Details */}
-                                                    <div className="w-full space-y-1.5 flex-grow">
-                                                        <h3 className="text-lg font-bold text-slate-900 leading-tight">
-                                                            {member.nome}
-                                                        </h3>
-                                                        <p className="text-slate-600 text-sm font-medium">
-                                                            {member.area_pesquisa || member.cargo}
-                                                        </p>
-                                                        {member.curso && (
-                                                            <p className="text-slate-500 text-xs font-semibold">
-                                                                {toTitleCase(member.curso)}
+                                                        {/* Details */}
+                                                        <div className="w-full space-y-1.5 flex-grow">
+                                                            <h3 className="text-lg font-bold text-slate-900 leading-tight group-hover/link:text-blue-600 transition-colors">
+                                                                {member.nome}
+                                                            </h3>
+                                                            <p className="text-slate-600 text-sm font-medium">
+                                                                {member.area_pesquisa || member.cargo}
                                                             </p>
-                                                        )}
-                                                    </div>
+                                                            {member.curso && (
+                                                                <p className="text-slate-500 text-xs font-semibold">
+                                                                    {toTitleCase(member.curso)}
+                                                                </p>
+                                                            )}
+                                                            <div className="pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <span className="text-xs font-bold text-blue-600 flex items-center justify-center gap-1">
+                                                                    Ver Perfil <ArrowRight className="w-3 h-3" />
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </Link>
 
                                                     {/* Action/Social Footer */}
                                                     <div className="flex items-center justify-center gap-4 mt-5 pt-5 border-t border-slate-100 w-full">
