@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { translateAuthError } from '../../utils/authErrors';
 import { Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 const ResetPassword = () => {
     const [password, setPassword] = useState('');
@@ -58,78 +57,69 @@ const ResetPassword = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative overflow-hidden"
-            >
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-cyan-500"></div>
-
-                <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600">
-                        <Lock className="w-8 h-8" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-900">Criar Nova Senha</h2>
-                    <p className="text-gray-500 mt-2 text-sm">Digite a sua nova senha de acesso abaixo.</p>
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 selection:bg-slate-200 selection:text-slate-900">
+            <div className="w-full max-w-[400px]">
+                <div className="flex flex-col items-center mb-8">
+                    <Lock className="w-8 h-8 text-slate-900 mb-4" />
+                    <h2 className="text-xl font-semibold text-slate-900 tracking-tight">Criar Nova Senha</h2>
+                    <p className="text-sm text-slate-500 mt-1 text-center">Digite sua nova senha de acesso abaixo</p>
                 </div>
 
-                {error && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm">
-                        <AlertCircle className="w-5 h-5 shrink-0" />
-                        {error}
-                    </div>
-                )}
+                <div className="bg-white rounded-lg border border-slate-200 p-6 sm:p-8">
+                    {error && (
+                        <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-md flex items-center gap-2.5 text-red-600 text-sm">
+                            <AlertCircle className="w-4 h-4 shrink-0" />
+                            {error}
+                        </div>
+                    )}
 
-                {success && (
-                    <div className="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center gap-3 text-emerald-700 text-sm">
-                        <CheckCircle2 className="w-5 h-5 shrink-0" />
-                        <p>Senha atualizada com sucesso! Redirecionando...</p>
-                    </div>
-                )}
+                    {success && (
+                        <div className="mb-6 p-3 bg-emerald-50 border border-emerald-100 rounded-md flex items-start gap-2.5 text-emerald-700 text-sm">
+                            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="font-semibold mb-0.5">Senha atualizada!</p>
+                                <p>Redirecionando você para o painel...</p>
+                            </div>
+                        </div>
+                    )}
 
-                <form onSubmit={handleUpdate} className="space-y-5">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Nova Senha</label>
-                        <div className="relative">
+                    <form onSubmit={handleUpdate} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Nova Senha</label>
                             <input
                                 type="password"
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none pl-10"
+                                className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm"
                                 placeholder="••••••••"
                                 disabled={success || error === 'Link de recuperação inválido ou expirado. Por favor, solicite um novo link.'}
                             />
-                            <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                         </div>
-                    </div>
-                    
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Confirmar Nova Senha</label>
-                        <div className="relative">
+                        
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Confirmar Nova Senha</label>
                             <input
                                 type="password"
                                 required
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none pl-10"
+                                className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm"
                                 placeholder="••••••••"
                                 disabled={success || error === 'Link de recuperação inválido ou expirado. Por favor, solicite um novo link.'}
                             />
-                            <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                         </div>
-                    </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading || success || error === 'Link de recuperação inválido ou expirado. Por favor, solicite um novo link.'}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {loading ? 'Salvando...' : 'Atualizar Senha'}
-                    </button>
-                </form>
-            </motion.div>
+                        <button
+                            type="submit"
+                            disabled={loading || success || error === 'Link de recuperação inválido ou expirado. Por favor, solicite um novo link.'}
+                            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 rounded-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed mt-2 sm:text-sm"
+                        >
+                            {loading ? 'Salvando...' : 'Atualizar Senha'}
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     );
 };

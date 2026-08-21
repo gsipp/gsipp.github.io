@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { translateAuthError } from '../../utils/authErrors';
-
-import { Shield, Lock, AlertCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Shield, AlertCircle } from 'lucide-react';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -32,76 +30,67 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative overflow-hidden"
-            >
-                <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-cyan-500"></div>
-
-                <div className="text-center mb-8">
-                    <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-600">
-                        <Shield className="w-8 h-8" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-900">Acesso Restrito</h2>
-                    <p className="text-gray-500">GSIPP Admin Panel</p>
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 selection:bg-slate-200 selection:text-slate-900">
+            <div className="w-full max-w-[400px]">
+                <div className="flex flex-col items-center mb-8">
+                    <Shield className="w-8 h-8 text-slate-900 mb-4" />
+                    <h2 className="text-xl font-semibold text-slate-900 tracking-tight">Entrar no painel</h2>
+                    <p className="text-sm text-slate-500 mt-1">Gestão do Grupo GSIPP</p>
                 </div>
 
-                {error && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm">
-                        <AlertCircle className="w-5 h-5 shrink-0" />
-                        {error}
-                    </div>
-                )}
+                <div className="bg-white rounded-lg border border-slate-200 p-6 sm:p-8">
+                    {error && (
+                        <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-md flex items-center gap-2.5 text-red-600 text-sm">
+                            <AlertCircle className="w-4 h-4 shrink-0" />
+                            {error}
+                        </div>
+                    )}
 
-                <form onSubmit={handleLogin} className="space-y-5">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                        <input
-                            type="email"
-                            required
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none"
-                            placeholder="admin@gsipp.ufc.br"
-                        />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Senha</label>
-                        <div className="relative">
+                    <form onSubmit={handleLogin} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+                            <input
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm"
+                                placeholder="nome@exemplo.com"
+                            />
+                        </div>
+                        <div>
+                            <div className="flex justify-between items-center mb-1.5">
+                                <label className="block text-sm font-medium text-slate-700">Senha</label>
+                                <Link to="/gestao-gsipp/recuperar-senha" className="text-xs text-slate-500 hover:text-slate-900 transition-colors">
+                                    Esqueceu a senha?
+                                </Link>
+                            </div>
                             <input
                                 type="password"
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all outline-none pl-10"
+                                className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm"
                                 placeholder="••••••••"
                             />
-                            <Lock className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                         </div>
-                        <div className="flex justify-end mt-2">
-                            <Link to="/gestao-gsipp/recuperar-senha" className="text-sm text-blue-600 hover:text-blue-700 transition-colors">
-                                Esqueceu a senha?
-                            </Link>
-                        </div>
-                    </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 disabled:opacity-70 disabled:cursor-not-allowed"
-                    >
-                        {loading ? 'Autenticando...' : 'Entrar no Painel'}
-                    </button>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 rounded-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed mt-2 sm:text-sm"
+                        >
+                            {loading ? 'Autenticando...' : 'Entrar'}
+                        </button>
+                    </form>
+                </div>
 
-                    <div className="text-center">
-                        <a href="/" className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
-                            ← Voltar para o site
-                        </a>
-                    </div>
-                </form>
-            </motion.div>
+                <div className="text-center mt-6">
+                    <a href="/" className="text-sm text-slate-500 hover:text-slate-900 transition-colors">
+                        ← Voltar para o site principal
+                    </a>
+                </div>
+            </div>
         </div>
     );
 };
