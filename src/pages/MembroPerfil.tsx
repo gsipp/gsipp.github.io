@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { motion } from 'framer-motion';
-import { Mail, ChevronLeft, ExternalLink, FileDown, UserCheck, CheckCircle2, BookText } from 'lucide-react';
+import { Mail, ChevronLeft, ExternalLink, FileDown, UserCheck, CheckCircle2, BookText, Users } from 'lucide-react';
 import { LinkedinIcon } from '../components/BrandIcons';
 import SEO from '../components/SEO';
 import {
