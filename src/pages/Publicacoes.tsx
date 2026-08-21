@@ -73,6 +73,12 @@ const getExternalLinkText = (tipo: string) => {
     return "Acessar DOI Oficial";
 };
 
+const getExternalButtonLabel = (tipo: string) => {
+    const t = tipo?.toLowerCase() || '';
+    if (t.includes('tcc') || t.includes('tese') || t.includes('dissertação')) return "Link";
+    return "DOI";
+};
+
 const getPdfText = (tipo: string) => {
     const t = tipo?.toLowerCase() || '';
     if (t.includes('tcc')) return "Visualizar TCC";
@@ -306,7 +312,7 @@ const Publicacoes = () => {
                                                                 title={getExternalLinkText(pub.tipo)}
                                                             >
                                                                 <ExternalLink className="w-4 h-4" />
-                                                                <span className="hidden sm:inline">DOI</span>
+                                                                <span className="hidden sm:inline">{getExternalButtonLabel(pub.tipo)}</span>
                                                             </a>
                                                         )}
                                                         {pub.link_pdf && (

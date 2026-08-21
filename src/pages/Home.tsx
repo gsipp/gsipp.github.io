@@ -210,7 +210,7 @@ const Home = () => {
                 <div className="container mx-auto px-6">
                     <div className="flex flex-col lg:flex-row items-center gap-16">
                         <motion.div
-                            className="lg:w-1/2"
+                            className="w-full lg:w-1/2"
                             initial={{ opacity: 0, x: -50 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
@@ -234,29 +234,29 @@ const Home = () => {
                             </div>
                         </motion.div>
                         <motion.div
-                            className="lg:w-1/2 grid grid-cols-2 gap-4"
+                            className="w-full lg:w-1/2 grid grid-cols-2 gap-4 md:gap-6"
                             initial={{ opacity: 0, x: 50 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8 }}
                         >
-                            <div className="space-y-4 mt-8">
-                                <div className="bg-slate-50 border border-slate-200 h-48 rounded-2xl w-full transform rotate-3 flex items-center justify-center overflow-hidden relative shadow-sm">
-                                    <Shield className="w-16 h-16 text-slate-400" />
+                            <div className="space-y-4 md:space-y-6 mt-4 md:mt-8">
+                                <div className="bg-slate-50 border border-slate-200 h-32 md:h-48 rounded-2xl w-full transform rotate-3 flex items-center justify-center overflow-hidden relative shadow-sm">
+                                    <Shield className="w-10 h-10 md:w-16 md:h-16 text-slate-400" />
                                     <div className="absolute inset-0 bg-gradient-to-br from-slate-100/50 to-transparent"></div>
                                 </div>
-                                <div className="bg-slate-900 h-64 rounded-2xl w-full shadow-xl flex items-center justify-center relative overflow-hidden border border-slate-800">
-                                    <Lock className="w-16 h-16 text-slate-600" />
+                                <div className="bg-slate-900 h-40 md:h-64 rounded-2xl w-full shadow-xl flex items-center justify-center relative overflow-hidden border border-slate-800">
+                                    <Lock className="w-10 h-10 md:w-16 md:h-16 text-slate-600" />
                                     <div className="absolute inset-0 bg-gradient-to-tl from-slate-800/50 to-transparent"></div>
                                 </div>
                             </div>
-                            <div className="space-y-4">
-                                <div className="bg-white border border-slate-200 h-64 rounded-2xl w-full flex items-center justify-center shadow-sm relative overflow-hidden">
-                                    <Fingerprint className="w-16 h-16 text-slate-300" />
+                            <div className="space-y-4 md:space-y-6">
+                                <div className="bg-white border border-slate-200 h-40 md:h-64 rounded-2xl w-full flex items-center justify-center shadow-sm relative overflow-hidden">
+                                    <Fingerprint className="w-10 h-10 md:w-16 md:h-16 text-slate-300" />
                                     <div className="absolute inset-0 bg-gradient-to-br from-slate-50 to-transparent"></div>
                                 </div>
-                                <div className="bg-slate-800 h-48 rounded-2xl w-full flex items-center justify-center shadow-lg relative overflow-hidden border border-slate-700">
-                                    <Eye className="w-16 h-16 text-slate-500" />
+                                <div className="bg-slate-800 h-32 md:h-48 rounded-2xl w-full flex items-center justify-center shadow-lg relative overflow-hidden border border-slate-700">
+                                    <Eye className="w-10 h-10 md:w-16 md:h-16 text-slate-500" />
                                     <div className="absolute inset-0 bg-gradient-to-tr from-slate-700/30 to-transparent"></div>
                                 </div>
                             </div>
