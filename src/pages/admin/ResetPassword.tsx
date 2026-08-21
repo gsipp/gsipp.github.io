@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { translateAuthError } from '../../utils/authErrors';
-import { Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Lock, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 const ResetPassword = () => {
     const [password, setPassword] = useState('');
@@ -11,6 +11,9 @@ const ResetPassword = () => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
+
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     // The user should have an active session if they arrived here from the recovery link
     useEffect(() => {
@@ -86,28 +89,46 @@ const ResetPassword = () => {
                     <form onSubmit={handleUpdate} className="space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">Nova Senha</label>
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm"
-                                placeholder="••••••••"
-                                disabled={success || error === 'Link de recuperação inválido ou expirado. Por favor, solicite um novo link.'}
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm pr-10"
+                                    placeholder="••••••••"
+                                    disabled={success || error === 'Link de recuperação inválido ou expirado. Por favor, solicite um novo link.'}
+                                />
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
                         </div>
                         
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">Confirmar Nova Senha</label>
-                            <input
-                                type="password"
-                                required
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm"
-                                placeholder="••••••••"
-                                disabled={success || error === 'Link de recuperação inválido ou expirado. Por favor, solicite um novo link.'}
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    required
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm pr-10"
+                                    placeholder="••••••••"
+                                    disabled={success || error === 'Link de recuperação inválido ou expirado. Por favor, solicite um novo link.'}
+                                />
+                                <button 
+                                    type="button" 
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none transition-colors"
+                                >
+                                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                </button>
+                            </div>
                         </div>
 
                         <button
