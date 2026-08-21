@@ -71,7 +71,7 @@ const ForgotPassword = () => {
                         <button
                             type="submit"
                             disabled={loading || success}
-                            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 rounded-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed mt-2 sm:text-sm"
+                            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 rounded-md transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-2 sm:text-sm"
                         >
                             {loading ? 'Enviando...' : 'Enviar Link de Recuperação'}
                         </button>

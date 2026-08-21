@@ -11,8 +11,8 @@ const Login = () => {
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleLogin = async (e?: React.FormEvent | React.KeyboardEvent) => {
+        if (e) e.preventDefault();
         setLoading(true);
         setError('');
 
@@ -54,6 +54,7 @@ const Login = () => {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleLogin(e)}
                                 className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm"
                                 placeholder="nome@exemplo.com"
                             />
@@ -70,6 +71,7 @@ const Login = () => {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleLogin(e)}
                                 className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm"
                                 placeholder="••••••••"
                             />
@@ -78,7 +80,7 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 rounded-md transition-colors disabled:opacity-70 disabled:cursor-not-allowed mt-2 sm:text-sm"
+                            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 rounded-md transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-2 sm:text-sm"
                         >
                             {loading ? 'Autenticando...' : 'Entrar'}
                         </button>
