@@ -1,33 +1,36 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, FileText, CheckCircle, Mail, Clock, Search, Users } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, FileText, Clock, Search, Users } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 import { generateDeclarationHTML } from '../../utils/DeclarationTemplate';
+
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 // Types
 interface Member {
     id: string;
     nome: string;
     cargo: string;
-    area_pesquisa: string;
-    lattes_url: string;
-    lattes_id: string;
-    linkedin_url: string;
-    foto_url: string;
+    area_pesquisa: string | null;
+    lattes_url: string | null;
+    lattes_id: string | null;
+    linkedin_url: string | null;
+    foto_url: string | null;
     ordem: number;
-    cpf?: string;
-    email?: string;
-    carga_horaria?: string;
-    data_entrada?: string;
-    data_saida?: string;
-    matricula?: string;
-    curso?: string;
-    orientador?: string;
-    total_horas?: string;
-    researchgate_url?: string;
-    foto_posicao?: string;
+    cpf?: string | null;
+    email?: string | null;
+    carga_horaria?: string | null;
+    data_entrada?: string | null;
+    data_saida?: string | null;
+    matricula?: string | null;
+    curso?: string | null;
+    orientador?: string | null;
+    total_horas?: string | null;
+    researchgate_url?: string | null;
+    foto_posicao?: string | null;
 }
 
 const getLattesPhotoUrl = (member: Member): string | null => {
@@ -40,22 +43,49 @@ const getLattesPhotoUrl = (member: Member): string | null => {
         return `https://servicosweb.cnpq.br/wspessoa/servletrecuperafoto?tipo=1&id=${match[1]}`;
     }
     return null;
-};
+}
+
+const memberSchema = z.object({
+    nome: z.string().min(3, "Nome completo é obrigatório"),
+    cargo: z.string().min(1, "Cargo é obrigatório"),
+    area_pesquisa: z.string().optional().nullable(),
+    lattes_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+    lattes_id: z.string().optional().nullable(),
+    linkedin_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+    researchgate_url: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+    ordem: z.coerce.number().default(0),
+    cpf: z.string().optional().nullable(),
+    email: z.string().email("E-mail inválido").optional().or(z.literal('')).nullable(),
+    carga_horaria: z.string().optional().nullable(),
+    data_entrada: z.string().optional().nullable(),
+    data_saida: z.string().optional().nullable(),
+    matricula: z.string().optional().nullable(),
+    curso: z.string().optional().nullable(),
+    orientador: z.string().optional().nullable(),
+    total_horas: z.string().optional().nullable(),
+    foto_posicao: z.string().optional().nullable()
+});
+
+
 
 const Members = () => {
     const [members, setMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingMember, setEditingMember] = useState<Member | null>(null);
-    const [formData, setFormData] = useState<Partial<Member>>({});
-    const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [fotoUrl, setFotoUrl] = useState<string | null>(null);
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
     const toast = useToast();
 
-    // Fetch members
+    const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm({
+        resolver: zodResolver(memberSchema),
+        defaultValues: { ordem: 0, foto_posicao: 'center center' }
+    });
+
     const fetchMembers = async () => {
+        setLoading(true);
         const { data, error } = await supabase
             .from('membros')
             .select('*')
@@ -68,108 +98,72 @@ const Members = () => {
     };
 
     useEffect(() => {
-        // eslint-disable-next-line
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchMembers();
     }, []);
 
     const filteredMembers = members.filter(m => 
         m.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        m.cargo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (m.area_pesquisa?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+        m.cargo.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Handle Delete
     const handleDelete = async (id: string) => {
         const { error } = await supabase.from('membros').delete().eq('id', id);
         if (error) {
-            toast.error('Erro ao excluir membro: ' + error.message);
+            toast.error('Erro ao excluir membro: ' + (error as Error).message);
         } else {
             setMembers(members.filter(m => m.id !== id));
             toast.success('Membro removido com sucesso.');
         }
     };
 
-    // Handle Form Submit
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!formData.nome || !formData.nome.trim()) {
-            toast.error("Por favor, preencha o Nome Completo.");
-            return;
-        }
-
-        if (!formData.cargo || !formData.cargo.trim()) {
-            toast.error("Por favor, selecione o Cargo.");
-            return;
-        }
-
-        setSaving(true);
-
+    const onSubmit = async (data: Record<string, unknown>) => {
         const payload = {
-            nome: formData.nome,
-            cargo: formData.cargo,
-            area_pesquisa: formData.area_pesquisa || null,
-            lattes_url: formData.lattes_url || null,
-            lattes_id: formData.lattes_id || null,
-            linkedin_url: formData.linkedin_url || null,
-            foto_url: formData.foto_url || null,
-            ordem: formData.ordem || 0,
-            cpf: formData.cpf || null,
-            email: formData.email || null,
-            carga_horaria: formData.carga_horaria || null,
-            data_entrada: formData.data_entrada || null,
-            data_saida: formData.data_saida || null,
-            matricula: formData.matricula || null,
-            curso: formData.curso || null,
-            orientador: formData.orientador || null,
-            total_horas: formData.total_horas || null,
-            researchgate_url: formData.researchgate_url || null,
-            foto_posicao: formData.foto_posicao || 'center'
+            ...data,
+            foto_url: fotoUrl,
+            // Convert empty strings to null for optional fields to avoid db constraint issues if any
+            email: data.email || null,
+            lattes_url: data.lattes_url || null,
+            linkedin_url: data.linkedin_url || null,
+            researchgate_url: data.researchgate_url || null,
         };
 
         if (editingMember) {
-            const { error } = await supabase
-                .from('membros')
-                .update(payload)
-                .eq('id', editingMember.id);
-
-            if (error) toast.error('Erro ao atualizar: ' + error.message);
-            else toast.success('Membro atualizado com sucesso.');
-        } else {
-            const { error } = await supabase
-                .from('membros')
-                .insert([payload]);
-
-            if (error) toast.error('Erro ao criar membro: ' + error.message);
-            else toast.success('Membro adicionado com sucesso.');
-        }
-
-        setSaving(false);
-        setIsModalOpen(false);
-        setEditingMember(null);
-        setFormData({});
+            const { error } = await supabase.from('membros').update(payload).eq('id', editingMember.id);
+            if (error) toast.error('Erro ao atualizar: ' + (error as Error).message);
+            else {
+                toast.success('Membro atualizado com sucesso.');
+                // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchMembers();
+                closeModal();
+            }
+        } else {
+            const { error } = await supabase.from('membros').insert([payload]);
+            if (error) toast.error('Erro ao criar membro: ' + (error as Error).message);
+            else {
+                toast.success('Membro adicionado com sucesso.');
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchMembers();
+                closeModal();
+            }
+        }
     };
 
-    // Handle Image Upload
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) return;
-
         const file = e.target.files[0];
         const fileExt = file.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `members/${fileName}`;
 
         setUploading(true);
-        const { error: uploadError } = await supabase.storage
-            .from('images')
-            .upload(filePath, file);
+        const { error: uploadError } = await supabase.storage.from('images').upload(filePath, file);
 
         if (uploadError) {
             toast.error('Erro no upload da imagem: ' + uploadError.message);
         } else {
             const { data } = supabase.storage.from('images').getPublicUrl(filePath);
-            setFormData({ ...formData, foto_url: data.publicUrl });
+            setFotoUrl(data.publicUrl);
         }
         setUploading(false);
     };
@@ -177,356 +171,270 @@ const Members = () => {
     const openModal = (member?: Member) => {
         if (member) {
             setEditingMember(member);
-            setFormData(member);
+            setFotoUrl(member.foto_url);
+            reset({
+                nome: member.nome,
+                cargo: member.cargo,
+                area_pesquisa: member.area_pesquisa,
+                lattes_url: member.lattes_url,
+                lattes_id: member.lattes_id,
+                linkedin_url: member.linkedin_url,
+                researchgate_url: member.researchgate_url,
+                ordem: member.ordem,
+                cpf: member.cpf,
+                email: member.email,
+                carga_horaria: member.carga_horaria,
+                data_entrada: member.data_entrada,
+                data_saida: member.data_saida,
+                matricula: member.matricula,
+                curso: member.curso,
+                orientador: member.orientador,
+                total_horas: member.total_horas,
+                foto_posicao: member.foto_posicao || 'center center'
+            });
         } else {
             setEditingMember(null);
-            setFormData({});
+            setFotoUrl(null);
+            reset({
+                nome: '', cargo: '', area_pesquisa: '', ordem: 0, foto_posicao: 'center center'
+            });
         }
         setIsModalOpen(true);
     };
 
-    const generateDeclaration = async (member: Member) => {
-        const { data: configData } = await supabase
-            .from('configuracoes')
-            .select('*');
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setEditingMember(null);
+        setFotoUrl(null);
+        reset();
+    };
 
+    const generateDeclaration = async (member: Member) => {
+        const { data: configData } = await supabase.from('configuracoes').select('*');
         const settings: Record<string, string> = {};
-        configData?.forEach(item => {
-            settings[item.id] = item.valor;
-        });
+        configData?.forEach(item => { settings[item.id] = item.valor; });
 
         const printWindow = window.open('', '_blank');
         if (!printWindow) return alert('Por favor, permita popups para gerar a declaração.');
 
         const htmlContent = generateDeclarationHTML(member, settings['template_declaracao'], settings);
-
         printWindow.document.write(htmlContent);
         printWindow.document.close();
     };
-    const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        let v = e.target.value.replace(/\D/g, "");
-        if (v.length > 11) v = v.substring(0, 11);
-        v = v.replace(/(\d{3})(\d)/, "$1.$2");
-        v = v.replace(/(\d{3})(\d)/, "$1.$2");
-        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-        setFormData({ ...formData, cpf: v });
-    };
 
     return (
-        <div>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div className="space-y-6">
+            <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Corpo de Membros</h1>
-                    <p className="text-gray-500">Gestão de pesquisadores, alunos e colaboradores do GSIPP.</p>
+                    <h1 className="text-2xl font-bold text-slate-900">Membros</h1>
+                    <p className="text-sm text-slate-500 mt-1">Gestão de pesquisadores e colaboradores.</p>
                 </div>
-                <div className="flex gap-3 w-full md:w-auto">
-                    <div className="relative flex-1 md:w-64">
-                        <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+                <div className="flex w-full sm:w-auto gap-3">
+                    <div className="relative flex-1 sm:w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                             type="text"
                             placeholder="Buscar membro..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full bg-white"
+                            className="w-full pl-9 pr-4 py-2 text-sm rounded-md border border-slate-300 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all"
                         />
                     </div>
                     <button
                         onClick={() => openModal()}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-500/30 whitespace-nowrap"
+                        className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors whitespace-nowrap"
                     >
-                        <Plus className="w-5 h-5" /> <span className="hidden md:inline">Novo Membro</span>
+                        <Plus className="w-4 h-4" /> Novo Membro
                     </button>
                 </div>
-            </div>
+            </header>
 
             {loading ? (
                 <div className="flex justify-center p-12">
-                    <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                    <Loader2 className="w-8 h-8 text-slate-400 animate-spin" />
+                </div>
+            ) : filteredMembers.length === 0 ? (
+                <div className="bg-white rounded-lg border border-slate-200 p-12 text-center">
+                    <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-slate-900 mb-1">Nenhum membro encontrado</h3>
+                    <p className="text-slate-500">Adicione novos membros ou altere sua busca.</p>
                 </div>
             ) : (
-                <>
-                    {/* Desktop Table View */}
-                    <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead className="bg-slate-50/50 border-b border-slate-100">
-                                    <tr>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Membro</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Dados Internos</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {filteredMembers.map((member) => (
-                                        <tr key={member.id} className="hover:bg-slate-50/80 transition-colors group">
-                                            <td className="px-6 py-5">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="relative">
-                                                        <div className="w-12 h-12 rounded-2xl bg-gray-100 overflow-hidden border-2 border-white shadow-sm shrink-0">
-                                                            {member.foto_url ? (
-                                                                <img 
-                                                                    src={member.foto_url} 
-                                                                    alt={member.nome} 
-                                                                    className="w-full h-full object-cover" 
-                                                                    style={{ objectPosition: member.foto_posicao || 'center center' }}
-                                                                />
-                                                            ) : getLattesPhotoUrl(member) ? (
-                                                                <img 
-                                                                    src={getLattesPhotoUrl(member)!} 
-                                                                    alt={member.nome} 
-                                                                    className="w-full h-full object-cover" 
-                                                                    style={{ objectPosition: member.foto_posicao || 'center center' }}
-                                                                />
-                                                            ) : (
-                                                                <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-700 text-xs font-black">
-                                                                    {member.nome.substring(0, 2).toUpperCase()}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-lg shadow-sm flex items-center justify-center border border-gray-100">
-                                                            <span className="text-[10px] font-black text-slate-600">#{member.ordem}</span>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-bold text-gray-900 text-base">{member.nome}</div>
-                                                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded-md inline-block mt-1">
-                                                            {member.cargo}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-5">
-                                                <div className="text-sm text-gray-600 space-y-1.5">
-                                                    {member.email && (
-                                                        <div className="flex items-center gap-2 group/info">
-                                                            <Mail className="w-4 h-4 text-slate-300 group-hover/info:text-slate-500 transition-colors" />
-                                                            <span className="font-medium">{member.email}</span>
+                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm whitespace-nowrap">
+                            <thead className="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th className="px-6 py-3 font-medium text-slate-500">Membro</th>
+                                    <th className="px-6 py-3 font-medium text-slate-500">Cargo</th>
+                                    <th className="px-6 py-3 font-medium text-slate-500">Carga Horária</th>
+                                    <th className="px-6 py-3 font-medium text-slate-500 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200">
+                                {filteredMembers.map((member) => (
+                                    <tr key={member.id} className="hover:bg-slate-50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
+                                                    {member.foto_url || getLattesPhotoUrl(member) ? (
+                                                        <img 
+                                                            src={(member.foto_url || getLattesPhotoUrl(member))!} 
+                                                            alt={member.nome} 
+                                                            className="w-full h-full object-cover" 
+                                                            style={{ objectPosition: member.foto_posicao || 'center center' }}
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-slate-500 font-medium text-xs">
+                                                            {member.nome.substring(0, 2).toUpperCase()}
                                                         </div>
                                                     )}
-                                                    <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                                                        <Clock className="w-3.5 h-3.5 text-slate-400" /> 
-                                                        {member.carga_horaria ? `${member.carga_horaria}h semanais` : 'Carga horária n/d'}
-                                                    </div>
                                                 </div>
-                                            </td>
-                                            <td className="px-6 py-5 text-right">
-                                                <div className="flex items-center justify-end gap-1">
-                                                    <button
-                                                        onClick={() => generateDeclaration(member)}
-                                                        className="p-2.5 hover:bg-slate-100 text-slate-400 hover:text-slate-700 rounded-xl transition-colors"
-                                                        title="Gerar Declaração"
-                                                    >
-                                                        <FileText className="w-5 h-5" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => openModal(member)}
-                                                        className="p-2.5 hover:bg-slate-100 text-slate-400 hover:text-slate-700 rounded-xl transition-colors"
-                                                        title="Editar"
-                                                    >
-                                                        <Pencil className="w-5 h-5" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setConfirmDelete(member.id)}
-                                                        className="p-2.5 hover:bg-slate-100 text-slate-400 hover:text-red-600 rounded-xl transition-colors"
-                                                        title="Excluir"
-                                                    >
-                                                        <Trash2 className="w-5 h-5" />
-                                                    </button>
+                                                <div>
+                                                    <div className="font-medium text-slate-900">{member.nome}</div>
+                                                    <div className="text-xs text-slate-500">Ord: {member.ordem}</div>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-slate-100 text-slate-700">
+                                                {member.cargo}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-slate-500">
+                                            <div className="flex items-center gap-1.5">
+                                                <Clock className="w-3.5 h-3.5" /> 
+                                                {member.carga_horaria ? `${member.carga_horaria}h/sem` : '--'}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <button onClick={() => generateDeclaration(member)} className="text-slate-400 hover:text-slate-900 transition-colors" title="Gerar Declaração">
+                                                    <FileText className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => openModal(member)} className="text-slate-400 hover:text-slate-900 transition-colors" title="Editar">
+                                                    <Pencil className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => setConfirmDelete(member.id)} className="text-slate-400 hover:text-red-600 transition-colors" title="Excluir">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
+                </div>
+            )}
 
-                    {/* Mobile Card View */}
-                    <div className="lg:hidden space-y-4">
-                        {filteredMembers.map((member) => (
-                            <div key={member.id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 rounded-2xl bg-gray-100 overflow-hidden border border-gray-100 shrink-0">
-                                        {member.foto_url ? (
-                                            <img 
-                                                src={member.foto_url} 
-                                                alt={member.nome} 
-                                                className="w-full h-full object-cover" 
-                                                style={{ objectPosition: member.foto_posicao || 'center center' }}
-                                            />
-                                        ) : getLattesPhotoUrl(member) ? (
-                                            <img 
-                                                src={getLattesPhotoUrl(member)!} 
-                                                alt={member.nome} 
-                                                className="w-full h-full object-cover" 
-                                                style={{ objectPosition: member.foto_posicao || 'center center' }}
-                                            />
+            {/* Modal de Cadastro/Edição */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-900/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
+                        <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 shrink-0">
+                            <h3 className="font-semibold text-lg text-slate-900">
+                                {editingMember ? 'Editar Membro' : 'Novo Membro'}
+                            </h3>
+                            <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 transition-colors">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto flex-1">
+                            <form id="member-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                                {/* Imagem e Ajuste */}
+                                <div className="flex gap-6 items-start">
+                                    <div className="w-24 h-24 rounded-full border border-slate-200 bg-slate-50 flex items-center justify-center relative shrink-0 overflow-hidden">
+                                        {fotoUrl ? (
+                                            <img src={fotoUrl} alt="Preview" className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center bg-blue-100 text-blue-700 font-black">
-                                                {member.nome.substring(0, 2).toUpperCase()}
+                                            <Upload className="w-8 h-8 text-slate-300" />
+                                        )}
+                                        {uploading && (
+                                            <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                                                <Loader2 className="w-5 h-5 animate-spin text-slate-600" />
                                             </div>
                                         )}
                                     </div>
-                                    <div className="min-w-0">
-                                        <h3 className="font-bold text-slate-900 truncate">{member.nome}</h3>
-                                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded-md inline-block mt-1">
-                                            {member.cargo}
-                                        </span>
-                                    </div>
-                                </div>
-                                
-                                <div className="grid grid-cols-2 gap-2 text-[11px] font-medium text-gray-500 pt-2 border-t border-gray-50">
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] uppercase font-black text-gray-400">Email</span>
-                                        <span className="truncate">{member.email || 'N/D'}</span>
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                        <span className="text-[9px] uppercase font-black text-gray-400">Carga Horária</span>
-                                        <span>{member.carga_horaria ? `${member.carga_horaria}h/sem` : 'N/D'}</span>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between pt-2 border-t border-slate-50">
-                                    <div className="text-[10px] font-black text-slate-400 uppercase">#ORDEM {member.ordem}</div>
-                                    <div className="flex gap-2">
-                                        <button onClick={() => generateDeclaration(member)} className="p-2 bg-slate-50 text-slate-400 hover:text-slate-700 rounded-lg"><FileText className="w-4 h-4" /></button>
-                                        <button onClick={() => openModal(member)} className="p-2 bg-slate-50 text-slate-400 hover:text-slate-700 rounded-lg"><Pencil className="w-4 h-4" /></button>
-                                        <button onClick={() => setConfirmDelete(member.id)} className="p-2 bg-slate-50 text-slate-400 hover:text-red-600 rounded-lg"><Trash2 className="w-4 h-4" /></button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {filteredMembers.length === 0 && (
-                        <div className="bg-white rounded-2xl p-12 text-center border border-gray-100 lg:hidden">
-                            <Users className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                            <p className="text-gray-400 font-medium">Nenhum membro encontrado.</p>
-                        </div>
-                    )}
-                </>
-            )}
-
-            {/* Modal */}
-            <AnimatePresence>
-                {isModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-                            onClick={() => setIsModalOpen(false)}
-                        ></motion.div>
-
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.95 }}
-                            className="bg-white rounded-2xl shadow-xl w-full max-w-2xl relative z-10 overflow-hidden max-h-[90vh] overflow-y-auto"
-                        >
-                            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 sticky top-0 z-10">
-                                <h3 className="font-bold text-lg text-slate-900">
-                                    {editingMember ? 'Editar Detalhes' : 'Novo Membro'}
-                                </h3>
-                                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
-                                    <X className="w-5 h-5 text-slate-500" />
-                                </button>
-                            </div>
-
-                            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                                {/* Photo Area */}
-                                <div className="flex justify-center">
-                                    <div className="relative group w-32 h-32">
-                                        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-slate-100 bg-slate-50 flex items-center justify-center relative">
-                                            {formData.foto_url ? (
-                                                <img 
-                                                    src={formData.foto_url} 
-                                                    alt="Profile" 
-                                                    className="w-full h-full object-cover transition-all duration-300" 
-                                                    style={{ objectPosition: formData.foto_posicao || 'center center' }}
-                                                />
-                                            ) : (
-                                                <Upload className="w-10 h-10 text-slate-300" />
-                                            )}
-                                            {uploading && (
-                                                <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-20">
-                                                    <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                                                </div>
-                                            )}
+                                    <div className="space-y-3 flex-1">
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">Foto de Perfil</label>
+                                            <input type="file" accept="image/*" onChange={handleImageUpload} className="text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer" />
                                         </div>
-                                        <div className="absolute -right-12 top-0 flex flex-col gap-2">
-                                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Ajuste</label>
-                                            <select 
-                                                className="p-1.5 bg-white border border-slate-200 rounded-lg text-[10px] font-bold text-slate-700 shadow-sm outline-none focus:ring-2 focus:ring-blue-500/20"
-                                                value={formData.foto_posicao || 'center'}
-                                                onChange={e => setFormData({ ...formData, foto_posicao: e.target.value })}
-                                            >
-                                                <option value="center top">Topo</option>
-                                                <option value="center center">Centro</option>
-                                                <option value="center bottom">Baixo</option>
+                                        <div>
+                                            <label className="block text-xs font-medium text-slate-500 mb-1">Ajuste da Imagem (se Lattes não for quadrada)</label>
+                                            <select {...register('foto_posicao')} className="w-full sm:w-auto px-3 py-1.5 text-sm rounded border border-slate-300 text-slate-700 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none">
+                                                <option value="center top">Alinhar no Topo</option>
+                                                <option value="center center">Centralizar (Padrão)</option>
+                                                <option value="center bottom">Alinhar Embaixo</option>
                                             </select>
                                         </div>
-                                        <label className="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full text-white cursor-pointer hover:bg-blue-700 shadow-md transition-all z-30">
-                                            <Pencil className="w-4 h-4" />
-                                            <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                                        </label>
                                     </div>
                                 </div>
 
-                                {/* Personal Info */}
+                                <hr className="border-slate-100" />
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="col-span-2">
+                                    <div className="md:col-span-2">
                                         <label className="block text-sm font-medium text-slate-700 mb-1">Nome Completo *</label>
-                                        <input type="text" required value={formData.nome || ''} onChange={e => setFormData({ ...formData, nome: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                                        <input {...register('nome')} className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm" />
+                                        {errors.nome && <p className="text-red-500 text-xs mt-1">{errors.nome.message}</p>}
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">CPF</label>
-                                        <input type="text" value={formData.cpf || ''} onChange={handleCpfChange} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="000.000.000-00" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                                        <input type="email" value={formData.email || ''} onChange={e => setFormData({ ...formData, email: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="email@exemplo.com" />
-                                    </div>
-                                </div>
 
-                                {/* Academic Info */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">Cargo *</label>
-                                        <select className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" value={formData.cargo || ''} onChange={e => setFormData({ ...formData, cargo: e.target.value })}>
+                                        <select {...register('cargo')} className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm">
                                             <option value="">Selecione...</option>
                                             <option value="Docente">Docente</option>
                                             <option value="Mestrando">Mestrando</option>
                                             <option value="Graduação">Graduação</option>
                                             <option value="Egresso">Egresso</option>
                                         </select>
+                                        {errors.cargo && <p className="text-red-500 text-xs mt-1">{errors.cargo.message}</p>}
                                     </div>
+
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">Área de Pesquisa</label>
-                                        <input type="text" value={formData.area_pesquisa || ''} onChange={e => setFormData({ ...formData, area_pesquisa: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                                        <input {...register('area_pesquisa')} className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm" />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">CPF</label>
+                                        <input 
+                                            {...register('cpf')} 
+                                            onChange={(e) => {
+                                                let v = e.target.value.replace(/\D/g, "");
+                                                if (v.length > 11) v = v.substring(0, 11);
+                                                v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                                                v = v.replace(/(\d{3})(\d)/, "$1.$2");
+                                                v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+                                                setValue('cpf', v);
+                                            }}
+                                            placeholder="000.000.000-00" 
+                                            className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm" 
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">E-mail</label>
+                                        <input type="email" {...register('email')} className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm" />
+                                        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                                     </div>
                                 </div>
 
-                                {/* GSIPP Data */}
-                                <div className="bg-slate-50 p-4 rounded-xl space-y-4">
-                                    <h4 className="font-semibold text-sm text-slate-900 flex items-center gap-2">
-                                        <CheckCircle className="w-4 h-4 text-blue-600" /> Dados para Declaração
-                                    </h4>
-                                    
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {/* Seção Declarações (Dados do GSIPP) */}
+                                <div>
+                                    <h4 className="text-sm font-semibold text-slate-900 mb-3">Dados para Declaração</h4>
+                                    <div className="bg-slate-50 p-4 rounded-md border border-slate-200 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                         <div>
-                                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Matrícula</label>
-                                            <input type="text" value={formData.matricula || ''} onChange={e => setFormData({ ...formData, matricula: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="Ex: 509506" />
+                                            <label className="block text-xs font-medium text-slate-700 mb-1">Matrícula</label>
+                                            <input {...register('matricula')} className="w-full px-3 py-1.5 text-sm rounded border border-slate-300 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Curso</label>
-                                            <select 
-                                                value={formData.curso || ''} 
-                                                onChange={e => setFormData({ ...formData, curso: e.target.value })} 
-                                                className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
-                                            >
-                                                <option value="">Selecione um curso...</option>
+                                            <label className="block text-xs font-medium text-slate-700 mb-1">Curso</label>
+                                            <select {...register('curso')} className="w-full px-3 py-1.5 text-sm rounded border border-slate-300 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100">
+                                                <option value="">Selecione...</option>
                                                 <option value="Ciência da Computação">Ciência da Computação</option>
                                                 <option value="Sistemas de Informação">Sistemas de Informação</option>
                                                 <option value="Engenharia de Software">Engenharia de Software</option>
@@ -534,72 +442,77 @@ const Members = () => {
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Orientador</label>
-                                            <input type="text" value={formData.orientador || ''} onChange={e => setFormData({ ...formData, orientador: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="Ex: professor Antonio Emerson..." />
+                                            <label className="block text-xs font-medium text-slate-700 mb-1">Orientador</label>
+                                            <input {...register('orientador')} className="w-full px-3 py-1.5 text-sm rounded border border-slate-300 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Total de Horas</label>
-                                            <input type="text" value={formData.total_horas || ''} onChange={e => setFormData({ ...formData, total_horas: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="Ex: 160" />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-slate-200 pt-4 mt-4">
-                                        <div>
-                                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Carga Horária Semanal</label>
-                                            <input type="text" value={formData.carga_horaria || ''} onChange={e => setFormData({ ...formData, carga_horaria: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="Ex: 04h" />
+                                            <label className="block text-xs font-medium text-slate-700 mb-1">Carga Horária (Ex: 04h)</label>
+                                            <input {...register('carga_horaria')} className="w-full px-3 py-1.5 text-sm rounded border border-slate-300 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Prioridade (Ordem)</label>
-                                            <input type="number" value={formData.ordem || 0} onChange={e => setFormData({ ...formData, ordem: parseInt(e.target.value) })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                                            <label className="block text-xs font-medium text-slate-700 mb-1">Total de Horas</label>
+                                            <input {...register('total_horas')} className="w-full px-3 py-1.5 text-sm rounded border border-slate-300 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Data Entrada</label>
-                                            <input type="date" value={formData.data_entrada || ''} onChange={e => setFormData({ ...formData, data_entrada: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                                            <label className="block text-xs font-medium text-slate-700 mb-1">Prioridade (Ordem Exibição)</label>
+                                            <input type="number" {...register('ordem')} className="w-full px-3 py-1.5 text-sm rounded border border-slate-300 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase">Data Saída (Opcional)</label>
-                                            <input type="date" value={formData.data_saida || ''} onChange={e => setFormData({ ...formData, data_saida: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
+                                            <label className="block text-xs font-medium text-slate-700 mb-1">Data de Entrada</label>
+                                            <input type="date" {...register('data_entrada')} className="w-full px-3 py-1.5 text-sm rounded border border-slate-300 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-slate-700 mb-1">Data de Saída (Opcional)</label>
+                                            <input type="date" {...register('data_saida')} className="w-full px-3 py-1.5 text-sm rounded border border-slate-300 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100" />
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Links */}
-                                <div className="grid grid-cols-1 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Link Lattes</label>
-                                        <input type="url" value={formData.lattes_url || ''} onChange={e => setFormData({ ...formData, lattes_url: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm" />
+                                {/* Redes */}
+                                <div>
+                                    <h4 className="text-sm font-semibold text-slate-900 mb-3">Links e Perfis</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">Link Lattes</label>
+                                            <input type="url" {...register('lattes_url')} className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm" />
+                                            {errors.lattes_url && <p className="text-red-500 text-xs mt-1">{errors.lattes_url.message}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">ID Lattes (Apenas o número)</label>
+                                            <input {...register('lattes_id')} className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">LinkedIn</label>
+                                            <input type="url" {...register('linkedin_url')} className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm" />
+                                            {errors.linkedin_url && <p className="text-red-500 text-xs mt-1">{errors.linkedin_url.message}</p>}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-slate-700 mb-1">ResearchGate</label>
+                                            <input type="url" {...register('researchgate_url')} className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm" />
+                                            {errors.researchgate_url && <p className="text-red-500 text-xs mt-1">{errors.researchgate_url.message}</p>}
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">ID Lattes</label>
-                                        <input type="text" value={formData.lattes_id || ''} onChange={e => setFormData({ ...formData, lattes_id: e.target.value })} placeholder="K1105632T3" className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm" />
-                                        <p className="text-xs text-slate-500 mt-1">Código do pesquisador no Lattes (ex: K1105632T3)</p>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">LinkedIn</label>
-                                        <input type="url" value={formData.linkedin_url || ''} onChange={e => setFormData({ ...formData, linkedin_url: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">ResearchGate</label>
-                                        <input type="url" value={formData.researchgate_url || ''} onChange={e => setFormData({ ...formData, researchgate_url: e.target.value })} className="w-full px-4 py-2 rounded-lg border border-slate-200 text-slate-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-sm" />
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
-                                    <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-xl text-slate-600 font-medium hover:bg-slate-100 transition-colors">Cancelar</button>
-                                    <button
-                                        type="submit"
-                                        disabled={saving}
-                                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/20 disabled:opacity-50"
-                                    >
-                                        {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                                        {editingMember ? 'Salvar Alterações' : 'Adicionar Membro'}
-                                    </button>
                                 </div>
                             </form>
-                        </motion.div>
+                        </div>
+                        
+                        <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 shrink-0">
+                            <button type="button" onClick={closeModal} className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-300 hover:bg-slate-50 rounded-md transition-colors">
+                                Cancelar
+                            </button>
+                            <button 
+                                type="submit" 
+                                form="member-form"
+                                disabled={isSubmitting || uploading}
+                                className="px-4 py-2 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 rounded-md transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                            >
+                                {(isSubmitting || uploading) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                Salvar Membro
+                            </button>
+                        </div>
                     </div>
-                )}
-            </AnimatePresence>
+                </div>
+            )}
 
             <ConfirmModal
                 isOpen={!!confirmDelete}

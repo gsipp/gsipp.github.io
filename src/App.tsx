@@ -12,7 +12,6 @@ import Publicacoes from './pages/Publicacoes';
 import Eventos from './pages/Eventos';
 import Editais from './pages/Editais';
 import NoticiaDetalhe from './pages/NoticiaDetalhe';
-import MembroPerfil from './pages/MembroPerfil';
 import NotFound from './pages/NotFound';
 import { Loader2 } from 'lucide-react';
 
@@ -25,6 +24,7 @@ const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
 const Members = lazy(() => import('./pages/admin/Members'));
 const News = lazy(() => import('./pages/admin/News'));
 const Publications = lazy(() => import('./pages/admin/Publications'));
+const ImportPublications = lazy(() => import('./pages/admin/ImportPublications'));
 const EventsAdmin = lazy(() => import('./pages/admin/Events'));
 const EditaisAdmin = lazy(() => import('./pages/admin/Editais'));
 const Profile = lazy(() => import('./pages/admin/Profile'));
@@ -54,7 +54,6 @@ function App() {
                                     <Route element={<Layout><Eventos /></Layout>} path="/eventos" />
                                     <Route element={<Layout><Editais /></Layout>} path="/editais" />
                                     <Route element={<Layout><NoticiaDetalhe /></Layout>} path="/noticias/:slug" />
-                                    <Route element={<Layout><MembroPerfil /></Layout>} path="/membros/:id" />
 
                                     {/* Admin Routes */}
                                     <Route path="/gestao-gsipp/login" element={<Login />} />
@@ -66,6 +65,7 @@ function App() {
                                         <Route path="membros" element={<Members />} />
                                         <Route path="noticias" element={<News />} />
                                         <Route path="publicacoes" element={<Publications />} />
+                                        <Route path="publicacoes/importar" element={<ImportPublications />} />
                                         <Route path="eventos" element={<EventsAdmin />} />
                                         <Route path="editais" element={<EditaisAdmin />} />
                                         <Route path="perfil" element={<Profile />} />

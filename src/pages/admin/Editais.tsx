@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Pencil, Trash2, X, FileText, Loader2, Save, Calendar, ExternalLink, Activity } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Pencil, Trash2, FileText, Loader2, Save, Calendar, ExternalLink, Activity, ChevronLeft, Search } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
+
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 // Types
 interface Edital {
@@ -17,19 +20,34 @@ interface Edital {
     ordem: number;
 }
 
+const editalSchema = z.object({
+    titulo: z.string().min(3, "Título é obrigatório"),
+    descricao: z.string().optional().nullable(),
+    link_pdf: z.string().url("URL inválida").optional().or(z.literal('')).nullable(),
+    data_abertura: z.string().min(1, "Data de abertura é obrigatória"),
+    data_fechamento: z.string().min(1, "Data de fechamento é obrigatória"),
+    status: z.string().default('Aberto'),
+    ordem: z.number().int().default(0)
+});
+
+
+
 const Editais = () => {
     const [editais, setEditais] = useState<Edital[]>([]);
     const [loading, setLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [view, setView] = useState<'list' | 'form'>('list');
     const [editingEdital, setEditingEdital] = useState<Edital | null>(null);
-    const [formData, setFormData] = useState<Partial<Edital>>({});
-    const [saving, setSaving] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
     const toast = useToast();
 
-    // Fetch editais
+    const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
+        resolver: zodResolver(editalSchema),
+        defaultValues: { status: 'Aberto', ordem: 0 }
+    });
+
     const fetchEditais = async () => {
+        setLoading(true);
         const { data, error } = await supabase
             .from('editais')
             .select('*')
@@ -43,249 +61,303 @@ const Editais = () => {
     };
 
     useEffect(() => {
-        // eslint-disable-next-line
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchEditais();
     }, []);
 
-    // Filter editais
     const filteredEditais = editais.filter(edital =>
         edital.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
         edital.descricao?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Handle Delete
     const handleDelete = async (id: string) => {
         const { error } = await supabase.from('editais').delete().eq('id', id);
-        if (error) toast.error('Erro ao excluir edital: ' + error.message);
+        if (error) toast.error('Erro ao excluir edital: ' + (error as Error).message);
         else {
             setEditais(editais.filter(e => e.id !== id));
             toast.success('Edital removido com sucesso.');
         }
     };
 
-    // Handle Form Submit
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSaving(true);
-
+    const onSubmit = async (data: Record<string, unknown>) => {
         const payload = {
-            titulo: formData.titulo,
-            descricao: formData.descricao,
-            link_pdf: formData.link_pdf,
-            data_abertura: formData.data_abertura,
-            data_fechamento: formData.data_fechamento,
-            status: formData.status || 'Aberto',
-            ordem: formData.ordem || 0
+            ...data,
+            link_pdf: data.link_pdf || null,
+            descricao: data.descricao || null,
         };
 
         if (editingEdital) {
             const { error } = await supabase.from('editais').update(payload).eq('id', editingEdital.id);
-            if (error) toast.error('Erro ao atualizar: ' + error.message);
-            else toast.success('Edital atualizado com sucesso.');
+            if (error) toast.error('Erro ao atualizar: ' + (error as Error).message);
+            else {
+                toast.success('Edital atualizado com sucesso.');
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+        fetchEditais();
+                setView('list');
+            }
         } else {
             const { error } = await supabase.from('editais').insert([payload]);
-            if (error) toast.error('Erro ao criar edital: ' + error.message);
-            else toast.success('Edital criado com sucesso.');
-        }
-
-        setSaving(false);
-        setIsModalOpen(false);
-        setEditingEdital(null);
-        setFormData({});
+            if (error) toast.error('Erro ao criar edital: ' + (error as Error).message);
+            else {
+                toast.success('Edital criado com sucesso.');
+                // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchEditais();
+                setView('list');
+            }
+        }
     };
 
-    const openModal = (edital?: Edital) => {
+    const openForm = (edital?: Edital) => {
         if (edital) {
             setEditingEdital(edital);
-            const dataAbertura = edital.data_abertura ? edital.data_abertura.split('T')[0] : '';
-            const dataFechamento = edital.data_fechamento ? edital.data_fechamento.split('T')[0] : '';
-            setFormData({
-                ...edital,
-                data_abertura: dataAbertura,
-                data_fechamento: dataFechamento
+            reset({
+                titulo: edital.titulo,
+                descricao: edital.descricao,
+                link_pdf: edital.link_pdf,
+                data_abertura: edital.data_abertura ? edital.data_abertura.split('T')[0] : '',
+                data_fechamento: edital.data_fechamento ? edital.data_fechamento.split('T')[0] : '',
+                status: edital.status || 'Aberto',
+                ordem: edital.ordem || 0
             });
         } else {
             setEditingEdital(null);
-            setFormData({
+            reset({
                 status: 'Aberto',
                 data_abertura: new Date().toISOString().split('T')[0],
                 ordem: 0
             });
         }
-        setIsModalOpen(true);
+        setView('form');
     };
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'Aberto': return 'bg-blue-100 text-blue-700 border-blue-200';
+            case 'Aberto': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
             case 'Fechado': return 'bg-rose-100 text-rose-700 border-rose-200';
             case 'Em Análise': return 'bg-amber-100 text-amber-700 border-amber-200';
-            default: return 'bg-gray-100 text-gray-700 border-gray-200';
+            default: return 'bg-slate-100 text-slate-700 border-slate-200';
         }
     };
 
     return (
-        <div>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Editais</h1>
-                    <p className="text-gray-500">Gerencie chamadas e processos seletivos.</p>
-                </div>
-                <div className="flex gap-3 w-full md:w-auto">
-                    <input
-                        type="text"
-                        placeholder="Buscar edital..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 w-full md:w-64"
-                    />
-                    <button
-                        onClick={() => openModal()}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-500/30 whitespace-nowrap"
-                    >
-                        <Plus className="w-5 h-5" /> <span className="hidden md:inline">Novo Edital</span>
-                    </button>
-                </div>
-            </div>
-
-            {loading ? (
-                <div className="flex justify-center p-12">
-                    <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 gap-4">
-                    {filteredEditais.map((edital) => (
-                        <div key={edital.id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 group hover:shadow-md transition-all flex flex-col md:flex-row md:items-center gap-6">
-                            <div className="bg-indigo-50 text-blue-600 w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100">
-                                <FileText className="w-6 h-6" />
-                            </div>
-
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-3 mb-1">
-                                    <h3 className="font-bold text-gray-900 text-lg truncate">{edital.titulo}</h3>
-                                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusColor(edital.status)}`}>
-                                        {edital.status}
-                                    </span>
-                                </div>
-                                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
-                                    <div className="flex items-center gap-1.5">
-                                        <Calendar className="w-4 h-4 text-gray-400" />
-                                        <span>Abre: {(() => {
-                                            if (!edital.data_abertura) return 'N/A';
-                                            const [year, month, day] = edital.data_abertura.split('T')[0].split('-').map(Number);
-                                            return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-                                        })()}</span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                        <Calendar className="w-4 h-4 text-gray-400" />
-                                        <span>Fecha: {(() => {
-                                            if (!edital.data_fechamento) return 'N/A';
-                                            const [year, month, day] = edital.data_fechamento.split('T')[0].split('-').map(Number);
-                                            return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-                                        })()}</span>
-                                    </div>
-                                    {edital.link_pdf && (
-                                        <a href={edital.link_pdf} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-blue-600 hover:text-blue-700 font-medium">
-                                            <ExternalLink className="w-4 h-4" />
-                                            Ver PDF
-                                        </a>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                                <button onClick={() => openModal(edital)} className="p-2.5 hover:bg-slate-50 text-gray-400 hover:text-blue-600 rounded-xl transition-colors" title="Editar">
-                                    <Pencil className="w-5 h-5" />
-                                </button>
-                                <button onClick={() => setConfirmDelete(edital.id)} className="p-2.5 hover:bg-red-50 text-gray-400 hover:text-red-600 rounded-xl transition-colors" title="Remover">
-                                    <Trash2 className="w-5 h-5" />
-                                </button>
-                            </div>
+        <div className="space-y-6">
+            {view === 'list' ? (
+                <>
+                    <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h1 className="text-2xl font-bold text-slate-900">Editais</h1>
+                            <p className="text-sm text-slate-500 mt-1">Gerencie chamadas e processos seletivos.</p>
                         </div>
-                    ))}
-                    {filteredEditais.length === 0 && (
-                        <div className="py-16 text-center text-gray-400 bg-white border border-dashed border-gray-200 rounded-2xl">
-                            Nenhum edital encontrado.
+                        <div className="flex w-full sm:w-auto gap-3">
+                            <div className="relative flex-1 sm:w-64">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Buscar edital..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="w-full pl-9 pr-4 py-2 text-sm rounded-md border border-slate-300 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all"
+                                />
+                            </div>
+                            <button
+                                onClick={() => openForm()}
+                                className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors whitespace-nowrap"
+                            >
+                                <Plus className="w-4 h-4" /> Novo Edital
+                            </button>
+                        </div>
+                    </header>
+
+                    {loading ? (
+                        <div className="flex justify-center p-12">
+                            <Loader2 className="w-8 h-8 text-slate-400 animate-spin" />
+                        </div>
+                    ) : filteredEditais.length === 0 ? (
+                        <div className="bg-white rounded-lg border border-slate-200 p-12 text-center">
+                            <FileText className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-slate-900 mb-1">Nenhum edital encontrado</h3>
+                            <p className="text-slate-500">Adicione os editais do grupo de pesquisa.</p>
+                        </div>
+                    ) : (
+                        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm whitespace-nowrap">
+                                    <thead className="bg-slate-50 border-b border-slate-200">
+                                        <tr>
+                                            <th className="px-6 py-3 font-medium text-slate-500 w-1/2">Título e Descrição</th>
+                                            <th className="px-6 py-3 font-medium text-slate-500">Período</th>
+                                            <th className="px-6 py-3 font-medium text-slate-500">Status</th>
+                                            <th className="px-6 py-3 font-medium text-slate-500 text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-200">
+                                        {filteredEditais.map((edital) => (
+                                            <tr key={edital.id} className="hover:bg-slate-50 transition-colors">
+                                                <td className="px-6 py-4">
+                                                    <div className="font-medium text-slate-900 truncate max-w-sm mb-1">{edital.titulo}</div>
+                                                    {edital.descricao && (
+                                                        <div className="text-xs text-slate-500 truncate max-w-sm">{edital.descricao}</div>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col gap-1 text-xs">
+                                                        <span className="flex items-center gap-1.5 text-emerald-700">
+                                                            <Calendar className="w-3 h-3" /> Abre: {(() => {
+                                                                if (!edital.data_abertura) return 'N/A';
+                                                                const [year, month, day] = edital.data_abertura.split('T')[0].split('-').map(Number);
+                                                                return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR');
+                                                            })()}
+                                                        </span>
+                                                        <span className="flex items-center gap-1.5 text-rose-700">
+                                                            <Calendar className="w-3 h-3" /> Fecha: {(() => {
+                                                                if (!edital.data_fechamento) return 'N/A';
+                                                                const [year, month, day] = edital.data_fechamento.split('T')[0].split('-').map(Number);
+                                                                return new Date(year, month - 1, day, 12, 0, 0).toLocaleDateString('pt-BR');
+                                                            })()}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium border ${getStatusColor(edital.status)}`}>
+                                                        {edital.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex items-center justify-end gap-1">
+                                                        {edital.link_pdf && (
+                                                            <a href={edital.link_pdf} target="_blank" rel="noopener noreferrer" className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors" title="Ver PDF">
+                                                                <ExternalLink className="w-4 h-4" />
+                                                            </a>
+                                                        )}
+                                                        <button onClick={() => openForm(edital)} className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors" title="Editar">
+                                                            <Pencil className="w-4 h-4" />
+                                                        </button>
+                                                        <button onClick={() => setConfirmDelete(edital.id)} className="p-1.5 text-slate-400 hover:text-red-600 transition-colors" title="Remover">
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     )}
+                </>
+            ) : (
+                <div className="max-w-2xl mx-auto">
+                    <div className="flex items-center gap-4 mb-6">
+                        <button onClick={() => setView('list')} className="p-2 hover:bg-slate-200 rounded-md transition-colors text-slate-500">
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <div>
+                            <h2 className="text-xl font-bold text-slate-900">{editingEdital ? 'Editar Edital' : 'Novo Edital'}</h2>
+                            <p className="text-sm text-slate-500">Adicione os detalhes do edital.</p>
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSubmit(onSubmit)} className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm p-6 space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Título do Edital *</label>
+                            <input
+                                {...register('titulo')}
+                                className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm"
+                                placeholder="Ex: Edital 01/2024 - Mestrado"
+                            />
+                            {errors.titulo && <p className="text-red-500 text-xs mt-1">{errors.titulo.message}</p>}
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Data de Abertura *</label>
+                                <input
+                                    type="date"
+                                    {...register('data_abertura')}
+                                    className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm"
+                                />
+                                {errors.data_abertura && <p className="text-red-500 text-xs mt-1">{errors.data_abertura.message}</p>}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Data de Fechamento *</label>
+                                <input
+                                    type="date"
+                                    {...register('data_fechamento')}
+                                    className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm"
+                                />
+                                {errors.data_fechamento && <p className="text-red-500 text-xs mt-1">{errors.data_fechamento.message}</p>}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                                <div className="relative">
+                                    <Activity className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                                    <select
+                                        {...register('status')}
+                                        className="w-full pl-9 pr-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm bg-white"
+                                    >
+                                        <option value="Aberto">Aberto</option>
+                                        <option value="Fechado">Fechado</option>
+                                        <option value="Em Análise">Em Análise</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Link do PDF/Documento</label>
+                                <div className="relative">
+                                    <ExternalLink className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+                                    <input
+                                        type="url"
+                                        {...register('link_pdf')}
+                                        className="w-full pl-9 pr-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm"
+                                        placeholder="https://..."
+                                    />
+                                </div>
+                                {errors.link_pdf && <p className="text-red-500 text-xs mt-1">{errors.link_pdf.message}</p>}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Descrição Curta</label>
+                            <textarea
+                                {...register('descricao')}
+                                rows={3}
+                                className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm resize-y"
+                                placeholder="Resumo dos objetivos do edital..."
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Ordem de Exibição</label>
+                            <input
+                                type="number"
+                                {...register('ordem', { valueAsNumber: true })}
+                                className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm"
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                            <button
+                                type="button"
+                                onClick={() => setView('list')}
+                                className="px-4 py-2 rounded-md text-slate-700 font-medium hover:bg-slate-100 transition-colors text-sm border border-transparent hover:border-slate-200"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                            >
+                                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                {editingEdital ? 'Salvar Alterações' : 'Criar Edital'}
+                            </button>
+                        </div>
+                    </form>
                 </div>
             )}
-
-            {/* Modal */}
-            <AnimatePresence>
-                {isModalOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)}></motion.div>
-                        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl shadow-xl w-full max-w-2xl relative z-10 overflow-hidden">
-                            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                                <h3 className="font-bold text-lg text-gray-900">{editingEdital ? 'Editar Edital' : 'Novo Edital'}</h3>
-                                <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-gray-200 rounded-full transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
-                            </div>
-                            <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Título do Edital</label>
-                                    <input type="text" required value={formData.titulo || ''} onChange={e => setFormData({ ...formData, titulo: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="Ex: Edital 01/2024 - Mestrado em Ciência da Computação" />
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Data de Abertura</label>
-                                        <input type="date" required value={formData.data_abertura || ''} onChange={e => setFormData({ ...formData, data_abertura: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Data de Fechamento</label>
-                                        <input type="date" required value={formData.data_fechamento || ''} onChange={e => setFormData({ ...formData, data_fechamento: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                                        <div className="relative">
-                                            <Activity className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                                            <select
-                                                value={formData.status || 'Aberto'}
-                                                onChange={e => setFormData({ ...formData, status: e.target.value })}
-                                                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all appearance-none bg-white"
-                                            >
-                                                <option value="Aberto">Aberto</option>
-                                                <option value="Fechado">Fechado</option>
-                                                <option value="Em Análise">Em Análise</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Link do PDF/Documento</label>
-                                        <div className="relative">
-                                            <ExternalLink className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                                            <input type="url" value={formData.link_pdf || ''} onChange={e => setFormData({ ...formData, link_pdf: e.target.value })} className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" placeholder="https://..." />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Descrição Curta</label>
-                                    <textarea rows={3} value={formData.descricao || ''} onChange={e => setFormData({ ...formData, descricao: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none" placeholder="Resumo dos objetivos do edital..." />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Ordem de Exibição</label>
-                                    <input type="number" value={formData.ordem || 0} onChange={e => setFormData({ ...formData, ordem: parseInt(e.target.value) })} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-gray-900 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all" />
-                                </div>
-
-                                <div className="flex justify-end gap-3 pt-4 border-t border-gray-50 mt-4">
-                                    <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-xl text-gray-600 font-medium hover:bg-gray-100 transition-colors">Cancelar</button>
-                                    <button type="submit" disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium flex items-center gap-2 transition-all shadow-lg hover:shadow-blue-500/30 disabled:opacity-70">
-                                        {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                                        {editingEdital ? 'Salvar Alterações' : 'Criar Edital'}
-                                    </button>
-                                </div>
-                            </form>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
 
             <ConfirmModal
                 isOpen={!!confirmDelete}

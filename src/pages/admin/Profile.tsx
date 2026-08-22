@@ -57,7 +57,7 @@ const Profile = () => {
         });
 
         if (error) {
-            setMessage({ type: 'error', text: 'Erro ao atualizar perfil: ' + error.message });
+            setMessage({ type: 'error', text: 'Erro ao atualizar perfil: ' + (error as Error).message });
         } else {
             setMessage({ type: 'success', text: 'Perfil atualizado com sucesso!' });
         }
@@ -91,8 +91,8 @@ const Profile = () => {
             });
 
             setMessage({ type: 'success', text: 'Foto de perfil atualizada!' });
-        } catch (error: any) {
-            setMessage({ type: 'error', text: 'Erro no upload: ' + error.message });
+        } catch (error: unknown) {
+            setMessage({ type: 'error', text: 'Erro no upload: ' + (error as Error).message });
         } finally {
             setUploading(false);
         }
@@ -113,7 +113,7 @@ const Profile = () => {
         });
 
         if (error) {
-            setMessage({ type: 'error', text: 'Erro ao atualizar senha: ' + error.message });
+            setMessage({ type: 'error', text: 'Erro ao atualizar senha: ' + (error as Error).message });
         } else {
             setMessage({ type: 'success', text: 'Senha alterada com sucesso!' });
             setPassword('');

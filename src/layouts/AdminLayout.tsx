@@ -3,7 +3,7 @@ import { Outlet, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Shield, Users, Newspaper, LogOut, LayoutDashboard, 
-    Calendar, UserCog, BookOpen, ClipboardList, Settings, 
+    Calendar, BookOpen, ClipboardList, Settings, 
     Menu, X 
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';

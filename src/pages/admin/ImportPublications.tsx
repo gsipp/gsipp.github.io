@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Search, Loader2, X, Check, Database, User, ShieldCheck } from 'lucide-react';
+import { Search, Loader2, X, Check, Database, User, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useToast } from '../../contexts/ToastContext';
 import { supabase } from '../../lib/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 interface OrcidWork {
     id: string;
@@ -24,10 +25,6 @@ interface Member {
     lattes_id: string | null;
 }
 
-interface OrcidImporterProps {
-    onImport: (works: any[]) => void;
-    onClose: () => void;
-}
 
 const CLIENT_ID = 'APP-7NQ0GJLPLEQLRDFM';
 const CLIENT_SECRET = 'cc9277c9-d1cd-4784-b2a4-1469951289ae';
@@ -68,8 +65,8 @@ const matchesAdvisor = (advisorName: string, contributorsStr: string): boolean =
     });
 };
 
-const OrcidImporter = (props: OrcidImporterProps) => {
-    const { onImport, onClose } = props;
+export default function ImportPublications() {
+    const navigate = useNavigate();
     const [orcid, setOrcid] = useState('');
     const [doi, setDoi] = useState('');
     const [ufcUrl, setUfcUrl] = useState('');
@@ -272,99 +269,34 @@ const OrcidImporter = (props: OrcidImporterProps) => {
         }
         setLoading(true);
 
-        const proxies = [
-            { url: (target: string) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`, parse: (res: Response) => res.text() },
-            { url: (target: string) => `https://api.allorigins.win/get?url=${encodeURIComponent(target)}&callback=?`, parse: async (res: Response) => {
-                const text = await res.text();
-                // AllOrigins com callback retorna algo como ?({"contents": "..."})
-                const match = text.match(/\?\((.*)\)/);
-                if (match) return JSON.parse(match[1]).contents;
-                return JSON.parse(text).contents;
-            }},
-            { url: (target: string) => `https://api.allorigins.win/raw?url=${encodeURIComponent(target)}`, parse: (res: Response) => res.text() }
-        ];
-
-        let htmlText = '';
-        let success = false;
-
-        for (const proxy of proxies) {
-            try {
-                const response = await fetch(proxy.url(ufcUrl));
-                if (response.ok) {
-                    htmlText = await proxy.parse(response);
-                    if (htmlText && !htmlText.includes('Error:')) {
-                        success = true;
-                        break;
-                    }
-                }
-            } catch (err) {
-                console.error('Proxy failed:', err);
-                continue;
-            }
-        }
-
-        if (!success) {
-            setLoading(false);
-            toast.error('Falha ao conectar com os serviços de proxy (CORS). Tente novamente em alguns segundos.');
-            return;
-        }
-
         try {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlText, 'text/html');
-            const getMeta = (name: string) => doc.querySelector(`meta[name="${name}"]`)?.getAttribute('content') || null;
-            const getAllMeta = (name: string) => Array.from(doc.querySelectorAll(`meta[name="${name}"]`)).map(m => m.getAttribute('content')).filter(Boolean) as string[];
+            // Chama a Edge Function do Supabase (server-side, sem CORS)
+            const { data, error } = await supabase.functions.invoke('fetch-ufc-metadata', {
+                body: { url: ufcUrl },
+            });
 
-            const formatUfcName = (name: string | null) => {
-                if (!name) return '';
-                if (name.includes(',')) {
-                    const [surname, ...firstNames] = name.split(',').map(s => s.trim());
-                    return `${firstNames.join(' ')} ${surname}`;
-                }
-                return name.trim();
-            };
-
-            const title = getMeta('citation_title') || getMeta('DC.title');
-            const rawAuthors = getAllMeta('citation_author').length > 0 ? getAllMeta('citation_author') : getAllMeta('DC.creator');
-            const date = getMeta('citation_date') || getMeta('DC.date.issued');
-
-            const rawContributors = getAllMeta('DC.contributor');
-            const advisor = formatUfcName(getMeta('DC.contributor.advisor') || rawContributors[0]);
-            const coAdvisor = formatUfcName(getMeta('DC.contributor.advisor-co') || getMeta('DC.contributor.coadvisor') || rawContributors[1]);
-
-            if (!title) throw new Error('Não foi possível extrair os metadados. Verifique se é uma página válida.');
-
-            const authors = rawAuthors.map(formatUfcName);
-
-            let year = new Date().getFullYear();
-            if (date) {
-                const parsedYear = parseInt(date.substring(0, 4));
-                if (!isNaN(parsedYear)) year = parsedYear;
-            }
-
-            // Agora que temos campos separados, removemos o orientador e co-orientador da lista de autores
-            // para evitar duplicidade visual nos cards.
-            const filteredAuthorsList = authors.filter(a => a !== advisor && a !== coAdvisor);
-            let formattedAuthors = filteredAuthorsList.length > 0 ? filteredAuthorsList.join('; ') : (authors[0] || 'Autor desconhecido');
+            if (error) throw new Error(error.message);
+            if (data.error) throw new Error(data.error);
 
             const newWork: OrcidWork = {
-                id: ufcUrl, 
-                title, 
-                year, 
-                url: ufcUrl, 
-                type: 'TCC', 
-                authors: formattedAuthors,
-                orientador: advisor || '',
-                co_orientador: coAdvisor || '',
-                selected: true, 
-                isGsipp: true
+                id: ufcUrl,
+                title: data.titulo,
+                year: data.ano,
+                url: data.link_doi,
+                type: data.tipo || 'TCC',
+                authors: data.autores,
+                orientador: data.orientador || '',
+                co_orientador: data.co_orientador || '',
+                selected: true,
+                isGsipp: true,
             };
 
             setWorks([newWork]);
             setStep('select');
             toast.success('Metadados da UFC extraídos com sucesso!');
-        } catch (error: any) {
-            toast.error(error.message || 'Erro ao buscar dados da UFC.');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Erro ao buscar dados da UFC.';
+            toast.error(message);
         } finally {
             setLoading(false);
         }
@@ -374,74 +306,74 @@ const OrcidImporter = (props: OrcidImporterProps) => {
         setWorks(works.map(w => w.id === id ? { ...w, selected: !w.selected } : w));
     };
 
-    const handleImportSubmit = () => {
-        const selectedWorks = works.filter(w => w.selected).map(w => ({
+    const handleImportSubmit = async () => {
+        const toImport = works.filter(w => w.selected).map(w => ({
             titulo: w.title,
             ano: w.year,
-            link_doi: w.url,
-            tipo: w.type,
             autores: w.authors,
-            orientador: w.orientador || '',
-            co_orientador: w.co_orientador || ''
+            link_doi: w.type !== 'Repositório Institucional' ? w.url : '',
+            link_pdf: w.type === 'Repositório Institucional' ? w.url : '',
+            tipo: typeMapping[w.type] || 'Artigo',
+            veiculo: '',
+            orientador: w.orientador || null,
+            co_orientador: w.co_orientador || null
         }));
 
-        if (selectedWorks.length === 0) {
+        if (toImport.length === 0) {
             toast.error('Selecione pelo menos uma publicação para importar.');
             return;
         }
+        
+        setLoading(true);
+        const { error } = await supabase.from('publicacoes').insert(toImport);
+        setLoading(false);
 
-        onImport(selectedWorks);
+        if (error) {
+            toast.error('Erro ao salvar publicações importadas: ' + (error as Error).message);
+        } else {
+            toast.success(`${toImport.length} publicações importadas com sucesso!`);
+            navigate('/gestao-gsipp/publicacoes');
+        }
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
-                onClick={onClose}
-            ></motion.div>
-
-            <motion.div
-                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="bg-white rounded-2xl shadow-xl w-full max-w-3xl relative z-10 overflow-hidden max-h-[90vh] flex flex-col"
-            >
-                <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 shrink-0">
-                    <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
-                        <Database className="w-5 h-5 text-emerald-600" />
-                        Importar Publicação
-                    </h3>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors">
-                        <X className="w-5 h-5 text-slate-500" />
+        <div className="space-y-6">
+            <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div className="flex items-center gap-3">
+                    <button onClick={() => navigate('/gestao-gsipp/publicacoes')} className="p-2 hover:bg-slate-200 rounded-md transition-colors text-slate-500">
+                        <ChevronLeft className="w-5 h-5" />
                     </button>
+                    <div>
+                        <h1 className="text-2xl font-bold text-slate-900">Importar Publicação</h1>
+                        <p className="text-sm text-slate-500 mt-1">Busque artigos por ORCID, DOI ou link do Repositório UFC.</p>
+                    </div>
                 </div>
+            </header>
+            <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm flex flex-col min-h-[500px]">
 
                 {/* Tabs */}
                 {step === 'search' && (
                     <div className="flex border-b border-slate-100 shrink-0">
                         <button
                             onClick={() => setImportMode('orcid')}
-                            className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 ${
-                                importMode === 'orcid' ? 'border-emerald-500 text-emerald-700 bg-emerald-50/50' : 'border-transparent text-slate-500 hover:text-slate-700'
+                            className={`flex-1 py-3 text-sm font-medium transition-colors border-b-2 ${
+                                importMode === 'orcid' ? 'border-slate-800 text-slate-900 bg-slate-50' : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                             }`}
                         >
                             Por ORCID (vários artigos)
                         </button>
                         <button
                             onClick={() => setImportMode('doi')}
-                            className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 ${
-                                importMode === 'doi' ? 'border-emerald-500 text-emerald-700 bg-emerald-50/50' : 'border-transparent text-slate-500 hover:text-slate-700'
+                            className={`flex-1 py-3 text-sm font-medium transition-colors border-b-2 ${
+                                importMode === 'doi' ? 'border-slate-800 text-slate-900 bg-slate-50' : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                             }`}
                         >
                             Por DOI (artigo único)
                         </button>
                         <button
                             onClick={() => setImportMode('ufc')}
-                            className={`flex-1 py-3 text-sm font-semibold transition-colors border-b-2 ${
-                                importMode === 'ufc' ? 'border-emerald-500 text-emerald-700 bg-emerald-50/50' : 'border-transparent text-slate-500 hover:text-slate-700'
+                            className={`flex-1 py-3 text-sm font-medium transition-colors border-b-2 ${
+                                importMode === 'ufc' ? 'border-slate-800 text-slate-900 bg-slate-50' : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                             }`}
                         >
                             Por Link (UFC)
@@ -455,14 +387,14 @@ const OrcidImporter = (props: OrcidImporterProps) => {
 
                             {/* Member Selector — shared by both modes */}
                             <div className="w-full space-y-2">
-                                <label className="block text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                <label className="block text-sm font-medium text-slate-700 flex items-center gap-2 mb-1">
                                     <User className="w-4 h-4" /> Membro (opcional, para identificar autoria GSIPP)
                                 </label>
                                 <select
                                     value={selectedMemberId}
                                     onChange={e => setSelectedMemberId(e.target.value)}
                                     disabled={loadingMembers}
-                                    className="w-full px-4 py-2.5 rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all text-slate-800"
+                                    className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm bg-white"
                                 >
                                     <option value="">Sem filtro de orientador</option>
                                     {members.map(m => (
@@ -470,7 +402,7 @@ const OrcidImporter = (props: OrcidImporterProps) => {
                                     ))}
                                 </select>
                                 {selectedMember?.orientador && (
-                                    <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800">
+                                    <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-md text-xs text-slate-600 mt-2">
                                         <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
                                         <span>Filtro ativo: <strong>{selectedMember.orientador}</strong></span>
                                     </div>
@@ -480,69 +412,69 @@ const OrcidImporter = (props: OrcidImporterProps) => {
                             {importMode === 'ufc' ? (
                                 <>
                                     <div className="w-full space-y-2">
-                                        <label className="block text-sm font-semibold text-slate-700">Link do Repositório UFC</label>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Link do Repositório UFC</label>
                                         <input
                                             type="url"
                                             value={ufcUrl}
                                             onChange={(e) => setUfcUrl(e.target.value)}
                                             placeholder="Ex: http://repositorio.ufc.br/handle/riufc/79665"
-                                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all text-slate-800"
+                                            className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm"
                                             onKeyDown={(e) => e.key === 'Enter' && handleUfcSearch()}
                                         />
-                                        <p className="text-xs text-slate-400">Cole o link completo do trabalho (TCC, Dissertação, etc).</p>
+                                        <p className="text-xs text-slate-400 mt-1">Cole o link completo do trabalho (TCC, Dissertação, etc).</p>
                                     </div>
                                     <button
                                         onClick={handleUfcSearch}
                                         disabled={loading || !ufcUrl.trim()}
-                                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                        className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                                     >
-                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+                                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                                         {loading ? 'Buscando...' : 'Buscar Repositório UFC'}
                                     </button>
                                 </>
                             ) : importMode === 'orcid' ? (
                                 <>
                                     <div className="w-full space-y-2">
-                                        <label className="block text-sm font-semibold text-slate-700">ORCID iD</label>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">ORCID iD</label>
                                         <input
                                             type="text"
                                             value={orcid}
                                             onChange={(e) => setOrcid(e.target.value)}
                                             placeholder="Ex: 0000-0002-1825-0097"
-                                            className="w-full pl-4 pr-4 py-3 rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all text-center text-lg font-medium tracking-wide text-slate-800"
+                                            className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm text-center font-medium tracking-wide"
                                             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                         />
                                     </div>
                                     <button
                                         onClick={handleSearch}
                                         disabled={loading || !orcid.trim()}
-                                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                        className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                                     >
-                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-                                        {loading ? 'Buscando e verificando autoria...' : 'Pesquisar Publicações'}
+                                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                                        {loading ? 'Buscando...' : 'Pesquisar Publicações'}
                                     </button>
                                     {loading && <p className="text-xs text-slate-500 text-center">Verificando autoria de cada artigo, isso pode levar alguns segundos...</p>}
                                 </>
                             ) : (
                                 <>
                                     <div className="w-full space-y-2">
-                                        <label className="block text-sm font-semibold text-slate-700">DOI ou URL do DOI</label>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">DOI ou URL do DOI</label>
                                         <input
                                             type="text"
                                             value={doi}
                                             onChange={(e) => setDoi(e.target.value)}
                                             placeholder="Ex: https://doi.org/10.5753/webmedia.2025.16143"
-                                            className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition-all text-slate-800"
+                                            className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm"
                                             onKeyDown={(e) => e.key === 'Enter' && handleDoiSearch()}
                                         />
-                                        <p className="text-xs text-slate-400">Aceita URL completa ou apenas o identificador (ex: 10.5753/...)</p>
+                                        <p className="text-xs text-slate-400 mt-1">Aceita URL completa ou apenas o identificador (ex: 10.5753/...)</p>
                                     </div>
                                     <button
                                         onClick={handleDoiSearch}
                                         disabled={loading || !doi.trim()}
-                                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                        className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                                     >
-                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+                                        {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                                         {loading ? 'Buscando...' : 'Buscar pelo DOI'}
                                     </button>
                                 </>
@@ -554,7 +486,7 @@ const OrcidImporter = (props: OrcidImporterProps) => {
                                 <div className="text-sm text-slate-600">
                                     <span className="font-bold text-slate-900">{works.length}</span> publicações encontradas.
                                     {works.some(w => w.isGsipp) && (
-                                        <span className="ml-2 text-emerald-700 font-medium">
+                                        <span className="ml-2 text-slate-700 font-medium">
                                             <ShieldCheck className="w-3.5 h-3.5 inline mr-1" />
                                             {works.filter(w => w.isGsipp).length} identificadas como GSIPP
                                         </span>
@@ -565,13 +497,13 @@ const OrcidImporter = (props: OrcidImporterProps) => {
                                     <span className="text-slate-300">|</span>
                                     <button onClick={() => setWorks(works.map(w => ({ ...w, selected: false })))} className="text-slate-500 hover:underline">Nenhum</button>
                                     <span className="text-slate-300">|</span>
-                                    <button onClick={() => setWorks(works.map(w => ({ ...w, selected: w.isGsipp })))} className="text-emerald-600 hover:underline">Só GSIPP</button>
+                                    <button onClick={() => setWorks(works.map(w => ({ ...w, selected: w.isGsipp })))} className="text-slate-600 hover:underline">Só GSIPP</button>
                                 </div>
                             </div>
 
                             {/* Legend */}
                             {works.some(w => w.isGsipp) && (
-                                <div className="bg-emerald-50 text-emerald-800 p-3 rounded-xl text-xs border border-emerald-100 flex items-center gap-2">
+                                <div className="bg-slate-50 text-slate-600 p-3 rounded-md text-xs border border-slate-200 flex items-center gap-2">
                                     <ShieldCheck className="w-4 h-4 shrink-0" />
                                     <span>Artigos com badge <strong>GSIPP ✓</strong> foram identificados com o orientador nos autores e já estão pré-selecionados.</span>
                                 </div>
@@ -582,26 +514,26 @@ const OrcidImporter = (props: OrcidImporterProps) => {
                                     <div
                                         key={work.id}
                                         onClick={() => toggleSelection(work.id)}
-                                        className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${work.selected ? 'border-emerald-500 bg-emerald-50/30' : 'border-slate-100 hover:border-slate-200'}`}
+                                        className={`flex items-start gap-4 p-4 rounded-lg border cursor-pointer transition-all ${work.selected ? 'border-slate-800 bg-slate-50/50' : 'border-slate-200 hover:border-slate-300'}`}
                                     >
                                         <div className="pt-0.5 shrink-0">
-                                            <div className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${work.selected ? 'bg-emerald-500 text-white' : 'border-2 border-slate-300'}`}>
-                                                {work.selected && <Check className="w-3.5 h-3.5" />}
+                                            <div className={`w-4 h-4 rounded flex items-center justify-center transition-colors border ${work.selected ? 'bg-slate-800 border-slate-800 text-white' : 'bg-white border-slate-300'}`}>
+                                                {work.selected && <Check className="w-3 h-3" />}
                                             </div>
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-start gap-2 flex-wrap">
-                                                <h5 className="font-semibold text-slate-900 leading-snug text-sm">{work.title}</h5>
+                                                <h5 className="font-medium text-slate-900 leading-snug text-sm">{work.title}</h5>
                                                 {work.isGsipp && (
-                                                    <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-bold border border-emerald-200">
+                                                    <span className="shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-medium border border-slate-200">
                                                         <ShieldCheck className="w-3 h-3" /> GSIPP ✓
                                                     </span>
                                                 )}
                                             </div>
                                             <div className="flex flex-wrap gap-2 mt-2">
-                                                <span className="px-2 py-0.5 bg-white border border-slate-200 rounded text-xs font-semibold text-slate-600">{work.year}</span>
-                                                <span className="px-2 py-0.5 bg-white border border-slate-200 rounded text-xs text-slate-500">{work.type}</span>
-                                                {work.url && <span className="px-2 py-0.5 bg-blue-50 border border-blue-100 rounded text-xs text-blue-600">DOI disponível</span>}
+                                                <span className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[10px] font-medium text-slate-600">{work.year}</span>
+                                                <span className="px-1.5 py-0.5 bg-white border border-slate-200 rounded text-[10px] text-slate-500">{work.type}</span>
+                                                {work.url && <span className="px-1.5 py-0.5 bg-blue-50 border border-blue-100 rounded text-[10px] text-blue-600">DOI</span>}
                                             </div>
                                         </div>
                                     </div>
@@ -613,18 +545,16 @@ const OrcidImporter = (props: OrcidImporterProps) => {
 
                 {step === 'select' && (
                     <div className="px-6 py-4 border-t border-slate-100 bg-slate-50 shrink-0 flex justify-between items-center">
-                        <button onClick={() => setStep('search')} className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-lg transition-colors text-sm">← Voltar</button>
+                        <button onClick={() => setStep('search')} className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-md transition-colors text-sm">← Voltar</button>
                         <button
                             onClick={handleImportSubmit}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all text-sm"
+                            className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
                         >
                             <Database className="w-4 h-4" /> Importar Selecionadas ({works.filter(w => w.selected).length})
                         </button>
                     </div>
                 )}
-            </motion.div>
+            </div>
         </div>
     );
 };
-
-export default OrcidImporter;

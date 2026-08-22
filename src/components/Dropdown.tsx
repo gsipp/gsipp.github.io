@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Check } from 'lucide-react';
 
 interface Option {
@@ -54,38 +53,30 @@ export default function Dropdown({ value, onChange, options, icon, placeholder =
                 <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 flex-shrink-0 ml-3 ${isOpen ? 'rotate-180 text-blue-500' : ''}`} />
             </button>
 
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-xl shadow-slate-900/5 overflow-hidden"
-                    >
-                        <div className="max-h-60 overflow-y-auto p-1 custom-scrollbar">
-                            {normalizedOptions.map((option) => (
-                                <button
-                                    key={option.value}
-                                    type="button"
-                                    onClick={() => {
-                                        onChange(option.value);
-                                        setIsOpen(false);
-                                    }}
-                                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
-                                        value === option.value 
-                                            ? 'bg-blue-50 text-blue-600' 
-                                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                                    }`}
-                                >
-                                    <span className="truncate">{option.label}</span>
-                                    {value === option.value && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
-                                </button>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {isOpen && (
+                <div className="absolute z-50 w-full mt-2 bg-white border border-slate-200 rounded-xl shadow-lg shadow-slate-900/5 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                    <div className="max-h-60 overflow-y-auto p-1 custom-scrollbar">
+                        {normalizedOptions.map((option) => (
+                            <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => {
+                                    onChange(option.value);
+                                    setIsOpen(false);
+                                }}
+                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                                    value === option.value 
+                                        ? 'bg-blue-50 text-blue-600' 
+                                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                                }`}
+                            >
+                                <span className="truncate">{option.label}</span>
+                                {value === option.value && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
