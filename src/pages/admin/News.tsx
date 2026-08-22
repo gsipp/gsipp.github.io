@@ -105,7 +105,7 @@ const NewsAdmin = () => {
         }
     };
 
-    const onSubmit = async (data: Record<string, unknown>, isPublished: boolean) => {
+    const onSubmit = async (data: any, isPublished: boolean) => {
         const payload = {
             ...data,
             slug: generateSlug(data.titulo),

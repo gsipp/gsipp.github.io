@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Loader2, X, Check, Database, User, ShieldCheck, ChevronLeft } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Search, Loader2, Check, Database, User, ShieldCheck, ChevronLeft } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
 import { supabase } from '../../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
