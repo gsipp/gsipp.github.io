@@ -243,14 +243,85 @@ export const generateDeclarationHTML = (member: Record<string, any>, customTempl
 };
 
 
-export const generateDeclarationProjectHTML = (data: Record<string, any>, settings?: Record<string, any>) => {
-    const formatDate = (dateStr?: string | null) => {
-        if (!dateStr) return 'DD/MM/AAAA';
-        const [year, month, day] = dateStr.split('-');
-        if (year && month && day) return `${day}/${month}/${year}`;
-        return new Date(dateStr).toLocaleDateString('pt-BR');
-    };
 
+export const generateDeclarationProjectHTML = (data: Record<string, any>, settings?: Record<string, any>) => {
+    // Data de emissão (hoje)
+    const currentDate = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    // Settings / Fallbacks
+    const logoUfc = settings?.logo_ufc || 'https://www.crateus.ufc.br/wp-content/uploads/2021/04/logo-ufc-crateus-300x125.png';
+    const logoGsipp = settings?.logo_gsipp || 'https://gsipp.github.io/logo-dark.png';
+    const address = settings?.cabecalho_endereco || '07.272.636/0001-31\nCampus Universitário\nAvenida Professora Machadinha Lima, S/N -\nPríncipe Imperial, Crateús - CE, 63708-825';
+
+    let content = `
+        <p>Declaramos, para os devidos fins, que no período de <strong>${data.periodo_participacao}</strong>, ${data.tipo_participante} <strong>${data.nome}</strong> participou do projeto de pesquisa intitulado "<strong>${data.titulo_projeto}</strong>", realizado no âmbito do Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade (GSIPP), registrado na Universidade Federal do Ceará – Campus de Crateús, sob a coordenação do professor ${data.coordenador}.</p>
+        <br/>
+        <p>${data.paragrafo_detalhes.replace(/\n/g, '<br/>')}</p>
+    `;
+
+    return `
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+            <meta charset="UTF-8">
+            <title>Declaração de Projeto - ${data.nome}</title>
+            <style>
+                @page { margin: 0; size: auto; }
+                body { font-family: 'Times New Roman', Times, serif; line-height: 1.5; color: #000; margin: 2.5cm; padding: 0; }
+                .header-table { width: 100%; margin-bottom: 50px; border-collapse: collapse; }
+                .header-table td { vertical-align: middle; padding: 0 10px; }
+                .logo-ufc { width: 120px; }
+                .logo-gsipp { width: 145px; }
+                .header-center { text-align: left; font-size: 9pt; line-height: 1.3; white-space: pre-line; }
+                .title { font-size: 18pt; font-weight: bold; text-align: center; margin-top: 80px; margin-bottom: 80px; text-transform: uppercase; letter-spacing: 2px; }
+                .content { font-size: 13pt; text-align: justify; margin-bottom: 80px; line-height: 1.8; }
+                .content p { text-indent: 1.5cm; margin: 0; }
+                .content strong { font-weight: bold; }
+                .signature-block { text-align: center; margin-top: 100px; font-size: 12pt; line-height: 1.4; }
+                .signature-block p { margin: 2px 0; }
+                .action-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: #f8fafc; border-top: 1px solid #e2e8f0; padding: 15px 25px; display: flex; align-items: center; justify-content: space-between; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05); z-index: 1000; }
+                .print-button { background-color: #2563eb; color: white; border: none; border-radius: 8px; padding: 10px 24px; font-weight: 600; cursor: pointer; transition: background-color 0.2s; }
+                .print-button:hover { background-color: #1d4ed8; }
+                @media print { .no-print { display: none !important; } body { margin: 2.5cm; } }
+            </style>
+        </head>
+        <body>
+            <table class="header-table">
+                <tr>
+                    <td style="width: 25%;">
+                        <img src="${logoUfc}" alt="UFC Logo" class="logo-ufc" />
+                    </td>
+                    <td style="width: 50%;" class="header-center">
+                        ${address}
+                    </td>
+                    <td style="width: 25%; text-align: right;">
+                        <img src="${logoGsipp}" alt="GSIPP Logo" class="logo-gsipp" style="margin-left: auto; display: block;" />
+                    </td>
+                </tr>
+            </table>
+            <div class="title">DECLARAÇÃO</div>
+            <div class="content">
+                ${content}
+            </div>
+            <div style="text-align: center; margin-top: 60px; margin-bottom: 60px; font-size: 12pt;">
+                Crateús, ${currentDate}.
+            </div>
+            <div class="signature-block">
+                <p>${data.coordenador}</p>
+                <p>Professor do Magistério Superior</p>
+                <p>Universidade Federal do Ceará — Campus de Crateús</p>
+                <p>Coordenador do Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade (GSIPP)</p>
+            </div>
+            <div class="action-bar no-print">
+                <div style="flex: 1;">
+                    <strong>Dica para baixar em PDF:</strong> Ao clicar no botão ao lado, mude o Destino (ou Impressora) para <b>"Salvar como PDF"</b>.
+                </div>
+                <button class="print-button" onclick="window.print()">Baixar PDF / Imprimir</button>
+            </div>
+        </body>
+        </html>
+    `;
+};
     const startDate = formatDate(data.data_inicio);
     const endDate = formatDate(data.data_fim);
     

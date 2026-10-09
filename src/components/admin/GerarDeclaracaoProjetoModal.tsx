@@ -11,20 +11,14 @@ interface Props {
 export default function GerarDeclaracaoProjetoModal({ isOpen, onClose }: Props) {
     const [formData, setFormData] = useState({
         nome: '',
-        cpf: '',
-        curso: 'Ciência da Computação',
-        matricula: '',
+        tipo_participante: 'a discente',
+        periodo_participacao: '2024.1 a 2025.1',
         titulo_projeto: '',
-        funcao: 'Bolsista de Iniciação Científica',
-        orgao_fomento: 'FUNCAP',
-        orientador: 'Antonio Emerson Barros Tomaz',
-        carga_horaria: '12',
-        total_horas: '',
-        data_inicio: '',
-        data_fim: ''
+        coordenador: 'Dr. Antonio Emerson Barros Tomaz',
+        paragrafo_detalhes: 'O projeto teve início em 2024.1 e encontra-se em andamento, cujo principal objetivo é...'
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
@@ -43,7 +37,7 @@ export default function GerarDeclaracaoProjetoModal({ isOpen, onClose }: Props) 
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -55,81 +49,64 @@ export default function GerarDeclaracaoProjetoModal({ isOpen, onClose }: Props) 
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-2xl relative z-10 max-h-[90vh] overflow-y-auto"
+                        className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-3xl relative z-10 max-h-[90vh] overflow-y-auto"
                     >
-                        <div className="flex items-center justify-between p-6 border-b border-slate-100">
+                        <div className="flex items-center justify-between p-6 border-b border-slate-100 sticky top-0 bg-white z-20">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
                                     <FileText className="w-5 h-5" />
                                 </div>
-                                <h2 className="text-xl font-bold text-slate-900">Gerar Declaração de Projeto</h2>
+                                <h2 className="text-xl font-bold text-slate-900">Declaração de Projeto de Pesquisa</h2>
                             </div>
                             <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition-colors cursor-pointer">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-slate-700">Nome do Aluno(a)</label>
-                                    <input required type="text" name="nome" value={formData.nome} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="space-y-1 sm:col-span-1">
+                                    <label className="text-sm font-medium text-slate-700">Artigo/Título</label>
+                                    <select name="tipo_participante" value={formData.tipo_participante} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                                        <option value="a discente">a discente</option>
+                                        <option value="o discente">o discente</option>
+                                        <option value="a pesquisadora">a pesquisadora</option>
+                                        <option value="o pesquisador">o pesquisador</option>
+                                    </select>
                                 </div>
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-slate-700">CPF</label>
-                                    <input required type="text" name="cpf" value={formData.cpf} onChange={handleChange} placeholder="000.000.000-00" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                <div className="space-y-1 sm:col-span-2">
+                                    <label className="text-sm font-medium text-slate-700">Nome Completo</label>
+                                    <input required type="text" name="nome" value={formData.nome} onChange={handleChange} placeholder="Ex: Maria Fernanda Ferreira Paulino" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                 </div>
                             </div>
                             
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-slate-700">Curso</label>
-                                    <input required type="text" name="curso" value={formData.curso} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-slate-700">Matrícula</label>
-                                    <input required type="text" name="matricula" value={formData.matricula} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                </div>
-                            </div>
-
                             <div className="space-y-1">
-                                <label className="text-sm font-medium text-slate-700">Título do Projeto de Pesquisa</label>
-                                <input required type="text" name="titulo_projeto" value={formData.titulo_projeto} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                <label className="text-sm font-medium text-slate-700">Título do Projeto</label>
+                                <input required type="text" name="titulo_projeto" value={formData.titulo_projeto} onChange={handleChange} placeholder="Ex: Proteção de Sensores de Trânsito..." className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1">
-                                    <label className="text-sm font-medium text-slate-700">Função (Ex: Bolsista, Voluntário)</label>
-                                    <input required type="text" name="funcao" value={formData.funcao} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <label className="text-sm font-medium text-slate-700">Período de Participação</label>
+                                    <input required type="text" name="periodo_participacao" value={formData.periodo_participacao} onChange={handleChange} placeholder="Ex: 2024.1 a 2025.1" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                 </div>
                                 <div className="space-y-1">
-                                    <label className="text-sm font-medium text-slate-700">Órgão de Fomento (Opcional)</label>
-                                    <input type="text" name="orgao_fomento" value={formData.orgao_fomento} onChange={handleChange} placeholder="Ex: FUNCAP, CNPq" className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                    <label className="text-sm font-medium text-slate-700">Coordenador</label>
+                                    <input required type="text" name="coordenador" value={formData.coordenador} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                                 </div>
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-sm font-medium text-slate-700">Orientador</label>
-                                <input required type="text" name="orientador" value={formData.orientador} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                            </div>
-
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-slate-700">Horas/Semana</label>
-                                    <input required type="number" name="carga_horaria" value={formData.carga_horaria} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-slate-700">Total de Horas</label>
-                                    <input required type="number" name="total_horas" value={formData.total_horas} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-slate-700">Data Início</label>
-                                    <input required type="date" name="data_inicio" value={formData.data_inicio} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-sm font-medium text-slate-700">Data Fim</label>
-                                    <input required type="date" name="data_fim" value={formData.data_fim} onChange={handleChange} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
-                                </div>
+                                <label className="text-sm font-medium text-slate-700">2º Parágrafo (Detalhes do Projeto)</label>
+                                <textarea 
+                                    required 
+                                    name="paragrafo_detalhes" 
+                                    value={formData.paragrafo_detalhes} 
+                                    onChange={handleChange} 
+                                    rows={4}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                                />
+                                <p className="text-xs text-slate-500">Este texto aparecerá logo abaixo do parágrafo principal. Descreva o andamento, objetivos ou resumo do projeto.</p>
                             </div>
 
                             <div className="pt-4 flex justify-end gap-3 border-t border-slate-100 mt-6">
