@@ -208,7 +208,7 @@ export const generateDeclarationHTML = (member: Record<string, any>, customTempl
                 ${content}
             </div>
 
-            <div style="text-align: center; margin-top: 60px; margin-bottom: 60px; font-size: 12pt;">
+            <div style="text-align: left; margin-top: 60px; margin-bottom: 60px; font-size: 12pt;">
                 Crateús, ${currentDate}.
             </div>
 
@@ -303,7 +303,7 @@ export const generateDeclarationProjectHTML = (data: Record<string, any>, settin
             <div class="content">
                 ${content}
             </div>
-            <div style="text-align: center; margin-top: 60px; margin-bottom: 60px; font-size: 12pt;">
+            <div style="text-align: left; margin-top: 60px; margin-bottom: 60px; font-size: 12pt;">
                 Crateús, ${currentDate}.
             </div>
             <div class="signature-block">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Printer, Trash2, Loader2, Plus, FileText } from 'lucide-react';
+import { Printer, Trash2, Loader2, Plus } from 'lucide-react';
 import AdminSearch from '../../components/admin/AdminSearch';
 import AdminTable from '../../components/admin/AdminTable';
 import { Link } from 'react-router-dom';
