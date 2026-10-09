@@ -7,7 +7,7 @@ import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 
 import { z } from 'zod';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 // Types
@@ -63,15 +63,15 @@ const NewsAdmin = () => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const toast = useToast();
 
-    const { register, handleSubmit, reset, setValue, watch, control, formState: { errors, isSubmitting } } = useForm({
+    const { register, handleSubmit, reset, setValue, control, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(newsSchema),
         defaultValues: { tags: [], publicado: true, conteudo: '' }
     });
 
-    const watchedTitulo = watch('titulo');
-    const watchedConteudo = watch('conteudo');
-    const watchedCapaUrl = watch('imagem_capa_url');
-    const watchedTags = watch('tags') || [];
+    const watchedTitulo = useWatch({ control, name: 'titulo' });
+    const watchedConteudo = useWatch({ control, name: 'conteudo' });
+    const watchedCapaUrl = useWatch({ control, name: 'imagem_capa_url' });
+    const watchedTags = useWatch({ control, name: 'tags' }) || [];
 
     const fetchNews = async () => {
         setLoading(true);
@@ -87,6 +87,7 @@ const NewsAdmin = () => {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchNews();
     }, []);
 
@@ -303,7 +304,7 @@ const NewsAdmin = () => {
                             </div>
                             <button
                                 onClick={handleCreate}
-                                className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors whitespace-nowrap"
+                                className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer"
                             >
                                 <Plus className="w-4 h-4" /> Nova Notícia
                             </button>
@@ -368,14 +369,14 @@ const NewsAdmin = () => {
                                                     <div className="flex items-center justify-end gap-2">
                                                         <button
                                                             onClick={() => handleEdit(item)}
-                                                            className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors"
+                                                            className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-all cursor-pointer"
                                                             title="Editar"
                                                         >
                                                             <Pencil className="w-4 h-4" />
                                                         </button>
                                                         <button
                                                             onClick={() => setConfirmDelete(item.id)}
-                                                            className="p-1.5 text-slate-400 hover:text-red-600 transition-colors"
+                                                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all cursor-pointer"
                                                             title="Excluir"
                                                         >
                                                             <Trash2 className="w-4 h-4" />
@@ -410,7 +411,7 @@ const NewsAdmin = () => {
                             </button>
                             <button
                                 onClick={handleCancel}
-                                className="p-2 text-slate-500 hover:bg-slate-200 rounded-md transition-colors"
+                                className="p-2 text-slate-500 hover:bg-slate-200 rounded-md transition-colors cursor-pointer"
                                 title="Fechar"
                             >
                                 <X className="w-5 h-5" />

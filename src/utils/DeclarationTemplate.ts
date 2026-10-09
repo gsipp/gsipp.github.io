@@ -1,7 +1,26 @@
-export const generateDeclarationHTML = (member: any, customTemplate?: string, settings?: any) => {
-    const startDate = member.data_entrada ? new Date(member.data_entrada).toLocaleDateString('pt-BR') : 'DD/MM/AAAA';
-    const endDate = member.data_saida ? new Date(member.data_saida).toLocaleDateString('pt-BR') : 'DD/MM/AAAA';
-    const currentDate = new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const generateDeclarationHTML = (member: Record<string, any>, customTemplate?: string, settings?: Record<string, any>, codigoVerificacao?: string) => {
+    // Utilitário para formatar datas YYYY-MM-DD com segurança de fuso horário
+    const formatDate = (dateStr?: string | null) => {
+        if (!dateStr) return 'DD/MM/AAAA';
+        const [year, month, day] = dateStr.split('-');
+        if (year && month && day) return `${day}/${month}/${year}`;
+        return new Date(dateStr).toLocaleDateString('pt-BR');
+    };
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    // Prioridade: Data de Declaração (custom) -> Data de Saída -> Hoje (se for ativo e não informou)
+    const effectiveEndDate = member.data_declaracao || member.data_saida || todayStr;
+    const startDate = formatDate(member.data_entrada);
+    const endDate = formatDate(effectiveEndDate);
+    
+    // Data de emissão (rodapé)
+    let issueDate = new Date();
+    if (member.data_declaracao) {
+        const [y, m, d] = member.data_declaracao.split('-');
+        if (y && m && d) issueDate = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+    }
+    const currentDate = issueDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
 
     // Settings / Fallbacks
     const logoUfc = settings?.logo_ufc || 'https://www.crateus.ufc.br/wp-content/uploads/2021/04/logo-ufc-crateus-300x125.png';
@@ -29,7 +48,11 @@ export const generateDeclarationHTML = (member: any, customTemplate?: string, se
     let calculatedTotalHours = member.total_horas;
     if (!calculatedTotalHours && member.data_entrada && member.carga_horaria) {
         const start = new Date(member.data_entrada);
-        const end = member.data_saida ? new Date(member.data_saida) : new Date();
+        let end = new Date();
+        if (effectiveEndDate) {
+            const [y, m, d] = effectiveEndDate.split('-');
+            if (y && m && d) end = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+        }
         const diffTime = Math.abs(end.getTime() - start.getTime());
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         const weeks = diffDays / 7;
@@ -90,7 +113,7 @@ export const generateDeclarationHTML = (member: any, customTemplate?: string, se
                     padding: 0 10px;
                 }
                 .logo-ufc {
-                    width: 180px; /* Reduzi de 220px */
+                    width: 120px; /* Reduzi de 220px */
                 }
                 .logo-gsipp {
                     width: 145px; /* Reduzi de 150px */
@@ -129,21 +152,37 @@ export const generateDeclarationHTML = (member: any, customTemplate?: string, se
                 .signature-block p {
                     margin: 2px 0;
                 }
-                .print-button {
+                .action-bar {
                     position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    padding: 10px 20px;
-                    background-color: #0056b3;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    background-color: #f8fafc;
+                    border-top: 1px solid #e2e8f0;
+                    padding: 15px 25px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.05);
+                    z-index: 1000;
+                }
+                .print-button {
+                    background-color: #2563eb;
                     color: white;
                     border: none;
-                    border-radius: 5px;
+                    border-radius: 8px;
+                    padding: 10px 24px;
+                    font-weight: 600;
                     cursor: pointer;
-                    font-family: Arial, sans-serif;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                    transition: background-color 0.2s;
+                }
+                .print-button:hover {
+                    background-color: #1d4ed8;
                 }
                 @media print {
-                    .print-button { display: none; }
+                    .no-print { display: none !important; }
+                    body { margin: 2.5cm; } /* Garante que a margem funcione na impressão */
                 }
             </style>
         </head>
@@ -179,14 +218,23 @@ export const generateDeclarationHTML = (member: any, customTemplate?: string, se
                 <p>Coordenador do Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade (GSIPP)</p>
             </div>
 
-            <button class="print-button" onclick="window.print()">Imprimir Declaração</button>
+            ${/* footer de verificação oculto temporariamente a pedido do usuário
+            codigoVerificacao ? \`
+            <div style="text-align: center; font-size: 10pt; color: #555; margin-top: 40px; border-top: 1px solid #ccc; padding-top: 10px;">
+                Para verificar a autenticidade desta declaração, acesse <strong>gsipp.com.br/validar</strong><br>
+                Código de Verificação: <strong>\${codigoVerificacao}</strong>
+            </div>
+            \` : */ ''}
+
+            <div class="action-bar no-print">
+                <div style="flex: 1;">
+                    <strong>Dica para baixar em PDF:</strong> Ao clicar no botão ao lado, mude o Destino (ou Impressora) para <b>"Salvar como PDF"</b>.
+                </div>
+                <button class="print-button" onclick="window.print()">Baixar PDF / Imprimir</button>
+            </div>
+
             <script>
-                // Pequeno atraso para garantir que as imagens carreguem antes de imprimir
-                window.onload = function() {
-                    setTimeout(function() {
-                        window.print();
-                    }, 500);
-                };
+                // Remover o onload print automático para o usuário ler a dica
             </script>
         </body>
         </html>

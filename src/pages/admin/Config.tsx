@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Save, Loader2, FileText, RefreshCw, Eye, Image as ImageIcon, Building } from 'lucide-react';
 import { useToast } from '../../contexts/ToastContext';
@@ -19,8 +19,7 @@ const Config = () => {
     const defaultTemplate = `Declaramos, para os devidos fins, que {{nome}}, matrícula {{matricula}}, CPF {{cpf}}, estudante do curso de {{curso}}, participou como voluntário do Grupo de Pesquisa em Segurança da Informação e Preservação da Privacidade (GSIPP) da Universidade Federal do Ceará - Campus de Crateús, no período de {{data_inicio}} a {{data_fim}}, com carga horária semanal de {{carga_horaria}} horas, sob a orientação do {{orientador}}, totalizando {{total_horas}} horas ao longo do período.`;
     const defaultAddress = `07.272.636/0001-31\nCampus Universitário\nAvenida Professora Machadinha Lima, S/N -\nPríncipe Imperial, Crateús - CE, 63708-825`;
 
-    const fetchConfig = async () => {
-        setLoading(true);
+    const fetchConfig = useCallback(async () => {
         try {
             const { data, error } = await supabase
                 .from('configuracoes')
@@ -42,12 +41,12 @@ const Config = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [toast, defaultAddress, defaultTemplate]);
 
-    // eslint-disable-next-line
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchConfig();
-    }, []);
+    }, [fetchConfig]);
 
     const handleSave = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -125,7 +124,7 @@ const Config = () => {
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                    className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
                 >
                     {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     Salvar Alterações
@@ -202,7 +201,7 @@ const Config = () => {
                             </h3>
                             <button 
                                 onClick={resetToDefault}
-                                className="text-xs font-medium text-slate-500 hover:text-slate-900 flex items-center gap-1 transition-colors"
+                                className="text-xs font-medium text-slate-500 hover:text-slate-900 flex items-center gap-1 transition-colors cursor-pointer"
                             >
                                 <RefreshCw className="w-3 h-3" /> Restaurar Padrão
                             </button>

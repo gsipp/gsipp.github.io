@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import { translateAuthError } from '../../utils/authErrors';
-import { Shield, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { Shield, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -42,7 +42,7 @@ const Login = () => {
 
                 <div className="bg-white rounded-lg border border-slate-200 p-6 sm:p-8">
                     {error && (
-                        <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-md flex items-center gap-2.5 text-red-600 text-sm">
+                        <div aria-live="polite" className="mb-6 p-3 bg-red-50 border border-red-100 rounded-md flex items-center gap-2.5 text-red-600 text-sm">
                             <AlertCircle className="w-4 h-4 shrink-0" />
                             {error}
                         </div>
@@ -57,7 +57,7 @@ const Login = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleLogin(e)}
-                                className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm"
+                                className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-200 transition-all outline-none sm:text-sm"
                                 placeholder="nome@exemplo.com"
                             />
                         </div>
@@ -75,7 +75,7 @@ const Login = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     onKeyDown={(e) => e.key === 'Enter' && handleLogin(e)}
-                                    className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all outline-none sm:text-sm pr-10"
+                                    className="w-full px-3 py-2 rounded-md border border-slate-300 text-slate-900 focus:border-slate-400 focus:ring-4 focus:ring-slate-200 transition-all outline-none sm:text-sm pr-10"
                                     placeholder="••••••••"
                                 />
                                 <button 
@@ -93,7 +93,13 @@ const Login = () => {
                             disabled={loading}
                             className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 rounded-md transition-colors cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed mt-2 sm:text-sm"
                         >
-                            {loading ? 'Autenticando...' : 'Entrar'}
+                            {loading ? (
+                                <span className="flex items-center justify-center gap-2">
+                                    <Loader2 className="w-4 h-4 animate-spin" /> Autenticando...
+                                </span>
+                            ) : (
+                                'Entrar'
+                            )}
                         </button>
                     </form>
                 </div>

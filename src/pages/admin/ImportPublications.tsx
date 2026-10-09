@@ -425,7 +425,7 @@ export default function ImportPublications() {
                                     <button
                                         onClick={handleUfcSearch}
                                         disabled={loading || !ufcUrl.trim()}
-                                        className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                                        className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
                                     >
                                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                                         {loading ? 'Buscando...' : 'Buscar Repositório UFC'}
@@ -447,7 +447,7 @@ export default function ImportPublications() {
                                     <button
                                         onClick={handleSearch}
                                         disabled={loading || !orcid.trim()}
-                                        className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                                        className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
                                     >
                                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                                         {loading ? 'Buscando...' : 'Pesquisar Publicações'}
@@ -471,7 +471,7 @@ export default function ImportPublications() {
                                     <button
                                         onClick={handleDoiSearch}
                                         disabled={loading || !doi.trim()}
-                                        className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                                        className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
                                     >
                                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
                                         {loading ? 'Buscando...' : 'Buscar pelo DOI'}
@@ -547,7 +547,7 @@ export default function ImportPublications() {
                         <button onClick={() => setStep('search')} className="px-4 py-2 text-slate-600 font-medium hover:bg-slate-200 rounded-md transition-colors text-sm">← Voltar</button>
                         <button
                             onClick={handleImportSubmit}
-                            className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                            className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
                         >
                             <Database className="w-4 h-4" /> Importar Selecionadas ({works.filter(w => w.selected).length})
                         </button>

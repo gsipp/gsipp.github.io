@@ -3,7 +3,7 @@ import { Outlet, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Shield, Users, Newspaper, LogOut, LayoutDashboard, 
-    Calendar, BookOpen, ClipboardList, Settings, 
+    Calendar, BookOpen, ClipboardList, Settings, FileText, 
     Menu, X 
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -13,9 +13,8 @@ const AdminLayout = () => {
     const location = useLocation();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // Close sidebar on route change (for mobile)
     useEffect(() => {
-        // eslint-disable-next-line
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsSidebarOpen(false);
     }, [location.pathname]);
 
@@ -38,6 +37,7 @@ const AdminLayout = () => {
         { path: '/gestao-gsipp/publicacoes', icon: BookOpen, label: 'Publicações' },
         { path: '/gestao-gsipp/eventos', icon: Calendar, label: 'Eventos' },
         { path: '/gestao-gsipp/editais', icon: ClipboardList, label: 'Editais' },
+        { path: '/gestao-gsipp/declaracoes', icon: FileText, label: 'Declarações' },
         { path: '/gestao-gsipp/configuracoes', icon: Settings, label: 'Configurações' },
     ];
 
@@ -94,10 +94,10 @@ const AdminLayout = () => {
                             to={item.path}
                             end={item.end}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 px-3 py-2 rounded-md transition-colors font-medium text-sm ${
+                                `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all font-medium text-sm ${
                                     isActive
-                                        ? 'bg-slate-100 text-slate-900'
-                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                                        ? 'bg-slate-900 text-white shadow-md shadow-slate-900/10'
+                                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                                 }`
                             }
                         >
@@ -112,10 +112,10 @@ const AdminLayout = () => {
                     <NavLink 
                         to="/gestao-gsipp/perfil"
                         className={({ isActive }) => 
-                            `flex items-center gap-3 px-3 py-2 rounded-md transition-colors mb-2 ${
+                            `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all mb-2 group ${
                                 isActive 
                                     ? 'bg-slate-100' 
-                                    : 'hover:bg-slate-50'
+                                    : 'hover:bg-slate-100'
                             }`
                         }
                     >
@@ -132,7 +132,7 @@ const AdminLayout = () => {
                     </NavLink>
                     <button
                         onClick={handleLogout}
-                        className="flex items-center gap-3 w-full px-3 py-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors font-medium text-sm"
+                        className="flex items-center gap-3 w-full px-3 py-2.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium text-sm"
                     >
                         <LogOut className="w-4 h-4" />
                         <span>Sair</span>

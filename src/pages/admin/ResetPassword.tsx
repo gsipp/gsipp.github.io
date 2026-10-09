@@ -15,15 +15,39 @@ const ResetPassword = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // The user should have an active session if they arrived here from the recovery link
     useEffect(() => {
-        const checkSession = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                setError('Link de recuperação inválido ou expirado. Por favor, solicite um novo link.');
+        // O Supabase processa o token da URL de forma assíncrona.
+        // Precisamos escutar as mudanças de estado da autenticação.
+        const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'PASSWORD_RECOVERY' || session) {
+                setError('');
+            } else if (event === 'INITIAL_SESSION' && !session) {
+                // Se a sessão inicial carregou e não tem usuário, o link pode ser inválido
+                // Vamos dar um pequeno delay para ter certeza que não é apenas o carregamento do hash
+                setTimeout(async () => {
+                    const { data } = await supabase.auth.getSession();
+                    if (!data.session) {
+                        setError('Link de recuperação inválido ou expirado. Por favor, solicite um novo link.');
+                    }
+                }, 500);
             }
+        });
+
+        // Fallback check
+        supabase.auth.getSession().then(({ data }) => {
+            if (!data.session) {
+                setTimeout(async () => {
+                    const check = await supabase.auth.getSession();
+                    if (!check.data.session) {
+                        setError('Link de recuperação inválido ou expirado. Por favor, solicite um novo link.');
+                    }
+                }, 1000);
+            }
+        });
+
+        return () => {
+            authListener.subscription.unsubscribe();
         };
-        checkSession();
     }, []);
 
     const handleUpdate = async (e: React.FormEvent) => {

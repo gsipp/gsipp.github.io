@@ -42,15 +42,15 @@ export default function Dropdown({ value, onChange, options, icon, placeholder =
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex items-center justify-between pl-4 pr-4 py-4 bg-slate-50 text-slate-700 border border-slate-200 rounded-xl hover:bg-slate-100 transition-all outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500"
+                className="w-full flex items-center justify-between px-3 py-2 bg-white text-slate-700 border border-slate-300 rounded-md hover:bg-slate-50 transition-all outline-none focus:ring-4 focus:ring-slate-100 focus:border-slate-400"
             >
                 <div className="flex items-center gap-3 overflow-hidden">
                     {icon && <span className="text-slate-500 flex-shrink-0">{icon}</span>}
-                    <span className="font-bold text-sm truncate">
+                    <span className="text-sm truncate">
                         {selectedOption ? selectedOption.label : placeholder}
                     </span>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 flex-shrink-0 ml-3 ${isOpen ? 'rotate-180 text-blue-500' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 flex-shrink-0 ml-3 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {isOpen && (
@@ -64,14 +64,14 @@ export default function Dropdown({ value, onChange, options, icon, placeholder =
                                     onChange(option.value);
                                     setIsOpen(false);
                                 }}
-                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                                className={`w-full flex items-center justify-between px-3 py-2 rounded-md text-sm transition-colors ${
                                     value === option.value 
-                                        ? 'bg-blue-50 text-blue-600' 
+                                        ? 'bg-slate-100 text-slate-900 font-medium' 
                                         : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                                 }`}
                             >
                                 <span className="truncate">{option.label}</span>
-                                {value === option.value && <Check className="w-4 h-4 text-blue-600 flex-shrink-0" />}
+                                {value === option.value && <Check className="w-4 h-4 text-slate-900 flex-shrink-0" />}
                             </button>
                         ))}
                     </div>

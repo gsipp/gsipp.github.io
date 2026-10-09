@@ -12,6 +12,7 @@ import Publicacoes from './pages/Publicacoes';
 import Eventos from './pages/Eventos';
 import Editais from './pages/Editais';
 import NoticiaDetalhe from './pages/NoticiaDetalhe';
+import VerificarDeclaracao from './pages/VerificarDeclaracao';
 import NotFound from './pages/NotFound';
 import { Loader2 } from 'lucide-react';
 
@@ -27,6 +28,7 @@ const Publications = lazy(() => import('./pages/admin/Publications'));
 const ImportPublications = lazy(() => import('./pages/admin/ImportPublications'));
 const EventsAdmin = lazy(() => import('./pages/admin/Events'));
 const EditaisAdmin = lazy(() => import('./pages/admin/Editais'));
+const DeclaracoesAdmin = lazy(() => import('./pages/admin/DeclaracoesAdmin'));
 const Profile = lazy(() => import('./pages/admin/Profile'));
 const Config = lazy(() => import('./pages/admin/Config'));
 
@@ -54,6 +56,7 @@ function App() {
                                     <Route element={<Layout><Eventos /></Layout>} path="/eventos" />
                                     <Route element={<Layout><Editais /></Layout>} path="/editais" />
                                     <Route element={<Layout><NoticiaDetalhe /></Layout>} path="/noticias/:slug" />
+                                    <Route element={<Layout><VerificarDeclaracao /></Layout>} path="/validar" />
 
                                     {/* Admin Routes */}
                                     <Route path="/gestao-gsipp/login" element={<Login />} />
@@ -68,6 +71,7 @@ function App() {
                                         <Route path="publicacoes/importar" element={<ImportPublications />} />
                                         <Route path="eventos" element={<EventsAdmin />} />
                                         <Route path="editais" element={<EditaisAdmin />} />
+                                        <Route path="declaracoes" element={<DeclaracoesAdmin />} />
                                         <Route path="perfil" element={<Profile />} />
                                         <Route path="configuracoes" element={<Config />} />
                                         {/* Redirect unknown admin paths to dashboard */}

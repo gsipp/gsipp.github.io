@@ -6,7 +6,8 @@ import ConfirmModal from '../../components/admin/ConfirmModal';
 import { generateDeclarationHTML } from '../../utils/DeclarationTemplate';
 
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
+import Dropdown from '../../components/Dropdown';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 // Types
@@ -25,6 +26,7 @@ interface Member {
     carga_horaria?: string | null;
     data_entrada?: string | null;
     data_saida?: string | null;
+    data_declaracao?: string | null;
     matricula?: string | null;
     curso?: string | null;
     orientador?: string | null;
@@ -59,6 +61,7 @@ const memberSchema = z.object({
     carga_horaria: z.string().optional().nullable(),
     data_entrada: z.string().optional().nullable(),
     data_saida: z.string().optional().nullable(),
+    data_declaracao: z.string().optional().nullable(),
     matricula: z.string().optional().nullable(),
     curso: z.string().optional().nullable(),
     orientador: z.string().optional().nullable(),
@@ -79,7 +82,7 @@ const Members = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const toast = useToast();
 
-    const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm({
+    const { register, handleSubmit, reset, setValue, control, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(memberSchema),
         defaultValues: { ordem: 0, foto_posicao: 'center center' }
     });
@@ -118,14 +121,17 @@ const Members = () => {
     };
 
     const onSubmit = async (data: Record<string, unknown>) => {
+        const { data_declaracao: _ignored, ...dbData } = data; // Omit from DB payload
         const payload = {
-            ...data,
+            ...dbData,
             foto_url: fotoUrl,
             // Convert empty strings to null for optional fields to avoid db constraint issues if any
             email: data.email || null,
             lattes_url: data.lattes_url || null,
             linkedin_url: data.linkedin_url || null,
             researchgate_url: data.researchgate_url || null,
+            data_entrada: data.data_entrada || null,
+            data_saida: data.data_saida || null,
         };
 
         if (editingMember) {
@@ -133,8 +139,7 @@ const Members = () => {
             if (error) toast.error('Erro ao atualizar: ' + (error as Error).message);
             else {
                 toast.success('Membro atualizado com sucesso.');
-                // eslint-disable-next-line react-hooks/set-state-in-effect
-        fetchMembers();
+                fetchMembers();
                 closeModal();
             }
         } else {
@@ -142,8 +147,7 @@ const Members = () => {
             if (error) toast.error('Erro ao criar membro: ' + (error as Error).message);
             else {
                 toast.success('Membro adicionado com sucesso.');
-                // eslint-disable-next-line react-hooks/set-state-in-effect
-        fetchMembers();
+                fetchMembers();
                 closeModal();
             }
         }
@@ -186,6 +190,7 @@ const Members = () => {
                 carga_horaria: member.carga_horaria,
                 data_entrada: member.data_entrada,
                 data_saida: member.data_saida,
+                data_declaracao: member.data_declaracao,
                 matricula: member.matricula,
                 curso: member.curso,
                 orientador: member.orientador,
@@ -210,6 +215,23 @@ const Members = () => {
     };
 
     const generateDeclaration = async (member: Member) => {
+        // eslint-disable-next-line react-hooks/purity
+        const code = Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+        try {
+            const { error } = await supabase.from('declaracoes').insert({
+                codigo: code,
+                membro_nome: member.nome,
+                membro_cpf: member.cpf || 'Não informado',
+                data_emissao: new Date().toISOString()
+            });
+            if (error) {
+                toast.error('Erro ao registrar declaração. Você rodou o SQL?');
+                console.error(error);
+                return;
+            }
+        } catch (e) {
+            console.error(e);
+        }
         const { data: configData } = await supabase.from('configuracoes').select('*');
         const settings: Record<string, string> = {};
         configData?.forEach(item => { settings[item.id] = item.valor; });
@@ -217,7 +239,7 @@ const Members = () => {
         const printWindow = window.open('', '_blank');
         if (!printWindow) return alert('Por favor, permita popups para gerar a declaração.');
 
-        const htmlContent = generateDeclarationHTML(member, settings['template_declaracao'], settings);
+        const htmlContent = generateDeclarationHTML(member, settings['template_declaracao'], settings, code);
         printWindow.document.write(htmlContent);
         printWindow.document.close();
     };
@@ -237,12 +259,12 @@ const Members = () => {
                             placeholder="Buscar membro..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 text-sm rounded-md border border-slate-300 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all"
+                            className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all shadow-sm"
                         />
                     </div>
                     <button
                         onClick={() => openModal()}
-                        className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors whitespace-nowrap"
+                        className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm hover:shadow-md whitespace-nowrap cursor-pointer"
                     >
                         <Plus className="w-4 h-4" /> Novo Membro
                     </button>
@@ -260,7 +282,7 @@ const Members = () => {
                     <p className="text-slate-500">Adicione novos membros ou altere sua busca.</p>
                 </div>
             ) : (
-                <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
+                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm whitespace-nowrap">
                             <thead className="bg-slate-50 border-b border-slate-200">
@@ -309,13 +331,13 @@ const Members = () => {
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
-                                                <button onClick={() => generateDeclaration(member)} className="text-slate-400 hover:text-slate-900 transition-colors" title="Gerar Declaração">
+                                                <button onClick={() => generateDeclaration(member)} className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-all cursor-pointer" title="Gerar Declaração">
                                                     <FileText className="w-4 h-4" />
                                                 </button>
-                                                <button onClick={() => openModal(member)} className="text-slate-400 hover:text-slate-900 transition-colors" title="Editar">
+                                                <button onClick={() => openModal(member)} className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-all cursor-pointer" title="Editar">
                                                     <Pencil className="w-4 h-4" />
                                                 </button>
-                                                <button onClick={() => setConfirmDelete(member.id)} className="text-slate-400 hover:text-red-600 transition-colors" title="Excluir">
+                                                <button onClick={() => setConfirmDelete(member.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all cursor-pointer" title="Excluir">
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -336,7 +358,7 @@ const Members = () => {
                             <h3 className="font-semibold text-lg text-slate-900">
                                 {editingMember ? 'Editar Membro' : 'Novo Membro'}
                             </h3>
-                            <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 transition-colors">
+                            <button onClick={closeModal} className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
                                 <X className="w-5 h-5" />
                             </button>
                         </div>
@@ -364,11 +386,22 @@ const Members = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-slate-500 mb-1">Ajuste da Imagem (se Lattes não for quadrada)</label>
-                                            <select {...register('foto_posicao')} className="w-full sm:w-auto px-3 py-1.5 text-sm rounded border border-slate-300 text-slate-700 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none">
-                                                <option value="center top">Alinhar no Topo</option>
-                                                <option value="center center">Centralizar (Padrão)</option>
-                                                <option value="center bottom">Alinhar Embaixo</option>
-                                            </select>
+                                            <Controller
+                                                name="foto_posicao"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Dropdown
+                                                        value={field.value || 'center center'}
+                                                        onChange={field.onChange}
+                                                        options={[
+                                                            { label: 'Alinhar no Topo', value: 'center top' },
+                                                            { label: 'Centralizar (Padrão)', value: 'center center' },
+                                                            { label: 'Alinhar Embaixo', value: 'center bottom' }
+                                                        ]}
+                                                        placeholder="Ajuste..."
+                                                    />
+                                                )}
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -384,13 +417,18 @@ const Members = () => {
 
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">Cargo *</label>
-                                        <select {...register('cargo')} className="w-full px-3 py-2 rounded-md border border-slate-300 focus:border-slate-400 focus:ring-4 focus:ring-slate-100 outline-none transition-all text-sm">
-                                            <option value="">Selecione...</option>
-                                            <option value="Docente">Docente</option>
-                                            <option value="Mestrando">Mestrando</option>
-                                            <option value="Graduação">Graduação</option>
-                                            <option value="Egresso">Egresso</option>
-                                        </select>
+                                        <Controller
+                                            name="cargo"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <Dropdown
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    options={['Docente', 'Mestrando', 'Graduação', 'Egresso']}
+                                                    placeholder="Selecione..."
+                                                />
+                                            )}
+                                        />
                                         {errors.cargo && <p className="text-red-500 text-xs mt-1">{errors.cargo.message}</p>}
                                     </div>
 
@@ -433,13 +471,18 @@ const Members = () => {
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-slate-700 mb-1">Curso</label>
-                                            <select {...register('curso')} className="w-full px-3 py-1.5 text-sm rounded border border-slate-300 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100">
-                                                <option value="">Selecione...</option>
-                                                <option value="Ciência da Computação">Ciência da Computação</option>
-                                                <option value="Sistemas de Informação">Sistemas de Informação</option>
-                                                <option value="Engenharia de Software">Engenharia de Software</option>
-                                                <option value="Outro">Outro</option>
-                                            </select>
+                                            <Controller
+                                                name="curso"
+                                                control={control}
+                                                render={({ field }) => (
+                                                    <Dropdown
+                                                        value={field.value || ''}
+                                                        onChange={field.onChange}
+                                                        options={['Ciência da Computação', 'Sistemas de Informação', 'Engenharia de Software', 'Outro']}
+                                                        placeholder="Selecione..."
+                                                    />
+                                                )}
+                                            />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-slate-700 mb-1">Orientador</label>
@@ -464,6 +507,10 @@ const Members = () => {
                                         <div>
                                             <label className="block text-xs font-medium text-slate-700 mb-1">Data de Saída (Opcional)</label>
                                             <input type="date" {...register('data_saida')} className="w-full px-3 py-1.5 text-sm rounded border border-slate-300 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-slate-700 mb-1">Data p/ Declaração (Opcional)</label>
+                                            <input type="date" {...register('data_declaracao')} title="Usado na geração da declaração atual" className="w-full px-3 py-1.5 text-sm rounded border border-slate-300 outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-100" />
                                         </div>
                                     </div>
                                 </div>
@@ -497,7 +544,7 @@ const Members = () => {
                         </div>
                         
                         <div className="p-4 border-t border-slate-200 bg-slate-50 flex justify-end gap-3 shrink-0">
-                            <button type="button" onClick={closeModal} className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-300 hover:bg-slate-50 rounded-md transition-colors">
+                            <button type="button" onClick={closeModal} className="px-4 py-2 text-sm font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-300 hover:bg-slate-50 rounded-md transition-colors cursor-pointer">
                                 Cancelar
                             </button>
                             <button 

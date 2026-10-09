@@ -5,7 +5,7 @@ import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 
 import { z } from 'zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 // Types
@@ -64,7 +64,7 @@ const Events = () => {
 
     const [memberSearch, setMemberSearch] = useState('');
 
-    const { register, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm({
+    const { register, handleSubmit, reset, setValue, control, formState: { errors, isSubmitting } } = useForm({
         resolver: zodResolver(eventSchema),
         defaultValues: { 
             tipo: 'Evento',
@@ -73,9 +73,9 @@ const Events = () => {
         }
     });
 
-    const watchedTipo = watch('tipo');
-    const watchedOrientadores = watch('membros_orientadores_ids');
-    const watchedPalestrantes = watch('membros_palestrantes_ids');
+    const watchedTipo = useWatch({ control, name: 'tipo' });
+    const watchedOrientadores = useWatch({ control, name: 'membros_orientadores_ids' });
+    const watchedPalestrantes = useWatch({ control, name: 'membros_palestrantes_ids' });
 
     const getSafeDate = (dateString: string) => {
         if (!dateString) return new Date();
@@ -100,6 +100,7 @@ const Events = () => {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchData();
     }, []);
 
@@ -269,10 +270,10 @@ const Events = () => {
                                                         </td>
                                                         <td className="px-6 py-4 text-right">
                                                             <div className="flex items-center justify-end gap-2">
-                                                                <button onClick={() => openForm(item)} className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors" title="Editar">
+                                                                <button onClick={() => openForm(item)} className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-all cursor-pointer" title="Editar">
                                                                     <Pencil className="w-4 h-4" />
                                                                 </button>
-                                                                <button onClick={() => setConfirmDelete(item.id)} className="p-1.5 text-slate-400 hover:text-red-600 transition-colors" title="Excluir">
+                                                                <button onClick={() => setConfirmDelete(item.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all cursor-pointer" title="Excluir">
                                                                     <Trash2 className="w-4 h-4" />
                                                                 </button>
                                                             </div>
@@ -311,10 +312,10 @@ const Events = () => {
                                                         </td>
                                                         <td className="px-6 py-4 text-right">
                                                             <div className="flex items-center justify-end gap-2">
-                                                                <button onClick={() => openForm(item)} className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors" title="Editar">
+                                                                <button onClick={() => openForm(item)} className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-all cursor-pointer" title="Editar">
                                                                     <Pencil className="w-4 h-4" />
                                                                 </button>
-                                                                <button onClick={() => setConfirmDelete(item.id)} className="p-1.5 text-slate-400 hover:text-red-600 transition-colors" title="Excluir">
+                                                                <button onClick={() => setConfirmDelete(item.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all cursor-pointer" title="Excluir">
                                                                     <Trash2 className="w-4 h-4" />
                                                                 </button>
                                                             </div>
@@ -563,7 +564,7 @@ const Events = () => {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                                    className="w-full bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
                                 >
                                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                     {editingEvent ? 'Salvar Alterações' : 'Confirmar Agendamento'}

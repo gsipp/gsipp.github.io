@@ -98,8 +98,7 @@ const Publications = () => {
             if (error) toast.error('Erro ao atualizar: ' + (error as Error).message);
             else {
                 toast.success('Publicação atualizada com sucesso.');
-                // eslint-disable-next-line react-hooks/set-state-in-effect
-        fetchPublications();
+                fetchPublications();
                 setView('list');
             }
         } else {
@@ -107,8 +106,7 @@ const Publications = () => {
             if (error) toast.error('Erro ao adicionar publicação: ' + (error as Error).message);
             else {
                 toast.success('Publicação adicionada com sucesso.');
-                // eslint-disable-next-line react-hooks/set-state-in-effect
-        fetchPublications();
+                fetchPublications();
                 setView('list');
             }
         }
@@ -227,10 +225,10 @@ const Publications = () => {
                                                                 <FileText className="w-4 h-4" />
                                                             </a>
                                                         )}
-                                                        <button onClick={() => openForm(pub)} className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors" title="Editar">
+                                                        <button onClick={() => openForm(pub)} className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-md transition-all cursor-pointer" title="Editar">
                                                             <Pencil className="w-4 h-4" />
                                                         </button>
-                                                        <button onClick={() => setConfirmDelete(pub.id)} className="p-1.5 text-slate-400 hover:text-red-600 transition-colors" title="Excluir">
+                                                        <button onClick={() => setConfirmDelete(pub.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all cursor-pointer" title="Excluir">
                                                             <Trash2 className="w-4 h-4" />
                                                         </button>
                                                     </div>
@@ -367,7 +365,7 @@ const Publications = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50"
+                                className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
                             >
                                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                                 {editingPub ? 'Salvar Alterações' : 'Adicionar Publicação'}
