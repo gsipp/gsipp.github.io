@@ -178,6 +178,7 @@ export default function DeclaracoesAdmin() {
                 description="Tem certeza que deseja apagar esta declaração? O código de verificação não será mais válido."
                 onConfirm={() => {
                     if (confirmDelete) executeDelete(confirmDelete);
+                    setConfirmDelete(null);
                 }}
                 onCancel={() => setConfirmDelete(null)}
             />
