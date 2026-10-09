@@ -8,9 +8,10 @@ export interface AdminTableColumn {
 interface AdminTableProps {
     headers: (string | AdminTableColumn)[];
     children: ReactNode;
+    pagination?: ReactNode;
 }
 
-export default function AdminTable({ headers, children }: AdminTableProps) {
+export default function AdminTable({ headers, children, pagination }: AdminTableProps) {
     return (
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
@@ -38,6 +39,7 @@ export default function AdminTable({ headers, children }: AdminTableProps) {
                     </tbody>
                 </table>
             </div>
+            {pagination}
         </div>
     );
 }

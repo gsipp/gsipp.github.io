@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, FileText, Clock, Users } from 'lucide-react';
 import AdminSearch from '../../components/admin/AdminSearch';
 import AdminTable from '../../components/admin/AdminTable';
+import Pagination from '../../components/admin/Pagination';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 import { generateDeclarationHTML } from '../../utils/DeclarationTemplate';
@@ -82,6 +83,12 @@ const Members = () => {
     const [fotoUrl, setFotoUrl] = useState<string | null>(null);
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
     const toast = useToast();
 
     const { register, handleSubmit, reset, setValue, control, formState: { errors, isSubmitting } } = useForm({
@@ -111,6 +118,9 @@ const Members = () => {
         m.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
         m.cargo.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const totalPages = Math.ceil(filteredMembers.length / ITEMS_PER_PAGE);
+    const paginatedMembers = filteredMembers.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
     const handleDelete = async (id: string) => {
         const { error } = await supabase.from('membros').delete().eq('id', id);
@@ -279,8 +289,19 @@ const Members = () => {
                     <p className="text-slate-500">Adicione novos membros ou altere sua busca.</p>
                 </div>
             ) : (
-                <AdminTable headers={['Membro', 'Vínculo/Cargo', 'Entrada', 'Ações']}>
-                                {filteredMembers.map((member) => (
+                <AdminTable 
+                    headers={['Membro', 'Vínculo/Cargo', 'Entrada', 'Ações']}
+                    pagination={
+                        <Pagination 
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                            totalItems={filteredMembers.length}
+                            itemsPerPage={ITEMS_PER_PAGE}
+                        />
+                    }
+                >
+                                {paginatedMembers.map((member) => (
                                     <tr key={member.id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
