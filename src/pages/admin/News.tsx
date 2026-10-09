@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, Newspaper, Bold, Italic, List, Link as LinkIcon, Quote, Code, Eye, FileEdit, Layout, Maximize2, Strikethrough, Image as ImageIcon, Heading1, FileText } from 'lucide-react';
 import AdminSearch from '../../components/admin/AdminSearch';
+import AdminTable from '../../components/admin/AdminTable';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useToast } from '../../contexts/ToastContext';
@@ -318,18 +319,7 @@ const NewsAdmin = () => {
                             <p className="text-slate-500">Comece a escrever novidades sobre o grupo.</p>
                         </div>
                     ) : (
-                        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm whitespace-nowrap">
-                                    <thead className="bg-slate-50 border-b border-slate-200">
-                                        <tr>
-                                            <th className="px-6 py-3 font-medium text-slate-500 w-16">Capa</th>
-                                            <th className="px-6 py-3 font-medium text-slate-500 w-1/2">Título</th>
-                                            <th className="px-6 py-3 font-medium text-slate-500">Status</th>
-                                            <th className="px-6 py-3 font-medium text-slate-500 text-right">Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-200">
+                        <AdminTable headers={['Notícia', 'Data Publicação', 'Status', 'Ações']}>
                                         {filteredNews.map((item) => (
                                             <tr key={item.id} className="hover:bg-slate-50 transition-colors group">
                                                 <td className="px-6 py-4">
@@ -381,10 +371,7 @@ const NewsAdmin = () => {
                                                 </td>
                                             </tr>
                                         ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                    </AdminTable>
                     )}
                 </>
             )}

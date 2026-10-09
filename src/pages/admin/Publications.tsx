@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Plus, Pencil, Trash2, Archive, Loader2, Save, ExternalLink, FileText, ChevronLeft } from 'lucide-react';
 import AdminSearch from '../../components/admin/AdminSearch';
+import AdminTable from '../../components/admin/AdminTable';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 import { Link } from 'react-router-dom';
@@ -176,18 +177,7 @@ const Publications = () => {
                             <p className="text-slate-500">Adicione manualmente ou importe do ORCID.</p>
                         </div>
                     ) : (
-                        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm whitespace-nowrap">
-                                    <thead className="bg-slate-50 border-b border-slate-200">
-                                        <tr>
-                                            <th className="px-6 py-3 font-medium text-slate-500 w-16">Ano</th>
-                                            <th className="px-6 py-3 font-medium text-slate-500 w-1/2">Título e Autores</th>
-                                            <th className="px-6 py-3 font-medium text-slate-500">Veículo / Tipo</th>
-                                            <th className="px-6 py-3 font-medium text-slate-500 text-right">Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-200">
+                        <AdminTable headers={['Publicação', 'Tipo', 'Ano', 'Ações']}>
                                         {filteredPublications.map((pub) => (
                                             <tr key={pub.id} className="hover:bg-slate-50 transition-colors">
                                                 <td className="px-6 py-4">
@@ -231,10 +221,7 @@ const Publications = () => {
                                                 </td>
                                             </tr>
                                         ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                                    </AdminTable>
                     )}
                 </>
             ) : (

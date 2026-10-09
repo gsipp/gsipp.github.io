@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Printer, Trash2, Loader2, Plus } from 'lucide-react';
 import AdminSearch from '../../components/admin/AdminSearch';
+import AdminTable from '../../components/admin/AdminTable';
 import { Link } from 'react-router-dom';
 import { generateDeclarationHTML } from '../../utils/DeclarationTemplate';
 import { useToast } from '../../contexts/ToastContext';
@@ -116,19 +117,7 @@ export default function DeclaracoesAdmin() {
                 </div>
             </header>
 
-            <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm whitespace-nowrap">
-                        <thead className="bg-slate-50 border-b border-slate-200">
-                            <tr>
-                                <th className="px-6 py-3 font-medium text-slate-500">Data Emissão</th>
-                                <th className="px-6 py-3 font-medium text-slate-500">Nome do Membro</th>
-                                <th className="px-6 py-3 font-medium text-slate-500">CPF</th>
-                                <th className="px-6 py-3 font-medium text-slate-500">Código de Verificação</th>
-                                <th className="px-6 py-3 font-medium text-slate-500 text-right">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100 text-slate-700">
+            <AdminTable headers={['Data Emissão', 'Nome do Membro', 'CPF', 'Código de Verificação', 'Ações']}>
                             {loading ? (
                                 <tr>
                                     <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
@@ -181,10 +170,7 @@ export default function DeclaracoesAdmin() {
                                     </tr>
                                 ))
                             )}
-                        </tbody>
-                    </table>
-                                </div>
-            </div>
+                        </AdminTable>
 
             <ConfirmModal 
                 isOpen={!!confirmDelete}

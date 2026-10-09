@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, FileText, Clock, Users } from 'lucide-react';
 import AdminSearch from '../../components/admin/AdminSearch';
+import AdminTable from '../../components/admin/AdminTable';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 import { generateDeclarationHTML } from '../../utils/DeclarationTemplate';
@@ -278,18 +279,7 @@ const Members = () => {
                     <p className="text-slate-500">Adicione novos membros ou altere sua busca.</p>
                 </div>
             ) : (
-                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm whitespace-nowrap">
-                            <thead className="bg-slate-50 border-b border-slate-200">
-                                <tr>
-                                    <th className="px-6 py-3 font-medium text-slate-500">Membro</th>
-                                    <th className="px-6 py-3 font-medium text-slate-500">Cargo</th>
-                                    <th className="px-6 py-3 font-medium text-slate-500">Carga Horária</th>
-                                    <th className="px-6 py-3 font-medium text-slate-500 text-right">Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-200">
+                <AdminTable headers={['Membro', 'Vínculo/Cargo', 'Entrada', 'Ações']}>
                                 {filteredMembers.map((member) => (
                                     <tr key={member.id} className="hover:bg-slate-50 transition-colors">
                                         <td className="px-6 py-4">
@@ -340,10 +330,7 @@ const Members = () => {
                                         </td>
                                     </tr>
                                 ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                            </AdminTable>
             )}
 
             {/* Modal de Cadastro/Edição */}
