@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Printer, Trash2, Loader2, Plus } from 'lucide-react';
+import { Printer, Trash2, Loader2, Plus, FileText } from 'lucide-react';
 import AdminSearch from '../../components/admin/AdminSearch';
 import AdminTable from '../../components/admin/AdminTable';
 import { Link } from 'react-router-dom';
 import { generateDeclarationHTML } from '../../utils/DeclarationTemplate';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
+import GerarDeclaracaoProjetoModal from '../../components/admin/GerarDeclaracaoProjetoModal';
 
 export default function DeclaracoesAdmin() {
     const [declaracoes, setDeclaracoes] = useState<any[]>([]);
@@ -14,6 +15,7 @@ export default function DeclaracoesAdmin() {
     const [searchTerm, setSearchTerm] = useState('');
     const [actionLoading, setActionLoading] = useState<string | null>(null);
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+    const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
     const toast = useToast();
 
     const fetchDeclaracoes = async () => {
@@ -108,11 +110,17 @@ export default function DeclaracoesAdmin() {
                             onChange={setSearchTerm}
                             placeholder="Buscar por nome, CPF ou código..." className="sm:w-80"
                         />
+                    <button
+                        onClick={() => setIsProjectModalOpen(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm hover:shadow-md whitespace-nowrap cursor-pointer"
+                    >
+                        <FileText className="w-4 h-4" /> Projeto Pesquisa
+                    </button>
                     <Link
                         to="/gestao-gsipp/membros"
                         className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm hover:shadow-md whitespace-nowrap cursor-pointer"
                     >
-                        <Plus className="w-4 h-4" /> Nova Declaração
+                        <Plus className="w-4 h-4" /> Membro
                     </Link>
                 </div>
             </header>
@@ -182,6 +190,7 @@ export default function DeclaracoesAdmin() {
                 }}
                 onCancel={() => setConfirmDelete(null)}
             />
+            <GerarDeclaracaoProjetoModal isOpen={isProjectModalOpen} onClose={() => setIsProjectModalOpen(false)} />
         </div>
     );
 }
