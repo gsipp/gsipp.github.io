@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, Newspaper, Bold, Italic, List, Link as LinkIcon, Quote, Code, Eye, FileEdit, Layout, Maximize2, Strikethrough, Image as ImageIcon, Heading1, Search, FileText } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, Newspaper, Bold, Italic, List, Link as LinkIcon, Quote, Code, Eye, FileEdit, Layout, Maximize2, Strikethrough, Image as ImageIcon, Heading1, FileText } from 'lucide-react';
+import AdminSearch from '../../components/admin/AdminSearch';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useToast } from '../../contexts/ToastContext';
@@ -292,16 +293,11 @@ const NewsAdmin = () => {
                             <p className="text-sm text-slate-500 mt-1">Gerencie as publicações do blog e avisos.</p>
                         </div>
                         <div className="flex w-full sm:w-auto gap-3">
-                            <div className="relative flex-1 sm:w-64">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Buscar notícia..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-9 pr-4 py-2 text-sm rounded-md border border-slate-300 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all"
-                                />
-                            </div>
+                            <AdminSearch
+                            value={searchTerm}
+                            onChange={setSearchTerm}
+                            placeholder="Buscar notícia..."
+                        />
                             <button
                                 onClick={handleCreate}
                                 className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer"

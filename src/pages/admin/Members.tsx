@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, FileText, Clock, Search, Users } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Upload, Loader2, Save, FileText, Clock, Users } from 'lucide-react';
+import AdminSearch from '../../components/admin/AdminSearch';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';
 import { generateDeclarationHTML } from '../../utils/DeclarationTemplate';
@@ -252,16 +253,11 @@ const Members = () => {
                     <p className="text-sm text-slate-500 mt-1">Gestão de pesquisadores e colaboradores.</p>
                 </div>
                 <div className="flex w-full sm:w-auto gap-3">
-                    <div className="relative flex-1 sm:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Buscar membro..."
+                    <AdminSearch
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:border-slate-400 focus:ring-4 focus:ring-slate-100 transition-all shadow-sm"
+                            onChange={setSearchTerm}
+                            placeholder="Buscar membro..."
                         />
-                    </div>
                     <button
                         onClick={() => openModal()}
                         className="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all shadow-sm hover:shadow-md whitespace-nowrap cursor-pointer"
