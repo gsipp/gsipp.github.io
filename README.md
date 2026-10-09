@@ -17,14 +17,24 @@ Plataforma oficial do **GSIPP (Grupo de Segurança da Informação e Preservaç�
 * **Membros:** Listagem de professores, alunos e pesquisadores (com links para Lattes, LinkedIn e ResearchGate).
 * **Publicações:** Artigos, livros e resumos publicados pelo grupo.
 * **Notícias & Eventos:** Atualizações recentes e calendário de eventos.
+* **Editais:** Divulgação de oportunidades e vagas.
+* **Validação de Documentos:** Sistema público (/validar) para verificação de autenticidade de declarações via código exclusivo.
 
 ### 🔒 Painel Administrativo (`/gestao-gsipp`)
 * **Autenticação Segura:** Login, logout e recuperação de senha gerenciados via Supabase Auth.
 * **Dashboard:** Visão geral das métricas do portal.
 * **Gestão de Conteúdo (CRUD):** 
-  * Adição, edição e remoção de Membros, Publicações, Notícias e Eventos.
+  * Adição, edição e remoção de Membros, Publicações, Notícias, Eventos e Editais.
+  * **Módulo de Declarações:** Geração automatizada de declarações em PDF com código de verificação antifraude integrado.
 * **Performance Otimizada:** Implementação de _Lazy Loading_ para separar o código do painel administrativo do site público.
 * **Error Boundaries:** Tratamento global de erros para evitar telas em branco.
+
+---
+
+## 📚 Documentação Técnica
+
+Consulte a documentação aprofundada para entender a estrutura do banco de dados e a arquitetura do sistema:
+- [Arquitetura e Banco de Dados (ARCHITECTURE.md)](./ARCHITECTURE.md)
 
 ---
 
