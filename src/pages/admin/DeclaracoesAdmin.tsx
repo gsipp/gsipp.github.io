@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Search, Printer, Trash2, FileText, Loader2 } from 'lucide-react';
+import { Search, Printer, Trash2, Loader2 } from 'lucide-react';
 import { generateDeclarationHTML } from '../../utils/DeclarationTemplate';
 import { useToast } from '../../contexts/ToastContext';
 import ConfirmModal from '../../components/admin/ConfirmModal';

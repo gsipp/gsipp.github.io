@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const generateDeclarationHTML = (member: Record<string, any>, customTemplate?: string, settings?: Record<string, any>, codigoVerificacao?: string) => {
+    void codigoVerificacao; // Impede erro TS6133 de compilação
     // Utilitário para formatar datas YYYY-MM-DD com segurança de fuso horário
     const formatDate = (dateStr?: string | null) => {
         if (!dateStr) return 'DD/MM/AAAA';
